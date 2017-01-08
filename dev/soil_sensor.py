@@ -24,7 +24,7 @@ def calcVoltage(bitValue):
     return (bitValue * vref) / 1023
 
 format_s = "reading: {0:.1f}; voltage: {1:.4f}V; moisture level is {2:.2f}%."
-median_range = 100
+median_range = 1
 
 try:
     while True:
@@ -32,14 +32,13 @@ try:
         moists = []
         readings = []
         vcc.on()
-        sleep(1.5)
+        sleep(0.25)
         for i in range(median_range):
             readings.append(sensor1.raw_value)
             moists.append(calcMoisturePercent(sensor1.value))
             volts.append(calcVoltage(readings[i]))
             if (i + 1) % 10 == 0:
                 print(format_s.format(readings[i], volts[i], moists[i]), flush=True, end='\r')
-            
             sleep(0.01)
         m_volt = median(volts)
         m_read = median(readings)

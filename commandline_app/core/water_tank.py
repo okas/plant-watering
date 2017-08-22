@@ -23,7 +23,6 @@ class WaterTank(Thread):
                  stop_event,
                  watering_event,
                  tank_avail_evt,
-                 probe_vcc_pin,
                  probe_low_pin,
                  probe_norm_pin,
                  probe_full_pin,
@@ -39,7 +38,7 @@ class WaterTank(Thread):
             self.__filler_thread = Thread(name="TankFiller", target=self.fill_worker)
         else:
             self.__valve = None
-        self.__sensor = LevelSensor(probe_vcc_pin, probe_low_pin, probe_norm_pin, probe_full_pin)
+        self.__sensor = LevelSensor(probe_low_pin, probe_norm_pin, probe_full_pin)
         self.__led = RGBLED(led_low_pin, led_norm_pin, led_full_pin)
         self.stop_event = stop_event
         self.watering_event = watering_event
@@ -190,7 +189,7 @@ class WaterTank(Thread):
             self.state = State.sensor_error
             raise Exception("Wrong sensor value measured: low: %-5s | norm: %-5s | full: %-5s!\n"\
                             "Investigate level probes physical placement "\
-                            "in tank or check connection pins!"\
+                            "at tank or check connection pins!"\
                             % result)
 
     def rgb_conv(*args):

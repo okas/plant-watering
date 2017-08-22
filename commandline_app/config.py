@@ -1,7 +1,6 @@
 def load_cfg_prod():
     gardener_args = dict(pump_pin=24, watch_cycle=1800, watering_cycle=60)
-    tank_args = dict(probe_vcc_pin=26,
-                     probe_low_pin=16,
+    tank_args = dict(probe_low_pin=16,
                      probe_norm_pin=20,
                      probe_full_pin=21,
                      led_low_pin=17,
@@ -11,8 +10,8 @@ def load_cfg_prod():
     plants_args = (
         dict(id="JoodikLill",
              sensor_vcc_pin=25,
-             valve_pin=23,
-             led_pin=18,
+             valve_pin=18,
+             led_pin=23,
              button_pin=13,
              moist_percent=55,
              watering_time=5,
@@ -23,8 +22,7 @@ def load_cfg_prod():
 ########################################################################
 def load_cfg_test1():
     gardener_args = dict(pump_pin=24, watch_cycle=25, watering_cycle=15)
-    tank_args = dict(probe_vcc_pin=26,
-                     probe_low_pin=16,
+    tank_args = dict(probe_low_pin=16,
                      probe_norm_pin=20,
                      probe_full_pin=21,
                      led_low_pin=17,
@@ -36,8 +34,8 @@ def load_cfg_test1():
     plants_args = (
         dict(id="JoodikLill",
              sensor_vcc_pin=25,
-             valve_pin=23,
-             led_pin=18,
+             valve_pin=18,
+             led_pin=23,
              button_pin=13,
              moist_percent=55,
              watering_time=5,

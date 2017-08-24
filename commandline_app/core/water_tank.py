@@ -3,7 +3,7 @@ from enum import Enum, unique
 from threading import Thread, Event
 from gpiozero import RGBLED
 from common import common_logger as log, stoppable_sleep
-from hardware import LevelSensor, Valve
+from hardware import Valve
 
 # Todo: add logger implementation
 
@@ -15,6 +15,11 @@ class State(Enum):
     normal = 3
     full = 4
     sensor_error = 5
+
+
+class Helpers():
+	def rgb_conv(*args):
+		return tuple(1 * byte / 255 for byte in args)
 
 
 class WaterTank(Thread):
@@ -33,13 +38,16 @@ class WaterTank(Thread):
                  standby_interval = 60,
                  empty_interval = 10,
                  active_interval = 0.25):
+
+        self.__devices = dict(
+			low = DigitalInputDevice(probe_low_pin),
+			norm = DigitalInputDevice(probe_norm_pin),
+			full = DigitalInputDevice(probe_full_pin),
+			led = RGBLED(led_low_pin, led_norm_pin, led_full_pin)
+		)
         if valve_pin is not None:
-            self.__valve = Valve(valve_pin)
+			self.__devices['valve'] = Valve(valve_pin)
             self.__filler_thread = Thread(name="TankFiller", target=self.fill_worker)
-        else:
-            self.__valve = None
-        self.__sensor = LevelSensor(probe_low_pin, probe_norm_pin, probe_full_pin)
-        self.__led = RGBLED(led_low_pin, led_norm_pin, led_full_pin)
         self.stop_event = stop_event
         self.watering_event = watering_event
         self.tank_avail_evt = tank_avail_evt
@@ -48,8 +56,18 @@ class WaterTank(Thread):
         self.empty_interval = empty_interval
         self.active_interval = active_interval
         self.__state = State.not_measured
+        self.last_sensor_read = None
         super().__init__(name="%s-%s" % (self.__class__.__name__, WaterTank.__count_inst))
         WaterTank.__count_inst += 1
+
+	__state_rgb = dict(
+		State.full 		   = (0, 0, 150),
+		State.normal 	   = (0, 150, 0),
+		State.low 		   = (255, 30, 0),
+		State.empty 	   = (255, 0, 0),
+		State.not_measured = (0, 0, 0),
+		State.sensor_error = (255, 0, 0)
+	)
 
     def run(self):
         # todo:
@@ -75,7 +93,9 @@ class WaterTank(Thread):
         # - When sensor gives repeatitive errors then halt all program
         # b. backgroung states should only perform some light evaluation. Only repeatitive
         # - error in sensor must halt all programm
-        if self.__valve is not None: self.__filler_thread.start()
+        valve = self.__devices.get('valve')
+        if valve is not None:
+			self.__filler_thread.start()
         log("Started Water tank watcher and filler threads.")
         try:
             while not self.stop_event.is_set():
@@ -87,14 +107,16 @@ class WaterTank(Thread):
         finally:
             self.tank_avail_evt.clear()
             self.stop_event.set()
-            if self.__valve is not None: self.__filler_thread.join()
+            if valve is not None:
+				self.__filler_thread.join()
             self.close()
             log("Completed Water tank watcher and filler threads.")
 
     def __handle_filling(self):
-        if self.state == State.empty or (self.__valve is not None and self.state == State.low):
+		valve = __devices.get('valve')
+        if self.state == State.empty or (valve is not None and self.state == State.low):
             self.tank_avail_evt.clear()
-        if self.__valve is not None:
+        if valve is not None:
             self.fill_event.set()
         elif self.state == State.low:
             self.tank_avail_evt.set()
@@ -130,6 +152,62 @@ class WaterTank(Thread):
                 # -- Todo: actuator off()
                 log("Completed filling")
       
+    def _change_led(self, new, old):
+        state_color = Helpers.rgb_conv(__state_rgb[new])
+        led = self.__devices.get('led')
+        if new == State.sensor_error:
+            if new == old: return
+            led.blink(0.25, 0.25, on_color=state_color, off_color=(0,0,0))
+            sleep(5)# FOR TESTING ONLY!!
+            # TODO: Raise?
+        elif self.fill_event.is_set():
+            if new == old and led._blink_thread is not None: return
+            self._change_filling_led(color=state_color)
+        else:
+            led.color = state_color
+
+    def _change_filling_led(self, state=None, color=None):
+		led = self.__devices.get('led')
+        #if led._blink_thread is not None: return
+        state_color = color if color is not None else Helpers.rgb_conv(__state_rgb[state])
+        led.blink(0.35, 0.35, 0.15, 0.15, on_color=(0.9,0.9,0.9), off_color=state_color)
+        #led.blink(0.5, 0.5, on_color=(0.9,0.9,0.9), off_color=state_color)
+
+	def __get_levels(self):
+		result = tuple(
+			self.__devices(key).value for key in ['low', 'norm', 'full']
+		)
+		self.last_sensor_read = datetime.now()
+		return result
+
+    def measure(self):
+        if self.stop_event.is_set():
+			return
+		is_low, is_norm, is_full = self.__get_levels()
+        if is_low and is_norm and is_full:
+            self.state = State.full
+            return False
+        elif is_low and is_norm and not is_full:
+            self.state = State.normal
+            return False
+        elif is_low and not is_norm and not is_full:
+            self.state = State.low
+            return True
+        elif not is_low and not is_norm and not is_full:
+            self.state = State.empty
+            return True
+        else:
+            self.state = State.sensor_error
+            raise Exception("Wrong sensor value measured: low: %-5s | norm: %-5s | full: %-5s!\n"\
+                            "Investigate level probes physical placement "\
+                            "at tank or check connection pins!"\
+                            % is_low, is_norm, is_full)
+
+    def join(self, timeout=None):
+        self.stop_event.set()
+        self.close()
+        super().join(timeout)
+
     @property
     def state(self): return self.__state
 
@@ -143,72 +221,19 @@ class WaterTank(Thread):
         self.__state = val
         self._change_led(val, old_state)
 
-    def _change_led(self, new, old):
-        state_color = self._get_state_color(new)
-        if new == State.sensor_error:
-            if new == old: return
-            self.__led.blink(0.25, 0.25, on_color=state_color, off_color=(0,0,0))
-            sleep(5)# FOR TESTING ONLY!!
-            # TODO: Raise?
-        elif self.fill_event.is_set():
-            if new == old and self.__led._blink_thread is not None: return
-            self._change_filling_led(color=state_color)
-        else:
-            self.__led.color = state_color
-
-    def _change_filling_led(self, state=None, color=None):
-        #if self.__led._blink_thread is not None: return
-        state_color = color if color is not None else self._get_state_color(state)
-        self.__led.blink(0.35, 0.35, 0.15, 0.15, on_color=(0.9,0.9,0.9), off_color=state_color)
-        #self.__led.blink(0.5, 0.5, on_color=(0.9,0.9,0.9), off_color=state_color)
-
-    def _get_state_color(self, state):
-        if   state == State.full:         return WaterTank.rgb_conv(0, 0, 150)
-        elif state == State.normal:       return WaterTank.rgb_conv(0, 150, 0)
-        elif state == State.low:          return WaterTank.rgb_conv(255, 30, 0)
-        elif state == State.empty:        return WaterTank.rgb_conv(255, 0, 0)
-        elif state == State.not_measured: return WaterTank.rgb_conv(0, 0, 0)
-        elif state == State.sensor_error: return WaterTank.rgb_conv(255, 0, 0)
-        
-    def measure(self):
-        if self.stop_event.is_set(): return
-        result = self.__sensor.read() 
-        if result[0] and result[1] and result[2]:
-            self.state = State.full
-            return False
-        elif result[0] and result[1] and not result[2]:
-            self.state = State.normal
-            return False
-        elif result[0] and not result[1] and not result[2]:
-            self.state = State.low
-            return True
-        elif not result[0] and not result[1] and not result[2]:
-            self.state = State.empty
-            return True
-        else:
-            self.state = State.sensor_error
-            raise Exception("Wrong sensor value measured: low: %-5s | norm: %-5s | full: %-5s!\n"\
-                            "Investigate level probes physical placement "\
-                            "at tank or check connection pins!"\
-                            % result)
-
-    def rgb_conv(*args):
-        return tuple(1 * byte / 255 for byte in args)
-
-    def join(self, timeout=None):
-        self.stop_event.set()
-        self.close()
-        super().join(timeout)
+    @property
+    def closed(self):
+		return any(device.closed for device in self.__devices)
 
     def close(self):
         self.closed = False
-        if self.__valve: self.__valve.close()
-        self.__sensor.close()
-        self.__led.close()
+		for device in self.__devices:
+			device.close()
         self.closed = True
 
     def __del__(self):
-        if hasattr(self, 'closed') and not self.closed: self.close()
+        if hasattr(self, 'closed') and not self.closed:
+			 self.close()
 
 
 if __name__ == "__main__":

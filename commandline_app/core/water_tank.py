@@ -13,10 +13,10 @@ from common import common_logger as log, stoppable_sleep
 @unique
 class State(Enum):
     not_measured = 0
-    empty = 1
-    low = 2
-    normal = 3
-    full = 4
+    empty        = 1
+    low          = 2
+    normal       = 3
+    full         = 4
     sensor_error = 5
 
 
@@ -72,7 +72,7 @@ class WaterTank(Thread):
 
     def run(self):
         log("Started Water tank watcher thread.")
-        self.measure()
+        self.measure() # manages initial tank state and availability
         self.stop_event.wait()
         self.tank_avail_evt.clear()
         self.close()
@@ -81,23 +81,6 @@ class WaterTank(Thread):
     @property
     def __probes(self):
         return tuple(self.__devices[name] for name in ('low', 'norm', 'full'))
-
-    def _change_led(self, new, old):
-        state_color = Helpers.get_state_rgb(new)
-        led = self.__devices['led']
-        if new == State.sensor_error:
-            if new == old:
-                return
-            led.pulse(
-                0.25,
-                0.25,
-                on_color=state_color,
-                off_color=(0,0,0),
-                #n=10,
-                background=True
-                )
-        else:
-            led.color = state_color
 
     def __get_levels(self):
         result = tuple(p.value for p in self.__probes)
@@ -108,6 +91,8 @@ class WaterTank(Thread):
         if self.stop_event.is_set():
             return
         is_low, is_norm, is_full = self.__get_levels()
+        log("Read water levels: low: %-5s | norm: %-5s | full: %-5s"\
+            % (is_low, is_norm, is_full))
         if is_low and is_norm and is_full:
             self.state = State.full
         elif is_low and is_norm and not is_full:
@@ -118,32 +103,54 @@ class WaterTank(Thread):
             self.state = State.empty
         else:
             self.state = State.sensor_error
-            self.stop_event.set()
-            raise Exception(
-                "Wrong sensor value measured: low: %-5s | norm: %-5s | full: %-5s!\n"\
-                "Investigate level probes physical placement "\
-                "at tank or check connection pins!"\
-                % (is_low, is_norm, is_full)
+        return True if self.state in (State.low, State.empty) else False
+
+    def _change_led(self, new_state, old_state):
+        state_color = Helpers.get_state_rgb(new_state)
+        led = self.__devices['led']
+        if new_state == State.empty:
+            led.pulse(
+                0.25,
+                0.25,
+                on_color=state_color,
+                off_color=(0,0,0),
+                background=True
                 )
-        log("Measured water levels: low: %-5s | norm: %-5s | full: %-5s"\
-            % (is_low, is_norm, is_full)            )
-        return True if self.state in [State.low, State.empty] else False
+        else:
+            led.color = state_color
+
+    def _change_tank_availability(self, new_state):
+        if new_state in (State.low, State.normal, State.full):
+            self.tank_avail_evt.set()
+        else:
+            self.tank_avail_evt.clear()
 
     @property
     def state(self): return self.__state
 
     @state.setter
-    def state(self, val):
-        if not isinstance(val, State):
-            log("Wrong Watertanks state provided: %s" % val)
-            self.close()
+    def state(self, new_val):
+        if not isinstance(new_val, State):
+            log("Wrong Watertank's state provided: %s" % new_val)
+            self.stop_event.set()
             raise Exception(
                 "Should not end up here! Something is wrong "\
                 "with WaterTank instance state handling."
                 )
-        old_state = self.__state
-        self.__state = val
-        self._change_led(val, old_state)
+        old_val = self.__state
+        self.__state = new_val
+        if new_val == State.sensor_error:
+            self.stop_event.set()
+            raise Exception(
+                "Wrong sensor value reading: low: %-5s | norm: %-5s | full: %-5s!\n"\
+                "Investigate level probes physical placement "\
+                "at tank or check connection pins!"\
+                % (is_low, is_norm, is_full)
+                )
+        if new_val == old_val:
+            return
+        self._change_tank_availability(new_val)
+        self._change_led(new_val, old_val)
 
     def close(self):
         for d in self.__devices.values():

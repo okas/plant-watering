@@ -20,13 +20,13 @@ def main(mode):
 def __run_program(config_callback):
     # TODO: pass GPIO or some other initialization data from some module/mixin?
     __gardener = None
-    
+
     def __signal_handler(*args):
         print("here")
         __gardener.close()
         sleep(10)
         log("Exit %s (from cleanup handler).\n" % main_thread().name)
-    
+
     #atexit.register(__cleanup_handler, __gardener, __watertank, Plant.shared_pump)
     signal.signal(signal.SIGTERM, __signal_handler)
     #signal.signal(signal.SIGKILL, __signal_handler)
@@ -79,4 +79,5 @@ def __cleanup_handler(*args):
 
 
 if __name__ == '__main__':
-    main()
+    # it is used only if this file is started explicitly.
+    main('test1')

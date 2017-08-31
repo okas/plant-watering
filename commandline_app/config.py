@@ -16,13 +16,14 @@ def load_cfg_prod():
               moist_percent=55,
               watering_time=5,
               pump_power=0.3,
-              device=1
+              device=1,
+              channel=0
               ),
         )
     return gardener_args, tank_args, plants_args
 ########################################################################
 def load_cfg_test1():
-    gardener_args = dict(pump_pin=24, watch_cycle=25, watering_cycle=15)
+    gardener_args = dict(pump_pin=24, watch_cycle=15, watering_cycle=8)
     tank_args = dict(
        probe_low_pin=16,
        probe_norm_pin=20,
@@ -39,9 +40,10 @@ def load_cfg_test1():
               led_pin=23,
               button_pin=13,
               moist_percent=55,
-              watering_time=5,
-              pump_power=0.25,
-              device=1
+              watering_time=2,
+              pump_power=0.9,
+              device=1,
+              channel=0
               ),
         )
     return gardener_args, tank_args, plants_args

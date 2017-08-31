@@ -73,7 +73,7 @@ class _PlantWatcher(Thread):
 
     def add_seconds(self, seconds, strftime="%X"):
         return (datetime.now() + timedelta(seconds=seconds)).strftime(strftime)
-    
+
     def run(self):
         try:
             while not self.stop_event.is_set():
@@ -115,15 +115,20 @@ class _PlantWatcher(Thread):
         log("Completed watering.")
 
     def wait_for_tank(self):
+        '''
+        Return False to indicate that watering must in canceled.
+        Return True to indicate that tank is available.
+        '''
         waiting = None
-        while not self.tank_avail_evt.wait(0.2):                
+        while not self.tank_avail_evt.wait(0.2):
             if self.stop_event.is_set():
                 result = False
                 break
             if waiting is None:
                 log("watering cycle is waiting for tank to become available...")
                 waiting = True
-        else: result = True
+        else:
+            result = True
         if waiting and result:
             log("ended waiting: tank became available.")
         elif waiting:

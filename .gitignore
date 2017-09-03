@@ -1,9 +1,8 @@
 .DS_Store
-*.pyc
-*.pyo
+*.py[cod]     # Will match .pyc, .pyo and .pyd files.
 *.whoosh
 *.db
 *.sh
 env
 dist
-__pycache__
+__pycache__/

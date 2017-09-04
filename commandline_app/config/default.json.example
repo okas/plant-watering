@@ -1,0 +1,30 @@
+{
+    "tank_args": {
+       "probe_low_pin": ,
+       "probe_norm_pin": ,
+       "probe_full_pin": ,
+       "led_low_pin": ,
+       "led_norm_pin": ,
+       "led_full_pin": ,
+       "water_pour_time":
+    },
+    "gardener_args": {
+       "pump_pin": ,
+       "watch_cycle": 1800,
+       "watering_cycle": 60
+    },
+    "plants_args": [
+        {
+            "id": "",
+            "sensor_vcc_pin": ,
+            "valve_pin": ,
+            "led_pin": ,
+            "button_pin": ,
+            "moist_percent": 55,
+            "watering_time": 5,
+            "pump_power": 0.3,
+            "device": ,
+            "channel":
+        }
+    ]
+}

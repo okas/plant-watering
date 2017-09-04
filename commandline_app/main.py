@@ -8,18 +8,10 @@ from core import Gardener
 from common import common_logger as log
 
 
-def main(mode):
-    if mode == 'prod':
-        config_callback = config.load_cfg_prod
-    elif mode == 'test1':
-        config_callback = config.load_cfg_test1
-    else:
-        raise Exception("mode '%s' is not implemented in main.main()!")
-    __run_program(config_callback)
-
-def __run_program(config_callback):
+def main(config_name):
     # TODO: pass GPIO or some other initialization data from some module/mixin?
     __gardener = None
+    gardener_args, tank_args, plants_args = config.load_configuration(config_name)
 
     def __signal_handler(*args):
         print("here")
@@ -31,9 +23,9 @@ def __run_program(config_callback):
     signal.signal(signal.SIGTERM, __signal_handler)
     #signal.signal(signal.SIGKILL, __signal_handler)
     _err = None
+
     try:
         # set up Gardener object graph
-        gardener_args, tank_args, plants_args = config_callback()
         __gardener = Gardener(tank_args, plants_args, **gardener_args)
         # start garden monitoring
         __gardener.start_work()

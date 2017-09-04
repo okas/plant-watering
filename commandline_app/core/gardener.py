@@ -21,13 +21,13 @@ class Gardener:
 
     def __to_plants(self, plants_args):
         '''set up Plant object graph'''
-        return tuple(
-            Plant(self.stop_event,
-                  self.watering_event,
-                  self.tank_avail_evt,
-                  **args)
-            for args in plants_args
+        factory = lambda args: Plant(
+            self.stop_event,
+            self.watering_event,
+            self.tank_avail_evt,
+            **args
             )
+        return tuple(factory(args) for args in plants_args)
 
     def __to_queue(self, plants):
         q = Queue()

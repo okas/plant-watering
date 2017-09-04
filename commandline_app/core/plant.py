@@ -21,7 +21,7 @@ class Plant:
     blink_args = (0, 0, 1, 1.5)
     shared_pump = None
     __watering_semaphore = BoundedSemaphore(value=1) # we allow one pump user at the time
-    
+
     def __init__(self,
                  stop_event,
                  watering_event,
@@ -51,7 +51,7 @@ class Plant:
 
     @property
     def state(self): return self.__state
-    
+
     @state.setter
     def state(self, val):
         if val == State.resting:
@@ -65,7 +65,7 @@ class Plant:
     @classmethod
     def setup_shared_pump(cls, pin):
         cls.shared_pump = Pump(pin)
-    
+
     def measure(self, retain_state=False):
         moist = self.sensor.moisture_percent
         if moist > self.moist_level:
@@ -83,7 +83,7 @@ class Plant:
                             "Something is wrong with Plant instance state handling.")
     def __cannot_pump(self):
         return self.stop_event.is_set() or not self.tank_avail_evt.is_set()
-    
+
     def watering(self, override=False):
         # led-to-led context manager
         with Plant.__watering_semaphore:
@@ -115,7 +115,7 @@ class Plant:
         self.button.close()
         self.closed = True
         log("Closed %s" % self.id)
-        
+
     def __del__(self):
         if hasattr(self, 'closed') and not self.closed: self.close()
 

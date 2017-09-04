@@ -120,7 +120,7 @@ class _PlantWatcher(Thread):
         Return True to indicate that tank is available.
         '''
         waiting = None
-        while not self.tank_avail_evt.wait(0.2):
+        while not self.tank_avail_evt.wait(0.1):
             if self.stop_event.is_set():
                 result = False
                 break

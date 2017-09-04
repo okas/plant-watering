@@ -1,13 +1,15 @@
-from time import sleep
 from enum import Enum, unique
-from datetime import datetime
 from threading import Thread, Event
 from gpiozero import RGBLED, DigitalInputDevice
 if __name__ == "__main__":
+    from time import sleep
     from sys import path as s_path
     from os import path as o_path
     s_path.insert(0, o_path.abspath(__file__+'/../..'))
-from common import common_logger as log
+from common import(
+    common_logger as log,
+    stoppable_sleep
+    )
 
 
 @unique
@@ -48,18 +50,15 @@ class WaterTank(Thread):
             probe_full_pin,
             led_low_pin,
             led_norm_pin,
-            led_full_pin
+            led_full_pin,
+            water_pour_time = 8
         ):
         self.__devices = {}
         try:
-            self.__devices = dict(
-                low = DigitalInputDevice(probe_low_pin),
-                norm = DigitalInputDevice(probe_norm_pin),
-                full = DigitalInputDevice(probe_full_pin),
-                led = RGBLED(led_low_pin, led_norm_pin, led_full_pin)
-                )
-            for p in self.__probes:
-                p.when_activated = p.when_deactivated = self.measure
+            self.__devices['low'] = DigitalInputDevice(probe_low_pin)
+            self.__devices['norm'] = DigitalInputDevice(probe_norm_pin)
+            self.__devices['full'] = DigitalInputDevice(probe_full_pin)
+            self.__devices['led'] = RGBLED(led_low_pin, led_norm_pin, led_full_pin)
         except:
             self.close()
             raise
@@ -67,51 +66,87 @@ class WaterTank(Thread):
         self.watering_event = watering_event
         self.tank_avail_evt = tank_avail_evt
         self.__state = State.not_measured
-        self.last_sensor_read = None
+        self.__empty_to_low_event = Event()
+        self.__pouring_time = water_pour_time
         super().__init__(name=self.__class__.__name__)
 
-    def run(self):
+    @property
+    def probes(self):
+        return (self.__devices[name] for name in ('low', 'norm', 'full'))
+
+    def __begin_running(self):
+        self.measure()
+        for p in self.probes:
+            p.when_activated = p.when_deactivated = self.measure
         log("Started Water tank watcher thread.")
-        self.measure() # manages initial tank state and availability
-        self.stop_event.wait()
+
+    def __end_running(self):
         self.tank_avail_evt.clear()
         self.close()
         log("Completed Water tank watcher thread.")
 
-    @property
-    def __probes(self):
-        return tuple(self.__devices[name] for name in ('low', 'norm', 'full'))
+    def run(self):
+        self.__begin_running()
+        stop_e = self.stop_event
+        empt_e = self.__empty_to_low_event
+        pouring_predicate = lambda: stop_e.is_set() or not empt_e.is_set()
+        while not stop_e.wait(0.1):
+            if not empt_e.is_set():
+                continue
+            if not stoppable_sleep(self.__pouring_time, pouring_predicate):
+                self.state = State.low
+                empt_e.clear()
+        self.__end_running()
 
-    def __get_levels(self):
-        result = tuple(p.value for p in self.__probes)
-        self.last_sensor_read = datetime.now()
-        return result
+    def _calculate_state(self, levels):
+        if   levels == (False, False, False):
+            return State.empty
+        elif levels == (True, False, False):
+            return State.low
+        elif levels == (True, True, False):
+            return State.normal
+        elif levels == (True, True, True):
+            return State.full
+        else:
+            return State.sensor_error
+
+    def __needs_change(self, new_state, old_state):
+        if new_state != State.empty and new_state == old_state:
+            return False
+        elif new_state == State.low and old_state == State.empty:
+           self.__empty_to_low_event.set()
+           return False
+        elif new_state == State.empty and old_state == State.empty:
+            self.__empty_to_low_event.clear()
+            return False
+        return True
 
     def measure(self):
         if self.stop_event.is_set():
+            log("<object: WaterTank>.measure() attempt canceled, "\
+                "because stop event is set.")
             return
-        is_low, is_norm, is_full = self.__get_levels()
-        log("Read water levels: low: %-5s | norm: %-5s | full: %-5s"\
-            % (is_low, is_norm, is_full))
-        if is_low and is_norm and is_full:
-            self.state = State.full
-        elif is_low and is_norm and not is_full:
-            self.state = State.normal
-        elif is_low and not is_norm and not is_full:
-            self.state = State.low
-        elif not is_low and not is_norm and not is_full:
-            self.state = State.empty
-        else:
-            self.state = State.sensor_error
-        return True if self.state in (State.low, State.empty) else False
+        levels = tuple(p.value for p in self.probes)
+        new_state = self._calculate_state(levels)
+        if self.__needs_change(new_state, self.state):
+            self.state = new_state
+        if new_state == State.sensor_error:
+            self.stop_event.set()
+            raise Exception(
+                "Wrong sensor value reading: "\
+                "low: %-5s | norm: %-5s | full: %-5s!\n"\
+                "Investigate level probes physical placement "\
+                "at tank or check connection pins!"\
+                % levels
+                )
 
-    def _change_led(self, new_state, old_state):
+    def __change_led(self, new_state, old_state):
         state_color = Helpers.get_state_rgb(new_state)
         led = self.__devices['led']
         if new_state == State.empty:
             led.pulse(
-                0.25,
-                0.25,
+                0.5,
+                1.5,
                 on_color=state_color,
                 off_color=(0,0,0),
                 background=True
@@ -119,7 +154,7 @@ class WaterTank(Thread):
         else:
             led.color = state_color
 
-    def _change_tank_availability(self, new_state):
+    def __change_tank_availability(self, new_state):
         if new_state in (State.low, State.normal, State.full):
             self.tank_avail_evt.set()
         else:
@@ -130,27 +165,15 @@ class WaterTank(Thread):
 
     @state.setter
     def state(self, new_val):
-        if not isinstance(new_val, State):
-            log("Wrong Watertank's state provided: %s" % new_val)
-            self.stop_event.set()
-            raise Exception(
-                "Should not end up here! Something is wrong "\
-                "with WaterTank instance state handling."
-                )
+        if self.stop_event.is_set():
+            log("<object: WaterTank>.state.setter attempt canceled, "\
+                "because stop event is set.")
+            return
         old_val = self.__state
         self.__state = new_val
-        if new_val == State.sensor_error:
-            self.stop_event.set()
-            raise Exception(
-                "Wrong sensor value reading: low: %-5s | norm: %-5s | full: %-5s!\n"\
-                "Investigate level probes physical placement "\
-                "at tank or check connection pins!"\
-                % (is_low, is_norm, is_full)
-                )
-        if new_val == old_val:
-            return
-        self._change_tank_availability(new_val)
-        self._change_led(new_val, old_val)
+        self.__change_tank_availability(new_val)
+        self.__change_led(new_val, old_val)
+        log('WaterTank state changed to [%s]' % new_val)
 
     def close(self):
         for d in self.__devices.values():

@@ -88,6 +88,7 @@ class Plant:
         # led-to-led context manager
         with Plant.__watering_semaphore:
             self.watering_event.set()
+            # replace with self.watering_event.wait() ?
             sleep(0.2)# it must allow Event.set() to popagate to WaterTank
             if self.__cannot_pump():
                 log("cannot start pump at this time!")

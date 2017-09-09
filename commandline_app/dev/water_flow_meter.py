@@ -1,9 +1,13 @@
 from timeit import default_timer as timer
 from threading import Event
-from gpiozero import OutputDevice, DigitalInputDevice
-from pumping import Pump
-from valve import Valve
 import faulthandler
+from gpiozero import OutputDevice, DigitalInputDevice
+if __name__ == '__main__':
+    import sys
+    import os
+    sys.path.insert(0, os.path.abspath(__file__+'/../..'))
+    from pumping import Pump
+    from valve import Valve
 
 
 faulthandler.enable()

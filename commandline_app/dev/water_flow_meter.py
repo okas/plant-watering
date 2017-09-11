@@ -12,6 +12,23 @@ class DTO:
     def __init__(self, **kwargs): self.__dict__ = kwargs
 
 
+class PumpX(Pump):
+    def __init__(
+            self,
+            pin,
+            flow_pin,
+            sensor_interrupt_cb = None
+            flow_vcc_pin = None,
+            active_high=True,
+            initial_value=0,
+            frequency=200
+            ):
+        super().__init__(pin, active_high, initial_value, frequency)
+        self._flow_sensor = DigitalInputDevice(flow_pin)
+        if flow_vcc_pin:
+            self._sensor_vcc = OutputDevice(flow_vcc_pin)
+
+
 class Devices():
     def __init__(self, dto, hall_pulse_cb, args):
         self.d = dto
@@ -21,8 +38,7 @@ class Devices():
             self.sensor.when_deactivated =\
             hall_pulse_cb
         self.valve = Valve(args.valve_pin)
-        self.pump = Pump(args.pump_pin
-        )
+        self.pump = Pump(args.pump_pin)
 
     def __enter__(self):
         return self

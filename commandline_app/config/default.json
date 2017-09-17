@@ -1,17 +1,23 @@
 {
     "tank_args": {
-       "probe_low_pin": 16,
-       "probe_norm_pin": 20,
-       "probe_full_pin": 21,
-       "led_low_pin": 17,
-       "led_norm_pin": 27,
-       "led_full_pin": 22,
-       "water_pour_time": 15
+        "probe_low_pin": 16,
+        "probe_norm_pin": 20,
+        "probe_full_pin": 21,
+        "led_low_pin": 17,
+        "led_norm_pin": 27,
+        "led_full_pin": 22,
+        "water_pour_time": 15
+    },
+    "pump_args": {
+        "pin": 24,
+        "initial_value": 0,
+        "frequency": 200,
+        "flow_sensor_pin": 26,
+        "flow_vcc_pin": 19,
     },
     "gardener_args": {
-       "pump_pin": 24,
-       "watch_cycle": 1800,
-       "watering_cycle": 60
+         "watch_cycle": 1800,
+        "watering_cycle": 60
     },
     "plants_args": [
         {

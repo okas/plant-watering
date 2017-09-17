@@ -13,6 +13,7 @@ def load_configuration(config_name):
     raw_config = ___json_file_loader(config_name)
     return (
         raw_config['gardener_args'],
+        raw_config['pump_args'],
         raw_config['tank_args'],
         raw_config['plants_args']
         )

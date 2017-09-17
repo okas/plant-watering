@@ -16,7 +16,7 @@
         "flow_vcc_pin": 19,
     },
     "gardener_args": {
-         "watch_cycle": 1800,
+        "watch_cycle": 1800,
         "watering_cycle": 60
     },
     "plants_args": [

@@ -1,27 +1,40 @@
-#~ from common import common_logger as log
-from motor import UnidirectionMotor
+if __name__ == '__main__':
+    import sys
+    import os
+    sys.path.insert(0, os.path.abspath(__file__+'/../..'))
+    from hardware.motor import UnidirectionMotor
 
 
-class Pump(UnidirectionMotor):
-    @property
-    def value(self): return super().value
-    
-    @value.setter
-    def value(self, value):
-        # todo: runtime sets to default value during init?
-        super(Pump, self.__class__).value.fset(self, value)
-        #~ log("  Pump is on at power '{:.3f}'.".format(value))
+class Pump():
+    def __init__(self, pin, active_high=True, initial_value=0, frequency=100):
+        self.__motor = UnidirectionMotor(
+            pin,
+            active_high=True,
+            initial_value=0,
+            frequency=100
+            )
+        ...
+
 
     def on(self):
-        super().on()
-        #~ log("  Pump is fully on.")
-        
+        self.__motor.on()
+        #... move to consumer if loggig needed log("  Pump is fully on.")
+
     def off(self):
-        super().off()
-        #~ log("  Pump is off.")
+        self.__motor.off()
+        #... move to consumer if loggig needed log("  Pump is off.")
 
     def close(self):
-        super().close()
+        self.__motor.close()
 
     def __del__(self):
-        if hasattr(self, 'closed') and not self.closed: self.close()
+        if hasattr(self, 'closed') and not self.closed:
+            self.close()
+
+    @property
+    def value(self):
+        return self.__motor.value
+
+    @value.setter
+    def value(self, value):
+        self.__motor.value = value

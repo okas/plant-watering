@@ -6,10 +6,7 @@ if __name__ == "__main__":
     import sys
     import os
     sys.path.insert(0, os.path.abspath(__file__+'/../..'))
-from common import(
-    common_logger as log,
-    stoppable_sleep
-    )
+from common import common_logger as log, stoppable_sleep
 
 
 @unique

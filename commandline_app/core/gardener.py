@@ -1,19 +1,32 @@
-from datetime import datetime, timedelta
-from threading import Thread, Event, Condition
 from queue import Queue
-from core.plant import Plant, State
-from core.water_tank import WaterTank
+from core import WaterTank
+from hardware import Pump
 from common import common_logger as log
+from datetime import datetime, timedelta
+from gpio import DigitalInputDevice, OutputDevice
+from core import Plant, State
+from threading import Thread, Event
 
 
 class Gardener:
-    def __init__(self, tank_args, plants_args, pump_pin, watch_cycle=30, watering_cycle=2):
-        Plant.setup_shared_pump(pump_pin)
+    def __init__(
+        self,
+        pump_args,
+        tank_args,
+        plants_args,
+        watch_cycle=30,
+        watering_cycle=2
+        ):
         self.stop_event = Event()
         self.watering_event = Event()
         self.tank_avail_evt = Event()
-        self.__water_tank_thread = WaterTank(self.stop_event, self.watering_event,
-                                             self.tank_avail_evt, **tank_args)
+        self.__water_tank_thread = WaterTank(
+            self.stop_event,
+            self.watering_event,
+            self.tank_avail_evt,
+            **tank_args
+            )
+        self.pump = Pump(**pump_args)
         self.plants = self.__to_plants(plants_args)
         self.__plants_queue = self.__to_queue(self.plants)
         self.watch_cycle = watch_cycle
@@ -31,21 +44,23 @@ class Gardener:
 
     def __to_queue(self, plants):
         q = Queue()
-        for p in plants: q.put(p)
+        for p in plants:
+            q.put(p)
         return q
 
     def start_work(self):
         self.__water_tank_thread.start()
         count = len(self.plants)
         log("Gardener is starting to watch for %d plants." % count)
+        factory = lambda: _PlantWatcher(
+            self.__plants_queue,
+            self.stop_event,
+            self.tank_avail_evt,
+            self.watch_cycle,
+            self.watering_cycle
+            )
         for _ in range(count):
-            _PlantWatcher(
-                self.__plants_queue,
-                self.stop_event,
-                self.tank_avail_evt,
-                self.watch_cycle,
-                self.watering_cycle
-            ).start()
+            factory().start()
 
     def stop_and_close(self):
         log("Ending Gardener, quitting worker threads. Please wait...\n")

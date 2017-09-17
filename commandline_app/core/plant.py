@@ -1,8 +1,9 @@
 from enum import Enum, unique
-from time import sleep, time
+from time import sleep
+from timeit import default_timer as timer
 from threading import BoundedSemaphore
-from gpiozero import PWMLED
-from hardware import Pump, Valve, SoilSensor, Switch
+from gpiozero import PWMLED, OutputDevice
+from hardware import Pump, SoilSensor
 from common import common_logger as log, stoppable_sleep
 
 
@@ -37,9 +38,9 @@ class Plant:
                  **spi_args):
         self.id = id
         self.led = PWMLED(led_pin, frequency=145)
-        self.valve = Valve(valve_pin)
+        self.valve = OutputDevice(valve_pin)
         self.sensor = SoilSensor(sensor_vcc_pin, **spi_args)
-        self.button = Switch(button_pin, self)
+        self.button = Button(button_pin, self)
         self.state = State.resting
         self.moist_level = moist_percent
         self.stop_event = stop_event
@@ -97,10 +98,10 @@ class Plant:
                 self.state = State.watering
                 log("   started pumping water.")
                 self.valve.on()
-                t1 = time()
+                t1 = timer()
                 Plant.shared_pump.value = self.pump_power
                 stoppable_sleep(self.watering_time, self.__cannot_pump)
-                t2 = time()
+                t2 = timer()
                 log("  ... %.3f seconds" % (t2 - t1))
                 Plant.shared_pump.off()
                 self.valve.off()

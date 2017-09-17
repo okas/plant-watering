@@ -3,9 +3,9 @@ from threading import Thread, Event
 from gpiozero import RGBLED, DigitalInputDevice
 if __name__ == "__main__":
     from time import sleep
-    from sys import path as s_path
-    from os import path as o_path
-    s_path.insert(0, o_path.abspath(__file__+'/../..'))
+    import sys
+    import os
+    sys.path.insert(0, os.path.abspath(__file__+'/../..'))
 from common import(
     common_logger as log,
     stoppable_sleep

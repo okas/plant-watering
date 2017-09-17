@@ -44,20 +44,20 @@ class Pump(SimplePump):
     def __init__(
             self,
             pin,
-            flow_pin,
-            flow_vcc_pin = None,
+            flow_sensor_pin,
+            flow_sensor_vcc_pin = None,
             flow_coef = 40,
             active_high = True,
             initial_value = 0,
             frequency = 200
             ):
         super().__init__(pin, active_high, initial_value, frequency)
-        self._flow_sensor = DigitalInputDevice(flow_pin)
+        self._flow_sensor = DigitalInputDevice(flow_sensor_pin)
         self._flow_sensor.when_activated\
             = self._flow_sensor.when_deactivated\
             = self.__hall_pulse_volume_stop
-        if flow_vcc_pin:
-            self._sensor_vcc = OutputDevice(flow_vcc_pin)
+        if flow_sensor_vcc_pin:
+            self._sensor_vcc = OutputDevice(flow_sensor_vcc_pin)
         self.__reached_event = Event()
         self.flow_coef = flow_coef
         self.__init_result_attributes()

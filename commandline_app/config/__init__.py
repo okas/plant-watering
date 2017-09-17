@@ -1,12 +1,12 @@
-from os import path as os_path
-from json import load as json_load
+import os
+import json
 
 
 def ___json_file_loader(file_name):
     if '/' not in file_name:
-        file_name = os_path.abspath('%s/../%s.json' % (__file__, file_name))
+        file_name = os.path.abspath('%s/../%s.json' % (__file__, file_name))
     with open(file_name) as j_file:
-        raw_loaded = json_load(j_file)
+        raw_loaded = json.load(j_file)
     return raw_loaded
 
 def load_configuration(config_name):

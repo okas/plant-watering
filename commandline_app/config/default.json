@@ -13,7 +13,7 @@
         "initial_value": 0,
         "frequency": 200,
         "flow_sensor_pin": 26,
-        "flow_vcc_pin": 19,
+        "flow_sensor_vcc_pin": 19
     },
     "gardener_args": {
         "watch_cycle": 1800,

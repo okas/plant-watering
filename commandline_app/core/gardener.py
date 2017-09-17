@@ -1,11 +1,11 @@
+from datetime import datetime, timedelta
 from queue import Queue
-from core import WaterTank
+from threading import Thread, Event
+from gpiozero import DigitalInputDevice, OutputDevice
+from .water_tank import WaterTank
+from .plant import Plant, State
 from hardware import Pump
 from common import common_logger as log
-from datetime import datetime, timedelta
-from gpio import DigitalInputDevice, OutputDevice
-from core import Plant, State
-from threading import Thread, Event
 
 
 class Gardener:
@@ -26,7 +26,8 @@ class Gardener:
             self.tank_avail_evt,
             **tank_args
             )
-        self.pump = Pump(**pump_args)
+        #self.pump = Pump()
+        Plant.setup_shared_pump(pump_args)
         self.plants = self.__to_plants(plants_args)
         self.__plants_queue = self.__to_queue(self.plants)
         self.watch_cycle = watch_cycle

@@ -2,7 +2,7 @@ from enum import Enum, unique
 from time import sleep
 from timeit import default_timer as timer
 from threading import BoundedSemaphore
-from gpiozero import PWMLED, OutputDevice
+from gpiozero import PWMLED, Button, OutputDevice
 from hardware import Pump, SoilSensor
 from common import common_logger as log, stoppable_sleep
 
@@ -64,8 +64,8 @@ class Plant:
         self.__state = val
 
     @classmethod
-    def setup_shared_pump(cls, pin):
-        cls.shared_pump = Pump(pin)
+    def setup_shared_pump(cls, args):
+        cls.shared_pump = Pump(**args)
 
     def measure(self, retain_state=False):
         moist = self.sensor.moisture_percent
@@ -97,14 +97,21 @@ class Plant:
                 old_state = self.state
                 self.state = State.watering
                 log("   started pumping water.")
-                self.valve.on()
-                t1 = timer()
-                Plant.shared_pump.value = self.pump_power
+
+                #>>>>
+                stats = Plant.shared_pump.pump_millilitres(25, self.valve)
+                ###
+                #self.valve.on()
+                #t1 = timer()
+                #Plant.shared_pump.value = self.pump_power
+                #
                 stoppable_sleep(self.watering_time, self.__cannot_pump)
-                t2 = timer()
-                log("  ... %.3f seconds" % (t2 - t1))
-                Plant.shared_pump.off()
-                self.valve.off()
+                #t2 = timer()
+                log("  ... %.3f seconds" % stats.time_elapse)
+                #Plant.shared_pump.off()
+                #self.valve.off()
+                ###
+                #<<<<<
                 self.state = State.remeasure if not override else old_state
                 log("   done pumping water.")
             self.watering_event.clear()

@@ -11,7 +11,7 @@ from common import common_logger as log
 def main(config_name):
     # TODO: pass GPIO or some other initialization data from some module/mixin?
     __gardener = None
-    gardener_args, tank_args, plants_args = config.load_configuration(config_name)
+    gardener_args, pump_args, tank_args, plants_args = config.load_configuration(config_name)
 
     def __signal_handler(*args):
         print("here")
@@ -26,7 +26,7 @@ def main(config_name):
 
     try:
         # set up Gardener object graph
-        __gardener = Gardener(tank_args, plants_args, **gardener_args)
+        __gardener = Gardener(pump_args, tank_args, plants_args, **gardener_args)
         # start garden monitoring
         __gardener.start_work()
         __gardener.stop_event.wait()

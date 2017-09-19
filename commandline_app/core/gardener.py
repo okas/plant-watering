@@ -3,6 +3,7 @@ from queue import Queue
 from threading import Thread, Event
 from gpiozero import DigitalInputDevice, OutputDevice
 from .plant import Plant, State
+from .water_supply import WaterSupply
 from hardware import Pump, WaterTank
 from common import common_logger as log
 
@@ -16,9 +17,13 @@ class Gardener:
         watch_cycle=30,
         watering_cycle=2
         ):
+        ## evaluae all these event usages in this class!
         self.stop_event = Event()
         self.watering_event = Event()
         self.tank_avail_evt = Event()
+        # >>>>
+        self.water_supply = WaterSupply(self.stop_event, pump_args, tank_args)
+        #====
         self.__water_tank_thread = WaterTank(
             self.stop_event,
             self.watering_event,
@@ -26,6 +31,7 @@ class Gardener:
             **tank_args
             )
         Plant.setup_shared_pump(pump_args)
+        #<<<<
         self.plants = self.__to_plants(plants_args)
         self.__plants_queue = self.__to_queue(self.plants)
         self.watch_cycle = watch_cycle
@@ -49,7 +55,9 @@ class Gardener:
         return q
 
     def __start_work(self):
+        #>>>>
         self.__water_tank_thread.start()
+        #<<<<
         count = len(self.plants)
         log("Gardener is starting to watch for %d plants." % count)
         factory = lambda: _PlantWatcher(

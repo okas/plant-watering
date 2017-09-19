@@ -158,7 +158,8 @@ class WaterTank(Thread):
             self.tank_avail_evt.clear()
 
     @property
-    def state(self): return self.__state
+    def state(self):
+        return self.__state
 
     @state.setter
     def state(self, new_val):

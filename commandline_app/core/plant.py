@@ -107,7 +107,7 @@ class Plant:
                 #
                 stoppable_sleep(self.watering_time, self.__cannot_pump)
                 #t2 = timer()
-                log("  ... %.3f seconds" % stats.time_elapse)
+                log("  ... %.3f seconds" % stats.time_elaps)
                 #Plant.shared_pump.off()
                 #self.valve.off()
                 ###

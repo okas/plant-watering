@@ -5,42 +5,7 @@ from gpiozero import DigitalInputDevice, OutputDevice, OutputDeviceBadValue
 from .motor import UnidirectionMotor
 
 
-class SimplePump():
-    def __init__(self,
-            pin,
-            active_high=True,
-            initial_value=0,
-            frequency=200
-            ):
-        self._motor = UnidirectionMotor(pin, active_high, initial_value, frequency)
-
-    def on(self):
-        self._motor.on()
-        #... move to consumer if loggig needed log("  Pump is fully on.")
-
-    def off(self):
-        self._motor.off()
-        #... move to consumer if loggig needed log("  Pump is off.")
-
-    def close(self):
-        self._motor.close()
-
-    def __del__(self):
-        if hasattr(self, 'closed') and not self.closed:
-            self.close()
-
-    @property
-    def value(self):
-        return self._motor.value
-
-    @value.setter
-    def value(self, value):
-        if value < 0.2:
-            raise OutputDeviceBadValue("Pump speed must be higher than [0.2].")
-        self._motor.value = value
-
-
-class Pump(SimplePump):
+class Pump(UnidirectionMotor):
     def __init__(
             self,
             pin,

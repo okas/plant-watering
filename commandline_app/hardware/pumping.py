@@ -14,7 +14,7 @@ class Pump(UnidirectionMotor):
             flow_coef = 40,
             active_high = True,
             initial_value = 0,
-            frequency = 200
+            frequency = 100
             ):
         super().__init__(pin, active_high, initial_value, frequency)
         self._flow_sensor = DigitalInputDevice(flow_sensor_pin)

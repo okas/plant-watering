@@ -101,3 +101,6 @@ class Pump(UnidirectionMotor):
         super().close()
         self._flow_sensor.close()
         self._sensor_vcc.close()
+
+    def __del__(self):
+        self.close()

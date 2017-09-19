@@ -2,9 +2,8 @@ from datetime import datetime, timedelta
 from queue import Queue
 from threading import Thread, Event
 from gpiozero import DigitalInputDevice, OutputDevice
-from .water_tank import WaterTank
 from .plant import Plant, State
-from hardware import Pump
+from hardware import Pump, WaterTank
 from common import common_logger as log
 
 
@@ -26,12 +25,12 @@ class Gardener:
             self.tank_avail_evt,
             **tank_args
             )
-        #self.pump = Pump()
         Plant.setup_shared_pump(pump_args)
         self.plants = self.__to_plants(plants_args)
         self.__plants_queue = self.__to_queue(self.plants)
         self.watch_cycle = watch_cycle
         self.watering_cycle = watering_cycle
+        self.__start_work()
 
     def __to_plants(self, plants_args):
         '''set up Plant object graph'''
@@ -49,7 +48,7 @@ class Gardener:
             q.put(p)
         return q
 
-    def start_work(self):
+    def __start_work(self):
         self.__water_tank_thread.start()
         count = len(self.plants)
         log("Gardener is starting to watch for %d plants." % count)

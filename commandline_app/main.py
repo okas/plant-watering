@@ -26,10 +26,8 @@ def main(config_name):
     _err = None
 
     try:
-        # set up Gardener object graph
+        # set up Gardener object graph and start garden monitoring
         __gardener = Gardener(pump_args, tank_args, plants_args, **gardener_args)
-        # start garden monitoring
-        __gardener.start_work()
         __gardener.stop_event.wait()
     except (KeyboardInterrupt):
         log("! Received keyboard interrupt.\n")

@@ -27,7 +27,7 @@
             "led_pin": 23,
             "button_pin": 13,
             "moist_percent": 55,
-            "watering_time": 5,
+            "pour_millilitres": 50,
             "pump_power": 0.3,
             "device": 1,
             "channel": 0

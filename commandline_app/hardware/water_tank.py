@@ -40,7 +40,6 @@ class WaterTank(Thread):
     def __init__(
             self,
             stop_event,
-            watering_event,
             tank_avail_evt,
             probe_low_pin,
             probe_norm_pin,
@@ -60,7 +59,6 @@ class WaterTank(Thread):
             self.close()
             raise
         self.stop_event = stop_event
-        self.watering_event = watering_event
         self.tank_avail_evt = tank_avail_evt
         self.__state = State.not_measured
         self.__empty_to_low_event = Event()
@@ -189,12 +187,12 @@ if __name__ == "__main__":
         tank = WaterTank(
             stop_event,
             Event(),
-            Event(),
             *probes,
             *rgb_led
             )
         tank.start()
-        while tank.is_alive(): sleep(0.2)
+        while tank.is_alive():
+            sleep(0.2)
     finally:
         stop_event.set()
         tank.close()#redundant, here for testing!

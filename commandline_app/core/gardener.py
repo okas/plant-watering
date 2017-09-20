@@ -4,46 +4,28 @@ from threading import Thread, Event
 from gpiozero import DigitalInputDevice, OutputDevice
 from .plant import Plant, State
 from .water_supply import WaterSupply
-from hardware import Pump, WaterTank
 from common import common_logger as log
 
 
 class Gardener:
-    def __init__(
-        self,
-        pump_args,
-        tank_args,
-        plants_args,
-        watch_cycle=30,
-        watering_cycle=2
-        ):
+    def __init__(config):
         ## evaluae all these event usages in this class!
         self.stop_event = Event()
-        self.watering_event = Event()
-        self.tank_avail_evt = Event()
-        # >>>>
-        self.water_supply = WaterSupply(self.stop_event, pump_args, tank_args)
-        #====
-        self.__water_tank_thread = WaterTank(
+        self.water_supply = WaterSupply(
             self.stop_event,
-            self.watering_event,
-            self.tank_avail_evt,
-            **tank_args
+            config['pump_args'],
+            config['tank_args']
             )
-        Plant.setup_shared_pump(pump_args)
-        #<<<<
-        self.plants = self.__to_plants(plants_args)
+        self.plants = self.__to_plants(config['plants_args'])
         self.__plants_queue = self.__to_queue(self.plants)
-        self.watch_cycle = watch_cycle
-        self.watering_cycle = watering_cycle
+        self.watch_cycle = config['gardener_args'].watch_cycle
+        self.watering_cycle = config['gardener_args'].watering_cycle
         self.__start_work()
 
     def __to_plants(self, plants_args):
         '''set up Plant object graph'''
         factory = lambda args: Plant(
             self.stop_event,
-            self.watering_event,
-            self.tank_avail_evt,
             **args
             )
         return tuple(factory(args) for args in plants_args)
@@ -55,15 +37,12 @@ class Gardener:
         return q
 
     def __start_work(self):
-        #>>>>
-        self.__water_tank_thread.start()
-        #<<<<
         count = len(self.plants)
         log("Gardener is starting to watch for %d plants." % count)
         factory = lambda: _PlantWatcher(
             self.__plants_queue,
             self.stop_event,
-            self.tank_avail_evt,
+            self.water_supply,
             self.watch_cycle,
             self.watering_cycle
             )
@@ -75,8 +54,9 @@ class Gardener:
         self.closed = False
         self.stop_event.set()
         self.__plants_queue.join()
-        self.__water_tank_thread.join()
-        for p in self.plants: p.close()
+        self.water_supply.stop_and_close()
+        for p in self.plants:
+            p.close()
         self.closed = True
         log("Completed Gardener!\n")
 
@@ -85,10 +65,10 @@ class Gardener:
 
 
 class _PlantWatcher(Thread):
-    def __init__(self,  work_queue,  stop_event, tank_avail_evt, watch,  water):
+    def __init__(self,  work_queue,  stop_event, water_supply, watch,  water):
         self.__work_queue = work_queue
         self.stop_event = stop_event
-        self.tank_avail_evt = tank_avail_evt
+        self.water_supply = water_supply
         self.watch = watch
         self.water = water
         self.plant = work_queue.get()
@@ -124,7 +104,7 @@ class _PlantWatcher(Thread):
                 log("stopping watering cycle, because something asked.")
                 break
             log(" start watering.")
-            plant.watering()
+            self.water_supply.watering(plant)
             log(" watering cycle, next measure at %s." % self.add_seconds(self.water))
             if self.stop_event.wait(self.water):
                 log("stopping watering cycle, because something asked.")
@@ -143,7 +123,7 @@ class _PlantWatcher(Thread):
         Return True to indicate that tank is available.
         '''
         waiting = None
-        while not self.tank_avail_evt.wait(0.1):
+        while not self.water_supply.available_event.wait(0.1):
             if self.stop_event.is_set():
                 result = False
                 break

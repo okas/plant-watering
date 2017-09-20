@@ -23,14 +23,14 @@ class Pump(UnidirectionMotor):
             = self.__hall_pulse_volume_stop
         if flow_sensor_vcc_pin:
             self._sensor_vcc = OutputDevice(flow_sensor_vcc_pin)
-        self.__reached_event = Event()
+        self.reached_event = Event()
         self.flow_coef = flow_coef
         self.__init_result_attributes()
 
     __semaphore = BoundedSemaphore(value=1) # allow one pump user at the time
 
     def __init_result_attributes(self):
-        if self.__reached_event.is_set():
+        if self.reached_event.is_set():
             # Log ?
             return
         self.target_value = self.pulse_count = 0
@@ -41,7 +41,7 @@ class Pump(UnidirectionMotor):
         self.pulse_count += 1
         stats = self.calc_stat()
         if stats[0] >= self.target_value:
-            self.__reached_event.set()
+            self.reached_event.set()
         if self.pulse_count % 4 == 0:
             self.print_on_the_fly_stats(self.pulse_count, self.time_elaps, *stats)
 
@@ -59,7 +59,7 @@ class Pump(UnidirectionMotor):
             ml_sec_rate = stats[3]
             )
         self.__init_result_attributes()
-        self.__reached_event.clear()
+        self.reached_event.clear()
         return result
 
     def calc_stat(self):
@@ -77,7 +77,7 @@ class Pump(UnidirectionMotor):
             self.value = speed
             valve_device.on()
             self.time_start = timer()
-            self.__reached_event.wait()
+            self.reached_event.wait()
             self.off()
             valve_device.off()
             if self._sensor_vcc:

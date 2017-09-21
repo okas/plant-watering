@@ -49,19 +49,19 @@ class Gardener:
         for _ in range(count):
             factory().start()
 
-    def stop_and_close(self):
+    def close(self):
         log("Ending Gardener, quitting worker threads. Please wait...\n")
         self.closed = False
-        self.stop_event.set()
         self.__plants_queue.join()
-        self.water_supply.stop_and_close()
+        self.water_supply.close()
         for p in self.plants:
             p.close()
         self.closed = True
         log("Completed Gardener!\n")
 
     def __del__(self):
-        if hasattr(self, 'closed') and not self.closed: self.stop_and_close()
+        if hasattr(self, 'closed') and not self.closed:
+            self.close()
 
 
 class _PlantWatcher(Thread):

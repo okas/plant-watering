@@ -37,7 +37,9 @@ def main(config_name):
         log("Encountered some exeption, should see it after 'Program done' message below.")
         _err = err
     finally:
-        if __gardener is not None: __gardener.stop_and_close()
+        if __gardener is not None:
+            __gardener.stop_event.set()
+            __gardener.close()
     log("Program done.\n")
     if _err is not None:
         log("Re-raised error, that occured during program execution:\n")

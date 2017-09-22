@@ -40,7 +40,6 @@ class WaterTank(Thread):
     def __init__(
             self,
             stop_event,
-            tank_avail_evt,
             probe_low_pin,
             probe_norm_pin,
             probe_full_pin,
@@ -59,9 +58,9 @@ class WaterTank(Thread):
             self.close()
             raise
         self.stop_event = stop_event
-        self.tank_avail_evt = tank_avail_evt
-        self.__state = State.not_measured
+        self.available_event = Event()
         self.__empty_to_low_event = Event()
+        self.__state = State.not_measured
         self.__pouring_time = water_pour_time
         super().__init__(name=self.__class__.__name__)
 
@@ -76,7 +75,7 @@ class WaterTank(Thread):
         log("Started Water tank watcher thread.")
 
     def __end_running(self):
-        self.tank_avail_evt.clear()
+        self.available_event.clear()
         self.close()
         log("Completed Water tank watcher thread.")
 
@@ -151,9 +150,9 @@ class WaterTank(Thread):
 
     def __change_tank_availability(self, new_state):
         if new_state in (State.low, State.normal, State.full):
-            self.tank_avail_evt.set()
+            self.available_event.set()
         else:
-            self.tank_avail_evt.clear()
+            self.available_event.clear()
 
     @property
     def state(self):

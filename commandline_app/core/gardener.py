@@ -1,40 +1,31 @@
 from datetime import datetime, timedelta
 from queue import Queue
 from threading import Thread, Event
-from gpiozero import DigitalInputDevice, OutputDevice
 from .plant import Plant, State
 from .water_supply import WaterSupply
 from common import common_logger as log
 
 
 class Gardener:
-    def __init__(config):
-        ## evaluae all these event usages in this class!
+    def __init__(self, config):
         self.stop_event = Event()
         self.water_supply = WaterSupply(
             self.stop_event,
-            config['pump_args'],
-            config['tank_args']
+            config.pump_args.__dict__,
+            config.tank_args.__dict__
             )
-        self.plants = self.__to_plants(config['plants_args'])
-        self.__plants_queue = self.__to_queue(self.plants)
-        self.watch_cycle = config['gardener_args'].watch_cycle
-        self.watering_cycle = config['gardener_args'].watering_cycle
+        self.plants = tuple(
+            Plant(self.stop_event, **a.__dict__) for a in config.plants_args_list
+            )
+        self.__plants_queue = Queue()
+        self.__init_plants_queue()
+        self.watch_cycle = config.gardener_args.watch_cycle
+        self.watering_cycle = config.gardener_args.watering_cycle
         self.__start_work()
 
-    def __to_plants(self, plants_args):
-        '''set up Plant object graph'''
-        factory = lambda args: Plant(
-            self.stop_event,
-            **args
-            )
-        return tuple(factory(args) for args in plants_args)
-
-    def __to_queue(self, plants):
-        q = Queue()
-        for p in plants:
-            q.put(p)
-        return q
+    def __init_plants_queue(self):
+        for p in self.plants:
+            self.__plants_queue.put(p)
 
     def __start_work(self):
         count = len(self.plants)

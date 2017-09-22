@@ -12,6 +12,7 @@
         "pin": ,
         "initial_value": 0,
         "frequency": 200,
+        "delay_motor": 0.1,
         "flow_sensor_pin": ,
         "flow_sensor_vcc_pin":
     },

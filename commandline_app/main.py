@@ -10,24 +10,25 @@ from common import common_logger as log
 
 def main(config_name):
     # TODO: pass GPIO or some other initialization data from some module/mixin?
-    __gardener = None
+    gardener = None
     app_configuration = config.load_configuration(config_name)
 
     def __signal_handler(*args):
         print("here")
-        __gardener.close()
+        gardener.stop_event.set()
+        gardener.close()
         sleep(10)
         log("Exit %s (from cleanup handler).\n" % main_thread().name)
 
-    #atexit.register(__cleanup_handler, __gardener, __watertank, Plant.shared_pump)
+    #atexit.register(__cleanup_handler, gardener, __watertank, Plant.shared_pump)
     signal.signal(signal.SIGTERM, __signal_handler)
     #signal.signal(signal.SIGKILL, __signal_handler)
     _err = None
 
     try:
         # set up Gardener object graph and start garden monitoring
-        __gardener = Gardener(app_configuration)
-        __gardener.stop_event.wait()
+        gardener = Gardener(app_configuration)
+        gardener.stop_event.wait()
     except (KeyboardInterrupt):
         log("! Received keyboard interrupt.\n")
     except SystemExit as err:
@@ -37,9 +38,9 @@ def main(config_name):
         log("Encountered some exeption, should see it after 'Program done' message below.")
         _err = err
     finally:
-        if __gardener is not None:
-            __gardener.stop_event.set()
-            __gardener.close()
+        if gardener is not None:
+            gardener.stop_event.set()
+            gardener.close()
     log("Program done.\n")
     if _err is not None:
         log("Re-raised error, that occured during program execution:\n")

@@ -30,15 +30,14 @@ class Gardener:
     def __start_work(self):
         count = len(self.plants)
         log("Gardener is starting to watch for %d plants." % count)
-        factory = lambda: _PlantWatcher(
-            self.__plants_queue,
-            self.stop_event,
-            self.water_supply,
-            self.watch_cycle,
-            self.watering_cycle
-            )
         for _ in range(count):
-            factory().start()
+            _PlantWatcher(
+                self.__plants_queue,
+                self.stop_event,
+                self.water_supply,
+                self.watch_cycle,
+                self.watering_cycle
+            ).start()
 
     def close(self):
         log("Ending Gardener, quitting worker threads. Please wait...\n")
@@ -73,12 +72,16 @@ class _PlantWatcher(Thread):
             while not self.stop_event.is_set():
                 moist = self.plant.measure()[1]
                 if self.plant.state == State.needs_water:
-                    self.water_plant(self.plant)
+                    self.handle_watering_cycle()
                     if self.stop_event.is_set(): break
-                    log("in watch cycle, next measure at %s." % self.add_seconds(self.watch))
+                    log("in watch cycle, next measure at %s."\
+                        % self.add_seconds(self.watch)
+                        )
                 else:
-                    log("watch cycle completed, plant has enough moisture %.2f%% (min %.2f%%),"\
-                        "next measure at %s." % (moist, self.plant.moist_level, self.add_seconds(self.watch)))
+                    log("watch cycle completed, plant has enough "\
+                        "moisture %.2f%% (min %.2f%%), next measure at %s."\
+                        % (moist, self.plant.moist_level, self.add_seconds(self.watch))
+                        )
                 if self.stop_event.wait(self.watch):
                     log("stopping watcher cycle, because something asked.")
                     break
@@ -87,7 +90,7 @@ class _PlantWatcher(Thread):
             self.__work_queue.task_done()
         log("Completed PlantWatcher thread.")
 
-    def water_plant(self, plant):
+    def handle_watering_cycle(self):
         '''Perform watering, measuring and re-watering if neccessary.'''
         log("Start watering cycles.")
         while True:
@@ -95,18 +98,29 @@ class _PlantWatcher(Thread):
                 log("stopping watering cycle, because something asked.")
                 break
             log(" start watering.")
-            self.water_supply.watering(plant)
+            self.water_plant()
             log(" watering cycle, next measure at %s." % self.add_seconds(self.water))
             if self.stop_event.wait(self.water):
                 log("stopping watering cycle, because something asked.")
                 break
             measure, moist = self.plant.measure()
             if not measure:
-                log("watering cycle completed, plant reached moisture level of %.2f%% (min %.2f%%), "\
-                    "next measure at %s." % (moist, self.plant.moist_level, self.add_seconds(self.watch)))
+                log("watering cycle completed, plant reached moisture "\
+                    "level of %.2f%% (min %.2f%%), next measure at %s."\
+                    % (moist, self.plant.moist_level, self.add_seconds(self.watch))
+                    )
                 break
-        plant.led.off()
         log("Completed watering.")
+
+    def water_plant(self):
+        old_state = self.plant.state
+        self.plant.state = State.watering
+        self.water_supply.watering(
+            self.plant.pour_millilitres,
+            self.plant.valve,
+            self.plant.pump_power
+            )
+        self.plant.state = old_state
 
     def wait_for_tank(self):
         '''

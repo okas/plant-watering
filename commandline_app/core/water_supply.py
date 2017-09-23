@@ -1,6 +1,5 @@
 from threading import Thread, BoundedSemaphore
 import queue
-from .plant import State
 from hardware import Pump, WaterTank
 from common import common_logger as log
 
@@ -38,19 +37,13 @@ class WaterSupply():
                 stats = self.__pump.pump_millilitres(*args)
                 self.__pump_work_result.put(stats)
 
-    def watering(self, plant):
+    def watering(self, millilitres, valve, pump_power):
         with self.__semaphore:
             if self.__must_stop_pump():
                 log("cannot start pump at this time!")
                 return
-            old_state = plant.state
-            plant.state = State.watering
             log("   started pumping water.")
-            self.__pump_work.put((
-                plant.pour_millilitres,
-                plant.valve,
-                plant.pump_power
-                ))
+            self.__pump_work.put((millilitres, valve, pump_power))
             stats = None
             while True:
                 if self.__must_stop_pump():
@@ -61,9 +54,7 @@ class WaterSupply():
                     pass
                 else:
                     break
-            log("  ... %.3fml in %.3f seconds"\
-                % (stats.total_vol_ml, stats.time_elaps))
-            plant.state = old_state
+            log("  ... %.3fml in %.3f seconds" % stats)
             log("   done pumping water.")
 
     def close(self):

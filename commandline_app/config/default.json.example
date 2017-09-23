@@ -26,7 +26,6 @@
             "sensor_vcc_pin": ,
             "valve_pin": ,
             "led_pin": ,
-            "button_pin": ,
             "moist_percent": 55,
             "pour_millilitres": 50,
             "pump_power": 0.3,

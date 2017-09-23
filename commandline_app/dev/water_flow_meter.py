@@ -99,6 +99,12 @@ def hall_pulse_count_stop(dto, reached_event):
             ml_now
             )
 
+def calc_stat(dto):
+    pl_in_sec = dto.pulse_count / dto.time_elaps
+    lt_in_min = pl_in_sec / 40.05# flow coeficient
+    ml_sec_rate = lt_in_min * (1000/60)
+    total_vol_ml = ml_sec_rate * dto.time_elaps
+    return time_elaps, pl_in_sec, lt_in_min, ml_sec_rate, total_vol_ml
 
 def print_on_the_fly_stats(
         pulse_count,

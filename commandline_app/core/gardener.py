@@ -11,11 +11,11 @@ class Gardener:
         self.stop_event = Event()
         self.water_supply = WaterSupply(
             self.stop_event,
-            config.pump_args.__dict__,
-            config.tank_args.__dict__
+            config.pump_args._asdict(),
+            config.tank_args._asdict()
             )
         self.plants = tuple(
-            Plant(self.stop_event, **a.__dict__) for a in config.plants_args_list
+            Plant(self.stop_event, **a._asdict()) for a in config.plants_args_list
             )
         self.__plants_queue = Queue()
         self.__init_plants_queue()

@@ -37,13 +37,13 @@ class WaterSupply():
                 stats = self.__pump.pump_millilitres(*args)
                 self.__pump_work_result.put(stats)
 
-    def watering(self, millilitres, valve, pump_power):
+    def watering(self, millilitres, valve, pump_speed=1):
         with self.__semaphore:
             if self.__must_stop_pump():
                 log("cannot start pump at this time!")
                 return
             log("   started pumping water.")
-            self.__pump_work.put((millilitres, valve, pump_power))
+            self.__pump_work.put((millilitres, valve, pump_speed))
             stats = None
             while True:
                 if self.__must_stop_pump():

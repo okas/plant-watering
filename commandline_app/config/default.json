@@ -10,9 +10,10 @@
     },
     "pump_args": {
         "pin": 24,
+        "pump_speed": 1,
         "initial_value": 0,
         "frequency": 200,
-        "delay_motor": 0.1,
+        "delay_valve": 0.1,
         "flow_sensor_pin": 26,
         "flow_sensor_vcc_pin": 19
     },

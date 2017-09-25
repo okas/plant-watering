@@ -27,7 +27,6 @@ class Plant:
             led_pin,
             moist_percent,
             pour_millilitres=50,
-            pump_power=0.5,
             **spi_args
             ):
         self.id = id
@@ -38,7 +37,6 @@ class Plant:
         self.moist_level = moist_percent
         self.stop_event = stop_event
         self.pour_millilitres = pour_millilitres
-        self.pump_power = pump_power
 
     @property
     def state(self):

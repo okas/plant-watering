@@ -13,16 +13,18 @@ class Pump(UnidirectionMotor):
             flow_sensor_vcc_pin = None,
             flow_coef = 40,
             active_high = True,
+            pump_speed = 1,
             initial_value = 0,
             frequency = 100,
-            delay_motor = None
+            delay_valve = 0.1
             ):
         super().__init__(pin, active_high, initial_value, frequency)
         self._flow_sensor = DigitalInputDevice(flow_sensor_pin)
         if flow_sensor_vcc_pin:
             self._sensor_vcc = OutputDevice(flow_sensor_vcc_pin)
         self.reached_event = Event()
-        self._delay = delay_motor
+        self.pump_speed = pump_speed
+        self._delay = delay_valve
         self.flow_coef = flow_coef
         self.__reset_state()
 
@@ -57,14 +59,14 @@ class Pump(UnidirectionMotor):
         return self.pulse_count / self.time_elaps\
             / self.flow_coef * 1000 / 60 * self.time_elaps
 
-    def pump_millilitres(self, amount, valve_device, speed=1):
+    def pump_millilitres(self, amount, valve_device, speed=0):
         self.target_value = amount
         self.__set_flow_sensor()
         if self._sensor_vcc:
             self._sensor_vcc.on()
-        self.value = speed
-        if self._delay:
-            sleep(self._delay)
+        sleep(self._delay)
+        self.value = speed if speed > 0 else self.pump_speed
+        sleep(self._delay)
         valve_device.on()
         self.time_start = timer()
         self.reached_event.wait()

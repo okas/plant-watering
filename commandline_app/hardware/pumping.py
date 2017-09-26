@@ -64,7 +64,7 @@ class Pump(UnidirectionMotor):
         self.__set_flow_sensor()
         if self._sensor_vcc:
             self._sensor_vcc.on()
-        sleep(self._delay)
+        sleep(0.2)
         self.value = speed if speed > 0 else self.pump_speed
         sleep(self._delay)
         valve_device.on()

@@ -11,7 +11,7 @@ from common import common_logger as log, stoppable_sleep
 class State(Enum):
     resting = 0
     watering = 1
-    measuring = 0.2
+    measuring = (0, 0, 0.15, 0.35)
     needs_water = (0, 0, 1, 1.5)
 
 
@@ -30,7 +30,7 @@ class Plant:
             **spi_args
             ):
         self.id = id
-        self.led = PWMLED(led_pin, frequency=145)
+        self.led = PWMLED(led_pin, frequency=100)
         self.valve = OutputDevice(valve_pin)
         self.sensor = SoilSensor(sensor_vcc_pin, **spi_args)
         self.state = State.resting
@@ -45,7 +45,7 @@ class Plant:
     @state.setter
     def state(self, val):
         self.__state = val
-        if val == State.needs_water:
+        if isinstance(val.value, tuple):
             self.led.blink(*val.value)
         else:
             self.led.value = val.value

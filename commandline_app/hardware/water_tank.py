@@ -9,31 +9,17 @@ if __name__ == "__main__":
 from common import common_logger as log, stoppable_sleep
 
 
-@unique
 class State(Enum):
-    not_measured = 0
-    empty        = 1
-    low          = 2
-    normal       = 3
-    full         = 4
-    sensor_error = 5
+    not_measured = (0, 0, 0)
+    empty        = (255, 0, 0)
+    low          = (255, 30, 0)
+    normal       = (0, 150, 0)
+    full         = (0, 0, 150)
+    sensor_error = (255, 0, 0)
 
-
-class Helpers():
-    __state_rgb = {
-        State.full         : (0, 0, 150),
-        State.normal       : (0, 150, 0),
-        State.low          : (255, 30, 0),
-        State.empty        : (255, 0, 0),
-        State.not_measured : (0, 0, 0),
-        State.sensor_error : (255, 0, 0)
-        }
-
-    def rgb_conv(*args):
-        return tuple(1 * byte / 255 for byte in args)
-
-    def get_state_rgb(state):
-        return Helpers.rgb_conv(*Helpers.__state_rgb[state])
+    @property
+    def rgb_floats(self):
+        return tuple(1 * byte / 255 for byte in self.value)
 
 
 class WaterTank(Thread):
@@ -102,18 +88,19 @@ class WaterTank(Thread):
         return True
 
     def __change_led(self, new_state, old_state):
-        state_color = Helpers.get_state_rgb(new_state)
+        print(new_state)
+        print(new_state.rgb_floats)
         led = self.__devices['led']
         if new_state == State.empty:
             led.pulse(
                 0.5,
                 1.5,
-                on_color=state_color,
-                off_color=(0,0,0),
-                background=True
+                on_color = new_state.rgb_floats,
+                off_color = (0,0,0),
+                background = True
                 )
         else:
-            led.color = state_color
+            led.color = new_state.rgb_floats
 
     def __change_tank_availability(self, new_state):
         if new_state in (State.low, State.normal, State.full):

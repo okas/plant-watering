@@ -64,9 +64,8 @@ class WaterTank(Thread):
         self.__pouring_time = water_pour_time
         super().__init__(name=self.__class__.__name__)
 
-    @property
-    def probes(self):
-        return (self.__devices[name] for name in ('low', 'norm', 'full'))
+    def __del__(self):
+        self.close()
 
     def __begin_running(self):
         self.measure()
@@ -78,19 +77,6 @@ class WaterTank(Thread):
         self.available_event.clear()
         self.close()
         log("Completed Water tank watcher thread.")
-
-    def run(self):
-        self.__begin_running()
-        stop_e = self.stop_event
-        empt_e = self.__empty_to_low_event
-        pouring_predicate = lambda: stop_e.is_set() or not empt_e.is_set()
-        while not stop_e.wait(0.1):
-            if not empt_e.is_set():
-                continue
-            if not stoppable_sleep(self.__pouring_time, pouring_predicate):
-                self.state = State.low
-                empt_e.clear()
-        self.__end_running()
 
     def _calculate_state(self, levels):
         if   levels == (False, False, False):
@@ -115,25 +101,6 @@ class WaterTank(Thread):
             return False
         return True
 
-    def measure(self):
-        if self.stop_event.is_set():
-            log("<object: WaterTank>.measure() attempt canceled, "\
-                "because stop event is set.")
-            return
-        levels = tuple(p.value for p in self.probes)
-        new_state = self._calculate_state(levels)
-        if self.__needs_change(new_state, self.state):
-            self.state = new_state
-        if new_state == State.sensor_error:
-            self.stop_event.set()
-            raise Exception(
-                "Wrong sensor value reading: "\
-                "low: %-5s | norm: %-5s | full: %-5s!\n"\
-                "Investigate level probes physical placement "\
-                "at tank or check connection pins!"\
-                % levels
-                )
-
     def __change_led(self, new_state, old_state):
         state_color = Helpers.get_state_rgb(new_state)
         led = self.__devices['led']
@@ -154,6 +121,46 @@ class WaterTank(Thread):
         else:
             self.available_event.clear()
 
+    def run(self):
+        self.__begin_running()
+        stop_e = self.stop_event
+        empt_e = self.__empty_to_low_event
+        pouring_predicate = lambda: stop_e.is_set() or not empt_e.is_set()
+        while not stop_e.wait(0.1):
+            if not empt_e.is_set():
+                continue
+            if not stoppable_sleep(self.__pouring_time, pouring_predicate):
+                self.state = State.low
+                empt_e.clear()
+        self.__end_running()
+
+    def measure(self):
+        if self.stop_event.is_set():
+            log("<object: WaterTank>.measure() attempt canceled, "\
+                "because stop event is set.")
+            return
+        levels = tuple(p.value for p in self.probes)
+        new_state = self._calculate_state(levels)
+        if self.__needs_change(new_state, self.state):
+            self.state = new_state
+        if new_state == State.sensor_error:
+            self.stop_event.set()
+            raise Exception(
+                "Wrong sensor value reading: "\
+                "low: %-5s | norm: %-5s | full: %-5s!\n"\
+                "Investigate level probes physical placement "\
+                "at tank or check connection pins!"\
+                % levels
+                )
+
+    def close(self):
+        for d in self.__devices.values():
+            d.close()
+
+    @property
+    def probes(self):
+        return (self.__devices[name] for name in ('low', 'norm', 'full'))
+
     @property
     def state(self):
         return self.__state
@@ -169,13 +176,6 @@ class WaterTank(Thread):
         self.__change_tank_availability(new_val)
         self.__change_led(new_val, old_val)
         log('WaterTank state changed to [%s]' % new_val)
-
-    def close(self):
-        for d in self.__devices.values():
-            d.close()
-
-    def __del__(self):
-        self.close()
 
 
 if __name__ == "__main__":

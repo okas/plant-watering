@@ -1,9 +1,8 @@
 from enum import Enum, unique
-from time import sleep
 from timeit import default_timer as timer
 from threading import BoundedSemaphore
 from gpiozero import PWMLED, OutputDevice
-from hardware import Pump, SoilSensor
+from hardware import SoilSensor
 from common import common_logger as log, stoppable_sleep
 
 
@@ -38,17 +37,9 @@ class Plant:
         self.stop_event = stop_event
         self.pour_millilitres = pour_millilitres
 
-    @property
-    def state(self):
-        return self.__state
-
-    @state.setter
-    def state(self, val):
-        self.__state = val
-        if isinstance(val.value, tuple):
-            self.led.blink(*val.value)
-        else:
-            self.led.value = val.value
+    def __del__(self):
+        if hasattr(self, 'closed') and not self.closed:
+            self.close()
 
     def measure(self, retain_state=False):
         old_state = self.state
@@ -76,6 +67,14 @@ class Plant:
         self.closed = True
         log("Closed %s" % self.id)
 
-    def __del__(self):
-        if hasattr(self, 'closed') and not self.closed:
-            self.close()
+    @property
+    def state(self):
+        return self.__state
+
+    @state.setter
+    def state(self, val):
+        self.__state = val
+        if isinstance(val.value, tuple):
+            self.led.blink(*val.value)
+        else:
+            self.led.value = val.value

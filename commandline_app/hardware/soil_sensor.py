@@ -1,7 +1,9 @@
-from gpiozero import PWMLED, MCP3008, OutputDevice
-from time import sleep, time
+from gpiozero import MCP3008, OutputDevice
+from time import sleep
+from timeit import default_timer as timer
 from statistics import median
 from common import common_logger as log
+
 
 class SoilSensor():
     # Excpecting chip's Vdd +5V
@@ -20,11 +22,14 @@ class SoilSensor():
         self.reads = reads
         self.wait_for_seconds = wait_for_seconds
 
-    @property
-    def moisture_percent(self):
-        result = 100 * median(self.read()) / SoilSensor.__val_max
-        log("  Sensor moisture median: {:.2f}%.".format(result))
-        return result
+    def __del__(self):
+        if hasattr(self, 'closed') and not self.closed: self.close()
+
+    def __read_iter(self):
+        for i in range(self.reads):
+            v = self.__spi_dev.value
+            sleep(self.wait_for_seconds)
+            yield v
 
     '''
     Multiple readigns are usuallt better. Calculate some avarag or median out of list of results
@@ -34,21 +39,16 @@ class SoilSensor():
         Waiting time between reads.
     '''
     def read(self):
+
         log("  Sensor is on.")
         values =[]
-        t1 = time()
+        t1 = timer()
         self.__spi_vcc.on()
         values = [i for i in self.__read_iter()]
         self.__spi_vcc.off()
-        t2 = time()
+        t2 = timer()
         log("  Sensor is off; read {:d} values in {:.3f} seconds.".format(self.reads, (t2 - t1)))
         return values
-
-    def __read_iter(self):
-        for i in range(self.reads):
-            v = self.__spi_dev.value
-            sleep(self.wait_for_seconds) 
-            yield v
 
     def close(self):
         self.closed = False
@@ -56,5 +56,8 @@ class SoilSensor():
         self.__spi_vcc.close()
         self.closed = True
 
-    def __del__(self):
-        if hasattr(self, 'closed') and not self.closed: self.close()
+    @property
+    def moisture_percent(self):
+        result = 100 * median(self.read()) / SoilSensor.__val_max
+        log("  Sensor moisture median: {:.2f}%.".format(result))
+        return result

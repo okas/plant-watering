@@ -23,6 +23,10 @@ class Gardener:
         self.watering_cycle = config.gardener_args.watering_cycle
         self.__start_work()
 
+    def __del__(self):
+        if hasattr(self, 'closed') and not self.closed:
+            self.close()
+
     def __init_plants_queue(self):
         for p in self.plants:
             self.__plants_queue.put(p)
@@ -49,12 +53,10 @@ class Gardener:
         self.closed = True
         log("Completed Gardener!\n")
 
-    def __del__(self):
-        if hasattr(self, 'closed') and not self.closed:
-            self.close()
-
 
 class PlantWatcher(Thread):
+    __watering_semaphore = BoundedSemaphore(value=1)
+
     def __init__(self,  work_queue,  stop_event, water_supply, watch, water):
         self.__work_queue = work_queue
         self.stop_event = stop_event
@@ -63,13 +65,6 @@ class PlantWatcher(Thread):
         self.water = water
         self.plant = work_queue.get()
         super().__init__(name=self.plant.id+"_pw")
-
-    __watering_semaphore = BoundedSemaphore(value=1)
-
-    def add_seconds(self, seconds, strftime="%X"):
-        return (
-            datetime.now() + timedelta(seconds=seconds)
-            ).strftime(strftime)
 
     def run(self):
         try:
@@ -93,6 +88,7 @@ class PlantWatcher(Thread):
             self.stop_event.set()
             self.__work_queue.task_done()
         log("Completed PlantWatcher thread.")
+
 
     def handle_watering_cycle(self):
         '''Perform watering, measuring and re-watering if neccessary.'''
@@ -145,3 +141,8 @@ class PlantWatcher(Thread):
         elif waiting:
             log("tank waiting interrupted!")
         return result
+
+    def add_seconds(self, seconds, strftime="%X"):
+        return (
+            datetime.now() + timedelta(seconds=seconds)
+            ).strftime(strftime)

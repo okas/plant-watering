@@ -24,6 +24,10 @@ class WaterSupply():
         self.__pump_worker_thread.start()
         self.__tank_thread.start()
 
+    def __del__(self):
+        if hasattr(self, 'closed') and not self.closed:
+            self.close()
+
     def __must_stop_pump(self):
         return self.stop_event.is_set() or not self.available_event.is_set()
 
@@ -64,7 +68,3 @@ class WaterSupply():
         self.__tank_thread.join()
         self.closed = True
         log("Completed Gardener!\n")
-
-    def __del__(self):
-        if hasattr(self, 'closed') and not self.closed:
-            self.close()

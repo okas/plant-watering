@@ -28,6 +28,9 @@ class Pump(UnidirectionMotor):
         self.flow_coef = flow_coef
         self.__reset_state()
 
+    def __del__(self):
+        self.close()
+
     def __reset_state(self):
         self.time_elaps   = 0
         self.time_start   = 0
@@ -82,6 +85,3 @@ class Pump(UnidirectionMotor):
             self._flow_sensor.close()
         if hasattr(self, '_sensor_vcc'):
             self._sensor_vcc.close()
-
-    def __del__(self):
-        self.close()

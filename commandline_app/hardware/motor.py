@@ -1,4 +1,4 @@
-from gpiozero import OutputDevice, OutputDeviceBadValue, GPIOPinMissing
+from gpiozero import OutputDevice, OutputDeviceBadValue
 
 
 class UnidirectionMotor(OutputDevice):
@@ -36,14 +36,6 @@ class UnidirectionMotor(OutputDevice):
             self.close()
             raise
 
-    def close(self):
-        try:
-            self.pin.frequency = None
-        except AttributeError:
-            # If the pin's already None, ignore the exception
-            pass
-        super().close()
-
     def _state_to_value(self, state):
         return float(state if self.active_high else 1 - state)
 
@@ -54,18 +46,6 @@ class UnidirectionMotor(OutputDevice):
         if not 0 <= value <= 1:
             raise OutputDeviceBadValue("PWM value must be between 0 and 1")
         super()._write(value)
-
-    @property
-    def value(self):
-        """
-        The duty cycle of the PWM device. 0.0 is off, 1.0 is fully on. Values
-        in between may be specified for varying levels of power in the device.
-        """
-        return self._read()
-
-    @value.setter
-    def value(self, value):
-        self._write(value)
 
     def on(self):
         self._write(1)
@@ -81,6 +61,26 @@ class UnidirectionMotor(OutputDevice):
         toggle it to 0.9, and so on.
         """
         self.value = 1 - self.value
+
+    def close(self):
+        try:
+            self.pin.frequency = None
+        except AttributeError:
+            # If the pin's already None, ignore the exception
+            pass
+        super().close()
+
+    @property
+    def value(self):
+        """
+        The duty cycle of the PWM device. 0.0 is off, 1.0 is fully on. Values
+        in between may be specified for varying levels of power in the device.
+        """
+        return self._read()
+
+    @value.setter
+    def value(self, value):
+        self._write(value)
 
     @property
     def is_active(self):

@@ -1,4 +1,4 @@
-from enum import Enum, unique
+from enum import Enum
 from threading import Thread, Event
 from gpiozero import RGBLED, DigitalInputDevice
 if __name__ == "__main__":

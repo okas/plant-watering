@@ -88,8 +88,6 @@ class WaterTank(Thread):
         return True
 
     def __change_led(self, new_state, old_state):
-        print(new_state)
-        print(new_state.rgb_floats)
         led = self.__devices['led']
         if new_state == State.empty:
             led.pulse(

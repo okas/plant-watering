@@ -14,11 +14,11 @@ def recursive_converter(obj):
         return obj
 
 
-def load_configuration(config_name):
-    if '/' in config_name:
-        file_path = config_name
+def load_configuration(name_or_path):
+    if '/' in name_or_path:
+        file_path = name_or_path
     else:
-        file_path = os.path.abspath('%s/../%s.json' % (__file__, config_name))
+        file_path = os.path.abspath('%s/../%s.json' % (__file__, name_or_path))
     with open(file_path) as j_file:
         config = json.load(j_file, object_hook = recursive_converter)
     return config

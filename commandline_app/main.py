@@ -1,32 +1,14 @@
 import sys
-import atexit
-import signal
 import config
-from time import sleep
-from threading import main_thread
 from core import Gardener
 from common import common_logger as log
 
 
-def main(config_name):
-    # TODO: pass GPIO or some other initialization data from some module/mixin?
+def main(config_name_or_path):
     gardener = None
-    app_configuration = config.load_configuration(config_name)
-
-    def __signal_handler(*args):
-        print("here")
-        gardener.stop_event.set()
-        gardener.close()
-        sleep(10)
-        log("Exit %s (from cleanup handler).\n" % main_thread().name)
-
-    #atexit.register(__cleanup_handler, gardener, __watertank, Plant.shared_pump)
-    signal.signal(signal.SIGTERM, __signal_handler)
-    #signal.signal(signal.SIGKILL, __signal_handler)
+    app_configuration = config.load_configuration(config_name_or_path)
     _err = None
-
     try:
-        # set up Gardener object graph and start garden monitoring
         gardener = Gardener(app_configuration)
         gardener.stop_event.wait()
     except (KeyboardInterrupt):
@@ -35,7 +17,8 @@ def main(config_name):
         log("Someting wants to SystemExit...\n")
         _err = err
     except Exception as err:
-        log("Encountered some exeption, should see it after 'Program done' message below.")
+        log("Encountered some exeption, should see it after "\
+            "'Program done' message below.")
         _err = err
     finally:
         if gardener is not None:
@@ -46,29 +29,6 @@ def main(config_name):
         log("Re-raised error, that occured during program execution:\n")
         raise _err
     sys.exit()
-
-def _plant_manipulator_worker(index, wait_for, stop_event, cycles=0):
-    # obsolete: use this instead: gpiozero.tools module, artificial sources
-    counter = 1
-    value_to_set = 20
-    while counter <= cycles or cycles == 0:
-        if stop_event.is_set(): return
-        plant = Gardener.plants[index]
-        while plant.state != State.resting: sleep(0.1)
-        log("manipulated %s\'s sensor to %d. (times: %d/%d)."\
-                      % (plant.id, value_to_set, counter, cycles))
-        plant.sensor.value = value_to_set
-        sleep(wait_for)
-        counter += 1
-
-def __cleanup_handler(*args):
-    print("here")
-    print(args)
-    for target in args:
-        print("target not none?: %s" % (target is not None))
-        if target is not None: target.close()
-    sleep(5)
-    log("Exit %s (from cleanup handler).\n" % main_thread().name)
 
 
 if __name__ == '__main__':

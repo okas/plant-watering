@@ -1,12 +1,11 @@
-{% extends "layout.html" %}
+{% extends "_layout.html" %}
 
-{% block body %}
+{% block content %}
 
-	<h1>Hello from a template (index)!</h1>
-	{% if x==2 %}
-	<p>It's a second view.
-	{% endif %}
-	<p>Go to <a href="{{ url_for('test.hello''', x='y', name='Okas') }}">Hello</a> page.
+        <h1>Hello from a template (index)!</h1>
+        {% if x==2 %}
+        <p>It's a second view.
+        {% endif %}
 
 {{ super() }}
 {% endblock %}

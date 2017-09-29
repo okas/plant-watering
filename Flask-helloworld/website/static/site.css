@@ -1,8 +1,5 @@
-body {
-	background: red;
-	color: yellow;
-}
+body {}
 #body_footer {
-	color:black;
-	font-size: 65%
+    color:black;
+    font-size: 65%
 }

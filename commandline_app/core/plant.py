@@ -15,8 +15,6 @@ class State(Enum):
 
 
 class Plant:
-    __watering_semaphore = BoundedSemaphore(value=1)
-
     def __init__(
             self,
             stop_event,
@@ -36,28 +34,30 @@ class Plant:
         self.moist_level = moist_percent
         self.stop_event = stop_event
         self.pour_millilitres = pour_millilitres
+        self.__measuring_semaphore = BoundedSemaphore(value=1)
 
     def __del__(self):
         if hasattr(self, 'closed') and not self.closed:
             self.close()
 
     def measure(self, retain_state=False):
-        old_state = self.state
-        self.state = State.measuring
-        moist = self.sensor.moisture_percent
-        if moist > self.moist_level:
-            new_state = State.resting
-            result = False
-        elif moist <= self.moist_level:
-            new_state = State.needs_water
-            result = True
-        else:
-            log("id: %s, state: %s, moisture: %s, sensor: %s"\
-                % (self.id, self.state, self.moist_level, moist))
-            raise Exception("Should not end up here! Something is "\
-                            "wrong with Plant instance state handling.")
-        self.state = old_state if retain_state else new_state
-        return (result, moist)
+        with self.__measuring_semaphore:
+            old_state = self.state
+            self.state = State.measuring
+            moist = self.sensor.moisture_percent
+            if moist > self.moist_level:
+                new_state = State.resting
+                result = False
+            elif moist <= self.moist_level:
+                new_state = State.needs_water
+                result = True
+            else:
+                log("id: %s, state: %s, moisture: %s, sensor: %s"\
+                    % (self.id, self.state, self.moist_level, moist))
+                raise Exception("Should not end up here! Something is "\
+                                "wrong with Plant instance state handling.")
+            self.state = old_state if retain_state else new_state
+            return (result, moist)
 
     def close(self):
         self.closed = False
@@ -65,7 +65,7 @@ class Plant:
         self.valve.close()
         self.sensor.close()
         self.closed = True
-        log("Closed %s" % self.id)
+        log("Closed %s." % self.id)
 
     @property
     def state(self):

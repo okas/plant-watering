@@ -14,6 +14,7 @@ class Gardener:
             config.pump_args._asdict(),
             config.tank_args._asdict()
             )
+        self.closed = False
         self.plants = tuple(
             Plant(self.stop_event, **a._asdict()) for a in config.plants_args_list
             )
@@ -24,7 +25,8 @@ class Gardener:
         self.__start_work()
 
     def __del__(self):
-        if hasattr(self, 'closed') and not self.closed:
+        if not self.closed:
+            self.stop_event.set()
             self.close()
 
     def __init_plants_queue(self):
@@ -44,14 +46,14 @@ class Gardener:
             ).start()
 
     def close(self):
-        log("Ending Gardener, quitting worker threads. Please wait...\n")
-        self.closed = False
+        my_name = self.__class__.__name__
+        log("Ending %s, quitting worker threads. Please wait..." % my_name)
         self.__plants_queue.join()
         self.water_supply.close()
         for p in self.plants:
             p.close()
         self.closed = True
-        log("Completed Gardener!\n")
+        log("Completed %s!" % my_name)
 
 
 class PlantWatcher(Thread):

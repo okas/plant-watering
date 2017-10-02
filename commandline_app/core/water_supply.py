@@ -62,9 +62,10 @@ class WaterSupply():
             log("   done pumping water.")
 
     def close(self):
-        log("Ending WaterSupply, quitting worker thread. Please wait...\n")
+        my_name = self.__class__.__name__
+        log("Ending %s, quitting worker threads. Please wait..." % my_name)
         self.closed = False
         self.__pump_worker_thread.join()
         self.__tank_thread.join()
         self.closed = True
-        log("Completed Gardener!\n")
+        log("Completed %s!" % my_name)

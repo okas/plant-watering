@@ -1,6 +1,5 @@
 from enum import Enum, unique
 from timeit import default_timer as timer
-from threading import BoundedSemaphore
 from gpiozero import PWMLED, OutputDevice
 from hardware import SoilSensor
 from common import common_logger as log, stoppable_sleep
@@ -15,8 +14,6 @@ class State(Enum):
 
 
 class Plant:
-    __watering_semaphore = BoundedSemaphore(value=1)
-
     def __init__(
             self,
             stop_event,
@@ -65,7 +62,7 @@ class Plant:
         self.valve.close()
         self.sensor.close()
         self.closed = True
-        log("Closed %s" % self.id)
+        log("Closed %s." % self.id)
 
     @property
     def state(self):

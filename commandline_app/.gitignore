@@ -1,4 +1,3 @@
-config/*
-!config/__init__.py
-!config/*default*.json
-!config/*default*.json*
+configuration/*
+!configuration/__init__.py
+!configuration/*default*.json*

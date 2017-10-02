@@ -1,9 +1,8 @@
 import argparse
 import os
-import main
+import __init__
 
-
-config_dir = os.path.abspath(__file__+'/../config/')
+config_dir = os.path.abspath(__file__+'/../configuration/')
 configs = [x[:-5] for x in os.listdir(config_dir) if x.endswith('.json')]
 if 'default' in configs:
     default_choice = 'default'
@@ -29,4 +28,4 @@ parser.add_argument(
     "There is selection of *.json file names, that where found from ../config/. "\
     "You must fill in configurations before program can run!"
     )
-main.main(parser.parse_args().config)
+__init__.run_commandline(parser.parse_args().config)

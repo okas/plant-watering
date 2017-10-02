@@ -24,7 +24,7 @@ def run_commandline(config_name_or_path):
         _err = err
     except Exception as err:
         log("Encountered some exeption, should see it after "\
-            "'Program done' message below.\n")
+            "'Program done' message below.")
         _err = err
     finally:
         if gardener is not None:

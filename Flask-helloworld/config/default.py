@@ -2,10 +2,10 @@ import os
 
 
 # Statement for enabling the development environment NB! Use separate development.py config file!
-DEBUG = False
+DEBUG = True
 
 # Define the application directory
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))  
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Define the database - we are working with
 # SQLite for this example

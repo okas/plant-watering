@@ -1,14 +1,22 @@
-from threading import Thread, BoundedSemaphore
 import queue
+from threading import Thread, BoundedSemaphore
+from gpiozero import OutputDevice
 from hardware import Pump, WaterTank
 from common import common_logger as log
 
-from time import sleep
 
 class WaterSupply():
-    def __init__(self, stop_event, pump_args, tank_args):
+    def __init__(self, stop_event, pump_args, valve_pins, tank_args):
+        self.closed = False
+        self.__valves = {}
+        try:
+            self.__pump = Pump(**pump_args)
+            for pin in valve_pins:
+                self.__valves[pin] = OutputDevice(pin)
+        except:
+            self.close()
+            raise
         self.stop_event = stop_event
-        self.__pump = Pump(**pump_args)
         self.__pump_work = queue.Queue(maxsize=1)
         self.__pump_work_result = queue.Queue(maxsize=1)
         self.__semaphore = BoundedSemaphore(value=1)
@@ -40,14 +48,20 @@ class WaterSupply():
             else:
                 stats = self.__pump.pump_millilitres(*args)
                 self.__pump_work_result.put(stats)
+        else:
+            self.__pump.close()
 
-    def watering(self, millilitres, valve, pump_speed=1):
+    def watering(self, millilitres, valve_pin, pump_speed=1):
         with self.__semaphore:
             if self.__must_stop_pump():
                 log("cannot start pump at this time!")
                 return
             log("   started pumping water.")
-            self.__pump_work.put((millilitres, valve, pump_speed))
+            self.__pump_work.put((
+                millilitres,
+                self.__valves[valve_pin],
+                pump_speed
+                ))
             stats = None
             while True:
                 if self.__must_stop_pump():
@@ -64,7 +78,9 @@ class WaterSupply():
     def close(self):
         my_name = self.__class__.__name__
         log("Ending %s, quitting worker threads. Please wait..." % my_name)
-        self.closed = False
+        self.__pump.close()
+        for d in self.__valves.values():
+            d.close()
         self.__pump_worker_thread.join()
         self.__tank_thread.join()
         self.closed = True

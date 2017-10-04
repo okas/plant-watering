@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from timeit import default_timer as timer
 from threading import BoundedSemaphore
-from gpiozero import PWMLED, OutputDevice
+from gpiozero import PWMLED
 from hardware import SoilSensor
 from common import common_logger as log, stoppable_sleep
 
@@ -28,7 +28,7 @@ class Plant:
             ):
         self.id = id
         self.led = PWMLED(led_pin, frequency=100)
-        self.valve = OutputDevice(valve_pin)
+        self.valve_pin = valve_pin
         self.sensor = SoilSensor(sensor_vcc_pin, **spi_args)
         self.state = State.resting
         self.moist_level = moist_percent
@@ -40,7 +40,7 @@ class Plant:
         if hasattr(self, 'closed') and not self.closed:
             self.close()
 
-    def measure(self, retain_state=False):
+    def measure(self, retain_state=False) -> tuple:
         with self.__measuring_semaphore:
             old_state = self.state
             self.state = State.measuring
@@ -62,13 +62,12 @@ class Plant:
     def close(self):
         self.closed = False
         self.led.close()
-        self.valve.close()
         self.sensor.close()
         self.closed = True
         log("Closed %s." % self.id)
 
     @property
-    def state(self):
+    def state(self) -> State:
         return self.__state
 
     @state.setter

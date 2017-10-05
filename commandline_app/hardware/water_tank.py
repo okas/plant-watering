@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, unique
 from threading import Thread, Event
 from gpiozero import RGBLED, DigitalInputDevice
 if __name__ == "__main__":
@@ -8,10 +8,10 @@ if __name__ == "__main__":
     sys.path.insert(1, os.path.abspath(__file__+'/../..'))
 from common import common_logger as log, stoppable_sleep
 
-
+@unique
 class State(Enum):
     not_measured = (0, 0, 0)
-    empty        = (255, 0, 0)
+    empty        = (255, 5, 0)
     low          = (255, 30, 0)
     normal       = (0, 150, 0)
     full         = (0, 0, 150)
@@ -94,7 +94,7 @@ class WaterTank(Thread):
                 0.5,
                 1.5,
                 on_color = new_state.rgb_floats,
-                off_color = (0,0,0),
+                off_color = (0.10,0,0),
                 background = True
                 )
         else:

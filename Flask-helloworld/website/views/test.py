@@ -28,10 +28,10 @@ def after_request(response):
 @mod.route('/index')
 @mod.route('/')
 def index_page():
-    #for plant in app.plant_waterer.plants:
-        #measurement = plant.measure()
-        #flash('Plant: {0.id} | state: {0.state} | '\
-              #'needed moisture: {0.moist_level} | '\
-              #'current moisture: {1:3f}'
-              #.format(plant, measurement[1]))
+    for plant in app.plant_waterer.plants:
+        measurement = plant.measure(True)
+        flash('Plant: {0.id} | state: {0.state} | '\
+              'needed moisture: {0.moist_level} | '\
+              'current moisture: {1:3f}'
+              .format(plant, measurement[1]))
     return render_template('index.html')

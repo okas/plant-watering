@@ -2,7 +2,7 @@ import os
 import sys
 import signal
 from flask import Flask
-from werkzeug.serving import is_running_from_reloader
+#from werkzeug.serving import is_running_from_reloader
 sys.path.insert(1, os.path.abspath(__file__+'/../../../'))
 import commandline_app
 
@@ -51,4 +51,3 @@ def setup_plant_waterer(web_app):
 
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
-

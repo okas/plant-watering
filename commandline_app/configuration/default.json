@@ -1,4 +1,5 @@
 {
+    "name": "default",
     "tank_args": {
         "probe_low_pin": 16,
         "probe_norm_pin": 20,
@@ -21,7 +22,7 @@
         "watch_cycle": 1800,
         "watering_cycle": 60
     },
-    "plants_args": [
+    "plants_args_list": [
         {
             "id": "JoodikLill",
             "sensor_vcc_pin": 25,

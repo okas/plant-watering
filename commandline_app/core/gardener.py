@@ -1,7 +1,7 @@
 import os
 import uuid
 from datetime import datetime, timedelta
-from queue import Queue
+import queue
 from threading import Thread, Event, BoundedSemaphore
 from unqlite import UnQLite
 from .plant import Plant, State
@@ -19,7 +19,10 @@ class Gardener:
     def __init__(self, config):
         self.closed = False
         self.stop_event = Event()
-        self.__worker_queue = Queue()
+        self.__db_worker_stop = Event()
+        self.__worker_queue = queue.Queue()
+        self.__db_queue = queue.Queue()
+        self.__uuid1 = None
         self.__init_db('{}/../../data/{}.db'.format(__file__, config.name))
         self.watch_cycle = config.gardener_args.watch_cycle
         self.watering_cycle = config.gardener_args.watering_cycle
@@ -30,7 +33,8 @@ class Gardener:
             config.tank_args._asdict()
             )
         self.plants = self.__init_plants(config.plants_args_list)
-        self.__start_work()
+        self.__start_work_data()
+        self.__start_work_watchers()
 
     def __del__(self):
         if not self.closed:
@@ -39,42 +43,83 @@ class Gardener:
 
     def __init_db(self, db_path):
         self.__db = UnQLite(os.path.abspath(db_path))
-        self.__data = self.__db.collection('gardener_instances')
-        self.__data.create()
+        self.__db.collection('gardener_instances').create()
 
     def __init_plants(self, a_list) -> tuple:
         return tuple(Plant(self.stop_event, **a._asdict()) for a in a_list)
 
-    def __start_work(self):
-        plants = []
+    def __start_work_data(self):
+        self.__uuid1 = uuid.uuid1()
+        g = ({'id': p.id, 'moist_level': p.moist_level} for p in self.plants)
+        with self.__db.transaction():
+            self.__db.collection('gardener_instances').store({
+                'uuid1': str(self.__uuid1),
+                'watch_cycle': self.watch_cycle,
+                'watering_cycle': self.watering_cycle,
+                'plants': list(g)
+                })
+        self.__db_thread = Thread(name = '_db_worker', target = self.__db_worker)
+        self.__db_thread.start()
+
+    def __db_worker(self):
+        log('Started database worker.')
+        while not self.__db_worker_stop.is_set():
+            try:
+                work = self.__db_queue.get(timeout=0.1)
+            except queue.Empty:
+                pass
+            else:
+                work()
+        self.__db.close()
+        log('Completed database worker.')
+
+    def __start_work_watchers(self):
         for plant in self.plants:
             self.__worker_queue.put(plant)
             Thread(
                 name = "[{}_worker]".format(plant.id),
                 target = self.plant_watcher_worker
                 ).start()
-            plants.append({
-                'id': plant.id, 'moist_percent_min': plant.moist_level
-                })
-        with self.__db.transaction():
-            self.__data.store(
-                {
-                    'uuid1': str(uuid.uuid1()),
-                    'watch_cycle': self.watch_cycle,
-                    'watering_cycle': self.watering_cycle,
-                    'plants': plants
-                })
         log("Gardener is starting to watch for %d plants."\
             % len(self.plants))
 
+    def _get_collections(self) -> tuple:
+        measur = self.__db.collection('plant_moisture_measurements')
+        water = self.__db.collection('plant_waterings')
+        measur.create()
+        water.create()
+        return (measur, water)
+
+    def _save_measure(self, coll_moist, p_id, moist):
+        @self.__db.commit_on_success
+        def measure_commiter():
+            coll_moist.store({
+                'gardener_uuid1': str(self.__uuid1),
+                'plant_id': p_id,
+                'ts_utc': datetime.utcnow().timestamp(),
+                'percent': moist
+                })
+        self.__db_queue.put(measure_commiter)
+
+    def _save_watering(self, coll_water, p_id, water):
+        @self.__db.commit_on_success
+        def water_commiter():
+            coll_water.store({
+                'gardener_uuid1': str(self.__uuid1),
+                'plant_id': p_id,
+                'ts_utc': datetime.utcnow().timestamp(),
+                'mil_lit': water
+                })
+        self.__db_queue.put(water_commiter)
+
     def plant_watcher_worker(self):
         plant = self.__worker_queue.get()
+        db_coll_moist, db_coll_water = self._get_collections()
         while not self.stop_event.is_set():
             moist = plant.measure()[1]
-            with self.__db.transaction():
-                ...
+            self._save_measure(db_coll_moist, plant.id, moist)
             if plant.state == State.needs_water:
-                self.handle_watering_cycle(plant)
+                self.handle_watering_cycle(plant, db_coll_moist, db_coll_water)
                 if self.stop_event.is_set():
                     break
                 log(" in watch cycle, next measure at %s."\
@@ -95,7 +140,7 @@ class Gardener:
         self.__worker_queue.task_done()
         log(" completed plant watcher thread.")
 
-    def handle_watering_cycle(self, plant):
+    def handle_watering_cycle(self, plant, db_coll_moist, db_coll_water):
         '''Perform watering, measuring and re-watering if neccessary.'''
         log(" Start watering cycles.")
         while True:
@@ -103,14 +148,15 @@ class Gardener:
                 log(" stopping watering cycle, because something asked.")
                 break
             log("  start watering.")
-            with Gardener.__watering_semaphore:
-                self.water_plant(plant)
+            actual_ml = self.water_plant(plant)
+            self._save_watering(db_coll_water, plant.id, actual_ml)
             log("  watering cycle, next measure at %s."
                 % add_seconds(self.watering_cycle))
             if self.stop_event.wait(self.watering_cycle):
                 log(" stopping watering cycle, because something asked.")
                 break
             measure, moist = plant.measure()
+            self._save_measure(db_coll_moist, plant.id, moist)
             if not measure:
                 log(" watering cycle completed, reached moisture "\
                     "level of {:.2f}% (min {:.2f}%), "\
@@ -123,11 +169,16 @@ class Gardener:
                 break
         log(" Completed watering.")
 
-    def water_plant(self, plant):
-        old_state = plant.state
-        plant.state = State.watering
-        self.water_supply.watering(plant.pour_millilitres, plant.valve_pin)
-        plant.state = old_state
+    def water_plant(self, plant) -> float:
+        with Gardener.__watering_semaphore:
+            old_state = plant.state
+            plant.state = State.watering
+            actual_ml = self.water_supply.watering(
+                plant.pour_millilitres,
+                plant.valve_pin
+                )
+            plant.state = old_state
+        return actual_ml
 
     def wait_for_tank(self) -> bool:
         '''
@@ -154,12 +205,12 @@ class Gardener:
         my_name = self.__class__.__name__
         log("Ending %s, quitting worker threads. Please wait..." % my_name)
         self.__worker_queue.join()
-        if hasattr(self, '__db'):
-            self.__db.close()
         if hasattr(self, 'water_supply'):
             self.water_supply.close()
         if hasattr(self, 'plants'):
             for p in self.plants:
                 p.close()
+        self.__db_worker_stop.set()
+        self.__db_thread.join()
         self.closed = True
         log("Completed %s!" % my_name)

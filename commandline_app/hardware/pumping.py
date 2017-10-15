@@ -43,7 +43,7 @@ class Pump(UnidirectionMotor):
         self._flow_sensor.when_activated   = self.__hall_pulse_volume_stop
         self._flow_sensor.when_deactivated = self.__hall_pulse_volume_stop
 
-    def __handle_result(self):
+    def __handle_result(self) -> tuple:
         ml = self.calc_pumped_millilitres()
         result = (ml, self.time_elaps)
         self.__reset_state()
@@ -56,13 +56,13 @@ class Pump(UnidirectionMotor):
         if self.calc_pumped_millilitres() >= self.target_value:
             self.reached_event.set()
 
-    def calc_pumped_millilitres(self):
+    def calc_pumped_millilitres(self) -> float:
         if self.time_elaps < 0.001:
             return 0
         return self.pulse_count / self.time_elaps\
             / self.flow_coef * 1000 / 60 * self.time_elaps
 
-    def pump_millilitres(self, amount, valve_device, speed=0):
+    def pump_millilitres(self, amount, valve_device, speed=0) -> tuple:
         self.target_value = amount
         self.__set_flow_sensor()
         if self._sensor_vcc:

@@ -36,7 +36,7 @@ class WaterSupply():
         if hasattr(self, 'closed') and not self.closed:
             self.close()
 
-    def __must_stop_pump(self):
+    def __must_stop_pump(self) -> bool:
         return self.stop_event.is_set() or not self.available_event.is_set()
 
     def __pump_worker(self):
@@ -48,14 +48,13 @@ class WaterSupply():
             else:
                 stats = self.__pump.pump_millilitres(*args)
                 self.__pump_work_result.put(stats)
-        else:
-            self.__pump.close()
+        self.__pump.close()
 
-    def watering(self, millilitres, valve_pin, pump_speed=1):
+    def watering(self, millilitres, valve_pin, pump_speed=1) -> float:
         with self.__semaphore:
             if self.__must_stop_pump():
                 log("cannot start pump at this time!")
-                return
+                return -1
             log("   started pumping water.")
             self.__pump_work.put((
                 millilitres,
@@ -74,6 +73,7 @@ class WaterSupply():
                     break
             log("  ... %.3fml in %.3f seconds" % stats)
             log("   done pumping water.")
+            return stats[0]
 
     def close(self):
         my_name = self.__class__.__name__

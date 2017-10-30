@@ -24,14 +24,17 @@
     "plants_args": [
         {
             "id": "JoodikLill",
-            "sensor_vcc_pin": 25,
             "valve_pin": 18,
             "led_pin": 23,
             "moist_percent": 55,
             "pour_millilitres": 50,
-            "pump_power": 0.3,
-            "device": 1,
-            "channel": 0
+            "sensor_args": {
+                "vcc_pin": 25,
+                "spi_device": 1,
+                "spi_channel": 0,
+                "dry_value": 0.875,
+                "wet_value": 0.250
+            }
         }
     ]
 }

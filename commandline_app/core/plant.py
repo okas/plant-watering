@@ -18,7 +18,7 @@ class Plant:
     def __init__(
             self,
             stop_event,
-            id,
+            name,
             valve_pin,
             led_pin,
             moist_percent,
@@ -26,7 +26,7 @@ class Plant:
             pour_millilitres=50
             ):
         self.stop_event = stop_event
-        self.id = id
+        self.name = name
         self.sensor = CapacitiveSensor(**sensor_args._asdict())
         self.moist_level = moist_percent
         self.valve_pin = valve_pin
@@ -54,7 +54,7 @@ class Plant:
                 result = True
             else:
                 log(' %s, state: %s, moisture: %s, sensor: %s'
-                    % (self.id, self.state, self.moist_level, moist))
+                    % (self.name, self.state, self.moist_level, moist))
                 raise Exception('Should not end up here! Something is '\
                                 'wrong with Plant instance state handling.')
             self.state = self.__p_state if retain_state else new_state
@@ -66,7 +66,7 @@ class Plant:
         self.led.close()
         self.sensor.close()
         self.closed = True
-        log('Closed %s.' % self.id)
+        log('Closed %s.' % self.name)
 
     @property
     def state(self) -> State:

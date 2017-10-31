@@ -24,7 +24,7 @@
     },
     "plants_args_list": [
         {
-            "id": "JoodikLill",
+            "name": "JoodikLill",
             "valve_pin": 18,
             "led_pin": 23,
             "moist_percent": 55,

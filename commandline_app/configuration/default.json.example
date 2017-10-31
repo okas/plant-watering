@@ -24,7 +24,7 @@
     },
     "plants_args_list": [
         {
-            "id": "",
+            "name": "",
             "valve_pin": ,
             "led_pin": ,
             "moist_percent": 55,

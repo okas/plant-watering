@@ -10,7 +10,7 @@ from common import common_logger as log, stoppable_sleep
 class State(Enum):
     resting = 0
     watering = 1
-    measuring = (0, 0, 0.15, 0.35)
+    measuring = (0, 0, 0.05, 0.05)
     needs_water = (0, 0, 1, 1.5)
 
 

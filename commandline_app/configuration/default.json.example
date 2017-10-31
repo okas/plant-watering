@@ -25,14 +25,17 @@
     "plants_args_list": [
         {
             "id": "",
-            "sensor_vcc_pin": ,
             "valve_pin": ,
             "led_pin": ,
             "moist_percent": 55,
             "pour_millilitres": 50,
-            "pump_power": 0.3,
-            "device": ,
-            "channel":
+            "sensor_args": {
+                "vcc_pin": ,
+                "spi_device": ,
+                "spi_channel": ,
+                "dry_value": 0.875,
+                "wet_value": 0.250
+            }
         }
     ]
 }

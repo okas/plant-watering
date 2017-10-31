@@ -2,7 +2,7 @@ from enum import Enum, unique
 from timeit import default_timer as timer
 from threading import Lock
 from gpiozero import PWMLED
-from hardware import SoilSensor
+from hardware import CapacitiveSensor
 from common import common_logger as log, stoppable_sleep
 
 
@@ -10,7 +10,7 @@ from common import common_logger as log, stoppable_sleep
 class State(Enum):
     resting = 0
     watering = 1
-    measuring = (0, 0, 0.15, 0.35)
+    measuring = (0, 0, 0.05, 0.05)
     needs_water = (0, 0, 1, 1.5)
 
 
@@ -19,15 +19,15 @@ class Plant:
             self,
             stop_event,
             id,
-            sensor_vcc_pin,
             valve_pin,
             led_pin,
             moist_percent,
-            pour_millilitres=50,
-            **spi_args
+            sensor_args,
+            pour_millilitres=50
             ):
         self.stop_event = stop_event
         self.id = id
+        self.sensor = CapacitiveSensor(**sensor_args._asdict())
         self.moist_level = moist_percent
         self.valve_pin = valve_pin
         self.pour_millilitres = pour_millilitres

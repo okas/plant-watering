@@ -28,7 +28,7 @@ class Plant:
         self.id = id
         self.led = PWMLED(led_pin, frequency=100)
         self.valve_pin = valve_pin
-        self.sensor = CapacitiveSensor(**sensor_args)
+        self.sensor = CapacitiveSensor(**sensor_args._asdict())
         self.state = State.resting
         self.moist_level = moist_percent
         self.stop_event = stop_event

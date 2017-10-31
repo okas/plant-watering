@@ -32,7 +32,6 @@ class Plant:
         self.valve_pin = valve_pin
         self.pour_millilitres = pour_millilitres
         self.led = PWMLED(led_pin, frequency=100)
-        self.sensor = SoilSensor(sensor_vcc_pin, **spi_args)
         self.__state = State.resting
         self.__p_state = None
         self.__measuring_lock = Lock()

@@ -136,7 +136,7 @@ class Gardener:
         plant = self.__worker_queue.get()
         while not self.stop_event.is_set():
             moist = plant.measure()[1]
-            self._save_measure(plant.name, moist)
+            self._save_measure(plant.uuid1, moist)
             if plant.state == State.needs_water:
                 self._handle_watering_cycle(plant)
                 if self.stop_event.is_set():

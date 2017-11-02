@@ -71,7 +71,7 @@ class WaterSupply():
                     pass
                 else:
                     break
-            log("  ... %.3fml in %.3f seconds" % stats)
+            log("  ... {}ml in {:.3f} seconds".format(*stats))
             log("   done pumping water.")
             return stats[0]
 

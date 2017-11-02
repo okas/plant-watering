@@ -40,7 +40,7 @@ class CapacitiveSensor():
     def calibrate_wet(self, samples = None):
         self.wet_value = median(self.read_samples(samples))
 
-    def read_samples(self, samples = None):
+    def read_samples(self, samples = None) -> list:
         self.__spi_vcc.on()
         sleep(0.2)
         values = list(self.__read_iter(samples))
@@ -48,18 +48,17 @@ class CapacitiveSensor():
         return values
 
     @property
-    def moisture_percent(self):
+    def moisture_percent(self) -> float:
         t1 = timer()
         readings = self.read_samples()
         t2 = timer()
         elaps = t2 - t1
         v = median(readings)
         ratio = (v - self.wet_value) / (self.dry_value - self.wet_value)
-        ratio_reversed = 1 - ratio
-        result = ratio_reversed * 100
-        log("  Sensor moisture median: [{:.2f}%], {:d} samples in {:.3f} seconds)."\
-            .format(result, len(readings), elaps))
-        return result
+        result_ratio_inversed_rounded = round((1 - ratio) * 100, 2)
+        log("  Sensor moisture median: [{}%], {:d} samples in {:.3f} seconds)."\
+            .format(result_ratio_inversed_rounded, len(readings), elaps))
+        return result_ratio_inversed_rounded
 
     def close(self):
         self.__spi_dev.close()

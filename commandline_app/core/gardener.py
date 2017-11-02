@@ -111,7 +111,7 @@ class Gardener:
     def _measure_commiter(self, p_uuid1, moist):
         with self.__db.transaction():
             self.__db_moistures.store({
-                'gardener__id': str(self._db__id),
+                'gardener__id': self._db__id,
                 'plant_uuid1': str(p_uuid1),
                 'ts_utc': datetime.utcnow().timestamp(),
                 'percent': moist
@@ -120,7 +120,7 @@ class Gardener:
     def _water_commiter(self, p_uuid1, water):
         with self.__db.transaction():
             self.__db_waterings.store({
-                'gardener__id': str(self._db__id),
+                'gardener__id': self._db__id,
                 'plant_uuid1': str(p_uuid1),
                 'ts_utc': datetime.utcnow().timestamp(),
                 'mil_lit': water

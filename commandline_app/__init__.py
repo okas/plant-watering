@@ -1,3 +1,5 @@
+from version import __version__
+
 import os
 import sys
 sys.path.insert(1, os.path.abspath(__file__+'/../'))

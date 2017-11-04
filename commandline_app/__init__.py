@@ -2,22 +2,21 @@ from version import __version__
 
 import os
 import sys
-sys.path.insert(1, os.path.abspath(__file__+'/../'))
+from core import Gardener
 
 
 def run_and_return(config_name_or_path):
     import configuration
-    from core import Gardener
     cfg = configuration.load_configuration(config_name_or_path)
     return Gardener(cfg)
 
 
-def run_commandline(config_name_or_path):
+def run_commandline(config):
     from logging import debug
     gardener = None
     _err = None
     try:
-        gardener = run_and_return(config_name_or_path)
+        gardener = Gardener(config)
         gardener.stop_event.wait()
     except (KeyboardInterrupt):
         debug("! Received keyboard interrupt.\n")
@@ -38,3 +37,4 @@ def run_commandline(config_name_or_path):
 
 del os
 del sys
+

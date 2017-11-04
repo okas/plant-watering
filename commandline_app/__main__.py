@@ -3,6 +3,7 @@ from version import __version__
 import os
 import argparse
 
+
 def get_config_choises():
     config_dir = os.path.abspath(__file__+'/../configuration/')
     configs = [x[:-5] for x in os.listdir(config_dir) if x.endswith('.json')]
@@ -27,6 +28,13 @@ def get_config_choises():
 def get_argument_data(config_choices, default_choise_index):
     parser = argparse.ArgumentParser(
         description='Lets water our plants!'
+        )
+    parser.add_argument(
+        '-d', '--debug',
+        action='store_true',
+        required=False,
+        help="Debug mode. Currently only for status logging behavior setting. "\
+             "This flag takes precedence over configuration setting."
         )
     parser.add_argument(
         '-c', '--config',
@@ -55,7 +63,7 @@ def main():
     parsed_arguments = get_argument_data(*choises_data)
     import configuration
     cfg = configuration.load_configuration(parsed_arguments.config)
-    setup_logging(cfg.debug)
+    setup_logging(cfg.debug or parsed_arguments.debug)
     import __init__
     __init__.run_commandline(cfg)
 

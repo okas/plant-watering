@@ -13,27 +13,27 @@ def run_and_return(config_name_or_path):
 
 
 def run_commandline(config_name_or_path):
-    from common import common_logger as log
+    from logging import debug
     gardener = None
     _err = None
     try:
         gardener = run_and_return(config_name_or_path)
         gardener.stop_event.wait()
     except (KeyboardInterrupt):
-        log("! Received keyboard interrupt.\n")
+        debug("! Received keyboard interrupt.\n")
     except SystemExit as err:
-        log("Someting wants to SystemExit...\n")
+        debug("Someting wants to SystemExit...\n")
         _err = err
     except Exception as err:
-        log("Encountered some exeption, should see it after "\
+        debug("Encountered some exeption, should see it after "\
             "'Program done' message below.\n")
         _err = err
     finally:
         if gardener is not None:
             gardener.__del__()
-    log("Program done.\n")
+    debug("Program done.\n")
     if _err is not None:
-        log("Re-raised error, that occured during program execution:\n")
+        debug("Re-raised error, that occured during program execution:\n")
         raise _err
 
 del os

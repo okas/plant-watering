@@ -41,9 +41,19 @@ def get_argument_data(config_choices, default_choise_index):
     return parser.parse_args()
 
 
+def setup_logging():
+    import logging
+    logging.basicConfig(
+        style='{',
+        format='At {asctime}, in {threadName}: {message}',
+        level=logging.DEBUG
+        )
+
+
 def main():
     choises_data = get_config_choises()
     parsed_arguments = get_argument_data(*choises_data)
+    setup_logging()
     from __init__ import run_commandline
     run_commandline(parsed_arguments.config)
 

@@ -1,4 +1,4 @@
-from logging import debug
+from logging import debug, info
 import queue
 from threading import Thread, BoundedSemaphore
 from gpiozero import OutputDevice
@@ -55,7 +55,7 @@ class WaterSupply():
             if self.__must_stop_pump():
                 debug("cannot start pump at this time!")
                 return -1
-            debug("   started pumping water.")
+            debug("   started pumping.")
             self.__pump_work.put((
                 millilitres,
                 self.__valves[valve_pin],
@@ -71,8 +71,7 @@ class WaterSupply():
                     pass
                 else:
                     break
-            debug("  ... {}ml in {:.3f} seconds".format(*stats))
-            debug("   done pumping water.")
+            info("   done, pumped {}ml in {:.3f} seconds.".format(*stats))
             return stats[0]
 
     def close(self):

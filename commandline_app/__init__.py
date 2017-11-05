@@ -12,7 +12,7 @@ def run_and_return(config_name_or_path):
 
 
 def run_commandline(config):
-    from logging import debug
+    from logging import debug, info
     gardener = None
     _err = None
     try:
@@ -30,7 +30,7 @@ def run_commandline(config):
     finally:
         if gardener is not None:
             gardener.__del__()
-    debug("Program done.\n")
+    info("Program done.\n")
     if _err is not None:
         debug("Re-raised error, that occured during program execution:\n")
         raise _err

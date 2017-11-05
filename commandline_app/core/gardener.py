@@ -1,4 +1,4 @@
-from logging import debug
+from logging import debug, info
 import os
 import uuid
 from datetime import datetime, timedelta
@@ -71,7 +71,7 @@ class Gardener:
                 name = "[{}_worker]".format(plant.name),
                 target = self.plant_watcher_worker
                 ).start()
-        debug("Gardener is starting to watch for %d plants."\
+        info("Gardener is starting to watch for %d plants."\
             % len(self.plants))
 
     def db_worker(self):
@@ -138,15 +138,17 @@ class Gardener:
             moist = plant.measure()[1]
             self._save_measure(plant.uuid1, moist)
             if plant.state == State.needs_water:
+                info(" Enter watering cycle, moisture low: "\
+                     "{:.2f}% (min {:.2f}%)."\
+                        .format(moist, plant.moist_level))
                 self._handle_watering_cycle(plant)
                 if self.stop_event.is_set():
                     break
-                debug(" in watch cycle, next measure at %s."\
+                info(" returned to watch cycle, re-measure at %s."\
                     % add_seconds(self.watch_cycle))
             else:
-                debug(" watch cycle completed, plant has enough "\
-                    "moisture {:.2f}% (min {:.2f}%), "\
-                    "next measure at {}."\
+                info(" Enough moisture {:.2f}% (min {:.2f}%), "\
+                    "re-measure at {}."\
                     .format(
                         moist,
                         plant.moist_level,
@@ -161,7 +163,6 @@ class Gardener:
 
     def _handle_watering_cycle(self, plant):
         '''Perform watering, measuring and re-watering if neccessary.'''
-        debug(" Start watering cycles.")
         while True:
             if not self._wait_for_tank():
                 debug(" stopping watering cycle, because something asked.")
@@ -169,7 +170,7 @@ class Gardener:
             debug("  start watering.")
             actual_ml = self._water_plant(plant)
             self._save_watering(plant.uuid1, actual_ml)
-            debug("  watering cycle, next measure at %s."
+            info("  re-measure moisture at %s."
                 % add_seconds(self.watering_cycle))
             if self.stop_event.wait(self.watering_cycle):
                 debug(" stopping watering cycle, because something asked.")
@@ -177,16 +178,13 @@ class Gardener:
             measure, moist = plant.measure()
             self._save_measure(plant.uuid1, moist)
             if not measure:
-                debug(" watering cycle completed, reached moisture "\
-                    "level of {:.2f}% (min {:.2f}%), "\
-                    "next measure at {}."\
+                info(" plant reached moisture "\
+                    "level of {:.2f}% (min {:.2f}%)."\
                     .format(
                         moist,
-                        plant.moist_level,
-                        add_seconds(self.watch_cycle)
+                        plant.moist_level
                     ))
                 break
-        debug(" Completed watering.")
 
     def _water_plant(self, plant) -> float:
         with Gardener.__watering_semaphore:
@@ -210,7 +208,7 @@ class Gardener:
                 result = False
                 break
             if waiting is None:
-                debug(" watering cycle is waiting for tank to become available...")
+                info(" watering cycle is waiting for tank to become available...")
                 waiting = True
         else:
             result = True

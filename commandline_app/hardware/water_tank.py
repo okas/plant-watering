@@ -1,4 +1,4 @@
-from logging import debug
+from logging import debug, info
 from enum import Enum, unique
 from threading import Thread, Event
 from gpiozero import RGBLED, DigitalInputDevice

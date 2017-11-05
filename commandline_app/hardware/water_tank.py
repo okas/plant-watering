@@ -1,4 +1,4 @@
-from logging import debug, info
+import logging
 from enum import Enum, unique
 from threading import Thread, Event
 from gpiozero import RGBLED, DigitalInputDevice
@@ -35,6 +35,7 @@ class WaterTank(Thread):
             led_full_pin,
             water_pour_time = 8
         ):
+        self.closed = False
         self.__devices = {}
         try:
             self.__devices['low'] = DigitalInputDevice(probe_low_pin)
@@ -52,18 +53,19 @@ class WaterTank(Thread):
         super().__init__(name=self.__class__.__name__)
 
     def __del__(self):
-        self.close()
+        if not self.closed:
+            self.close()
 
     def __begin_running(self):
+        logging.debug("Started Water tank watcher thread.")
         self.measure()
         for p in self.probes:
             p.when_activated = p.when_deactivated = self.measure
-        debug("Started Water tank watcher thread.")
 
     def __end_running(self):
         self.available_event.clear()
         self.close()
-        debug("Completed Water tank watcher thread.")
+        logging.debug("Completed Water tank watcher thread.")
 
     def _calculate_state(self, levels):
         if   levels == (False, False, False):
@@ -108,21 +110,26 @@ class WaterTank(Thread):
             self.available_event.clear()
 
     def run(self):
-        self.__begin_running()
-        stop_e = self.stop_event
-        empt_e = self.__empty_to_low_event
-        pouring_predicate = lambda: stop_e.is_set() or not empt_e.is_set()
-        while not stop_e.wait(0.1):
-            if not empt_e.is_set():
-                continue
-            if not stoppable_sleep(self.__pouring_time, pouring_predicate):
-                self.state = State.low
-                empt_e.clear()
-        self.__end_running()
+        try:
+            self.__begin_running()
+            stop_e = self.stop_event
+            empt_e = self.__empty_to_low_event
+            pouring_predicate = lambda: stop_e.is_set() or not empt_e.is_set()
+            while not stop_e.wait(0.1):
+                if not empt_e.is_set():
+                    continue
+                if not stoppable_sleep(self.__pouring_time, pouring_predicate):
+                    self.state = State.low
+                    empt_e.clear()
+        except:
+            stop_e.set()
+            logging.exception(general_exc_msg)
+        finally:
+            self.__end_running()
 
     def measure(self):
         if self.stop_event.is_set():
-            debug("<object: WaterTank>.measure() attempt canceled, "\
+            logging.debug("<object: WaterTank>.measure() execution canceled, "\
                 "because stop event is set.")
             return
         levels = tuple(p.value for p in self.probes)
@@ -142,6 +149,7 @@ class WaterTank(Thread):
     def close(self):
         for d in self.__devices.values():
             d.close()
+        self.closed = True
 
     @property
     def probes(self):
@@ -154,14 +162,17 @@ class WaterTank(Thread):
     @state.setter
     def state(self, new_val):
         if self.stop_event.is_set():
-            debug("<object: WaterTank>.state.setter attempt canceled, "\
+            logging.debug("<object: WaterTank>.state.setter attempt canceled, "\
                 "because stop event is set.")
             return
         old_val = self.__state
         self.__state = new_val
         self.__change_tank_availability(new_val)
         self.__change_led(new_val, old_val)
-        debug('WaterTank state changed to [%s]' % new_val)
+        logging.info('WaterTank state changed to [%s]' % new_val)
+
+
+general_exc_msg = 'Exception occured: '
 
 
 if __name__ == "__main__":

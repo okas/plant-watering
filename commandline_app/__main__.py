@@ -53,7 +53,7 @@ def setup_logging(is_debug):
     import logging
     logging.basicConfig(
         style='{',
-        format='At {asctime}, in {threadName}: {message}',
+        format='{asctime} | {threadName} | {message}',
         level=logging.DEBUG if is_debug else logging.INFO
         )
 

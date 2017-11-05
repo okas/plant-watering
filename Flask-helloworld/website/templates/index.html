@@ -1,0 +1,11 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+        <h1>Hello from a template (index)!</h1>
+        {% if x==2 %}
+        <p>It's a second view.
+        {% endif %}
+
+{{ super() }}
+{% endblock %}

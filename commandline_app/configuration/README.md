@@ -1,3 +1,9 @@
+* Configuration files must be valid JSON files.
+* All filed are required.
+* default.json.example file can e used as template to create additional files for production or development.
+
+# Configuration spec
+```
 {
     "name": "default",
     "debug": false,
@@ -40,3 +46,4 @@
         }
     ]
 }
+```

@@ -1,3 +1,4 @@
+from logging import debug, info
 from enum import Enum, unique
 from threading import Thread, Event
 from gpiozero import RGBLED, DigitalInputDevice
@@ -6,7 +7,7 @@ if __name__ == "__main__":
     import sys
     import os
     sys.path.insert(1, os.path.abspath(__file__+'/../..'))
-from common import common_logger as log, stoppable_sleep
+from common import stoppable_sleep
 
 @unique
 class State(Enum):
@@ -57,12 +58,12 @@ class WaterTank(Thread):
         self.measure()
         for p in self.probes:
             p.when_activated = p.when_deactivated = self.measure
-        log("Started Water tank watcher thread.")
+        debug("Started Water tank watcher thread.")
 
     def __end_running(self):
         self.available_event.clear()
         self.close()
-        log("Completed Water tank watcher thread.")
+        debug("Completed Water tank watcher thread.")
 
     def _calculate_state(self, levels):
         if   levels == (False, False, False):
@@ -121,7 +122,7 @@ class WaterTank(Thread):
 
     def measure(self):
         if self.stop_event.is_set():
-            log("<object: WaterTank>.measure() attempt canceled, "\
+            debug("<object: WaterTank>.measure() attempt canceled, "\
                 "because stop event is set.")
             return
         levels = tuple(p.value for p in self.probes)
@@ -153,14 +154,14 @@ class WaterTank(Thread):
     @state.setter
     def state(self, new_val):
         if self.stop_event.is_set():
-            log("<object: WaterTank>.state.setter attempt canceled, "\
+            debug("<object: WaterTank>.state.setter attempt canceled, "\
                 "because stop event is set.")
             return
         old_val = self.__state
         self.__state = new_val
         self.__change_tank_availability(new_val)
         self.__change_led(new_val, old_val)
-        log('WaterTank state changed to [%s]' % new_val)
+        debug('WaterTank state changed to [%s]' % new_val)
 
 
 if __name__ == "__main__":

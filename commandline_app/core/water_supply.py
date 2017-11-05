@@ -1,8 +1,8 @@
+from logging import debug, info
 import queue
 from threading import Thread, BoundedSemaphore
 from gpiozero import OutputDevice
 from hardware import Pump, WaterTank
-from common import common_logger as log
 
 
 class WaterSupply():
@@ -53,9 +53,9 @@ class WaterSupply():
     def watering(self, millilitres, valve_pin, pump_speed=1) -> float:
         with self.__semaphore:
             if self.__must_stop_pump():
-                log("cannot start pump at this time!")
+                debug("cannot start pump at this time!")
                 return -1
-            log("   started pumping water.")
+            debug("   started pumping.")
             self.__pump_work.put((
                 millilitres,
                 self.__valves[valve_pin],
@@ -71,17 +71,16 @@ class WaterSupply():
                     pass
                 else:
                     break
-            log("  ... {}ml in {:.3f} seconds".format(*stats))
-            log("   done pumping water.")
+            info("   done, pumped {}ml in {:.3f} seconds.".format(*stats))
             return stats[0]
 
     def close(self):
         my_name = self.__class__.__name__
-        log("Ending %s, quitting worker threads. Please wait..." % my_name)
+        debug("Ending %s, quitting worker threads. Please wait..." % my_name)
         self.__pump.close()
         for d in self.__valves.values():
             d.close()
         self.__pump_worker_thread.join()
         self.__tank_thread.join()
         self.closed = True
-        log("Completed %s!" % my_name)
+        debug("Completed %s!" % my_name)

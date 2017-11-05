@@ -1,6 +1,7 @@
 import logging
 import os
 import uuid
+from contextlib import suppress
 from datetime import datetime, timedelta
 import queue
 from threading import currentThread, Thread, Event, BoundedSemaphore
@@ -26,6 +27,7 @@ class Gardener:
         self.watering_cycle = config.gardener_args.watering_cycle
         self.plants = self.__init_plants(config.plants_args_list)
         self._db__id = None
+        self.__db_thread = None
         self.__init_db(config.name+'.db')
         self.water_supply = WaterSupply(
             self.stop_event,
@@ -35,7 +37,6 @@ class Gardener:
             )
         self.__start_work_data()
         self.__start_work_watchers()
-        self._exceptions = []
 
     def __del__(self):
         if not self.closed:
@@ -76,17 +77,22 @@ class Gardener:
             % len(self.plants))
 
     def db_worker(self):
-        logging.debug('Started database worker.')
-        while not self.__db_worker_stop.is_set():
-            try:
-                work = self.__db_queue.get(timeout=0.1)
-            except queue.Empty:
-                pass
-            else:
-                func = work[0]
-                func(*work[1:])
-        self.__db.close()
-        logging.debug('Completed database worker.')
+        try:
+            logging.debug('Started database worker.')
+            while not self.__db_worker_stop.is_set():
+                try:
+                    work = self.__db_queue.get(timeout=0.1)
+                except queue.Empty:
+                    pass
+                else:
+                    func = work[0]
+                    func(*work[1:])
+        except:
+            self.stop_event.set()
+            logging.exception(general_exc_msg)
+        finally:
+            self.__db.close()
+            logging.debug('Completed database worker.')
 
     def _gardener_commiter(self):
         def extended_plants():
@@ -161,7 +167,7 @@ class Gardener:
                     break
         except:
             self.stop_event.set()
-            logging.exception('Exception in thread '+currentThread().name)
+            logging.exception(general_exc_msg)
         finally:
             self.__worker_queue.task_done()
             logging.debug(" completed plant watcher thread.")
@@ -233,7 +239,10 @@ class Gardener:
             for p in self.plants:
                 p.close()
         self.__db_worker_stop.set()
-        if hasattr(self, '__db_thread'):
+        with suppress(AttributeError):
             self.__db_thread.join()
         self.closed = True
         logging.debug("Completed %s!" % my_name)
+
+
+general_exc_msg = 'Exception occure: '

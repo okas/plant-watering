@@ -77,14 +77,11 @@ class Gardener:
             % len(self.plants))
 
     def db_worker(self):
+        logging.debug('Started database worker.')
         try:
-            logging.debug('Started database worker.')
             while not self.__db_worker_stop.is_set():
-                try:
+                with suppress(queue.Empty):
                     work = self.__db_queue.get(timeout=0.1)
-                except queue.Empty:
-                    pass
-                else:
                     func = work[0]
                     func(*work[1:])
         except:
@@ -245,4 +242,4 @@ class Gardener:
         logging.debug("Completed %s!" % my_name)
 
 
-general_exc_msg = 'Exception occure: '
+general_exc_msg = 'Exception occured: '

@@ -1,3 +1,4 @@
+from contextlib import suppress
 from gpiozero import OutputDevice, OutputDeviceBadValue
 
 
@@ -63,11 +64,8 @@ class UnidirectionMotor(OutputDevice):
         self.value = 1 - self.value
 
     def close(self):
-        try:
+        with suppress(AttributeError):
             self.pin.frequency = None
-        except AttributeError:
-            # If the pin's already None, ignore the exception
-            pass
         super().close()
 
     @property

@@ -1,4 +1,5 @@
 from logging import debug, info
+from contextlib import suppress
 import queue
 from threading import Thread, BoundedSemaphore
 from gpiozero import OutputDevice
@@ -41,11 +42,8 @@ class WaterSupply():
 
     def __pump_worker(self):
         while not self.stop_event.is_set():
-            try:
+            with suppress(queue.Empty):
                 args = self.__pump_work.get(timeout=0.1)
-            except queue.Empty:
-                pass
-            else:
                 stats = self.__pump.pump_millilitres(*args)
                 self.__pump_work_result.put(stats)
         self.__pump.close()
@@ -61,15 +59,11 @@ class WaterSupply():
                 self.__valves[valve_pin],
                 pump_speed
                 ))
-            stats = None
             while True:
                 if self.__must_stop_pump():
                     self.__pump.reached_event.set()
-                try:
+                with suppress(queue.Empty):
                     stats = self.__pump_work_result.get(timeout=0.1)
-                except queue.Empty:
-                    pass
-                else:
                     break
             info("   done, pumped {}ml in {:.3f} seconds.".format(*stats))
             return stats[0]

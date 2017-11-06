@@ -2,12 +2,8 @@ import logging
 from enum import Enum, unique
 from threading import Thread, Event
 from gpiozero import RGBLED, DigitalInputDevice
-if __name__ == "__main__":
-    from time import sleep
-    import sys
-    import os
-    sys.path.insert(1, os.path.abspath(__file__+'/../..'))
-from common import stoppable_sleep
+from .common import stoppable_sleep
+
 
 @unique
 class State(Enum):
@@ -174,8 +170,13 @@ class WaterTank(Thread):
 
 general_exc_msg = 'Exception occured: '
 
-
 if __name__ == "__main__":
+    from time import sleep
+    import sys
+    import os
+    sys.path.insert(1, os.path.abspath(__file__+'/../..'))
+
+
     probes = [16, 21, 20]
     rgb_led = [17, 27, 22]
     stop_event = Event()

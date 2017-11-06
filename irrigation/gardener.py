@@ -9,7 +9,6 @@ from unqlite import UnQLite
 from .plant import Plant, State
 from .water_supply import WaterSupply
 
-
 def add_seconds(s:float, format='%X') -> str:
     return (datetime.now() + timedelta(seconds=s)).strftime(format)
 
@@ -28,7 +27,7 @@ class Gardener:
         self.plants = self.__init_plants(config.plants_args_list)
         self._db__id = None
         self.__db_thread = None
-        self.__init_db(config.name+'.db')
+        self.__init_db(config)
         self.water_supply = WaterSupply(
             self.stop_event,
             config.pump_args._asdict(),
@@ -41,16 +40,20 @@ class Gardener:
     def __del__(self):
         if not self.closed:
             self.stop_event.set()
+            self.stop_event.set()
             self.close()
 
     def __init_plants(self, a_list) -> tuple:
         return tuple(Plant(self.stop_event, **a._asdict()) for a in a_list)
 
-    def __init_db(self, db_filename):
+    def __init_db(self, config):
+        if not (os.path.isabs(config.database_dir) and
+                os.path.isdir(config.database_dir)):
+            raise OSError("Expected existing and absolute directory "\
+                          "path, instead of '%s'" % config.database_dir)
         self.__db = UnQLite(
-            os.path.abspath(
-                '{}/../../data/{}'.format(__file__, db_filename)
-            ))
+            os.path.join(config.database_dir, config.name+'.bson')
+            )
         c_gardener = self.__db.collection('gardener_instances')
         self.__db_moistures = self.__db.collection('plant_moistures')
         self.__db_waterings = self.__db.collection('plant_waterings')

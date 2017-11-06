@@ -3,8 +3,7 @@ from enum import Enum, unique
 from timeit import default_timer as timer
 from threading import Lock
 from gpiozero import PWMLED
-#from .soil_sensor import CapacitiveSensor
-#from .common import stoppable_sleep
+from .soil_sensor import CapacitiveSensor
 
 
 @unique

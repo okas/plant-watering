@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 import queue
 from threading import currentThread, Thread, Event, BoundedSemaphore
 from unqlite import UnQLite
-
+from .plant import Plant, State
+from .water_supply import WaterSupply
 
 def add_seconds(s:float, format='%X') -> str:
     return (datetime.now() + timedelta(seconds=s)).strftime(format)

@@ -1,7 +1,9 @@
 import os
 import sys
 import argparse
+import logging
 sys.path.insert(1, os.path.abspath(__file__+'/../../'))
+import irrigation
 
 from irrigation._version import __version__
 
@@ -48,7 +50,6 @@ def get_argument_data(config_choices, default_choise):
 
 
 def setup_logging(is_debug):
-    import logging
     logging.basicConfig(
         style='{',
         format='{asctime} | {threadName} | {message}',
@@ -57,11 +58,10 @@ def setup_logging(is_debug):
 
 
 def run_app(config):
-    from irrigation import Gardener
     gardener = None
     exit_code = 0
     try:
-        gardener = Gardener(config)
+        gardener = irrigation.Gardener(config)
         gardener.stop_event.wait()
     except KeyboardInterrupt:
         logging.debug("~~~ Received keyboard interrupt.\n")
@@ -71,7 +71,7 @@ def run_app(config):
         exit_code = 2
     except BaseException as err:
         logging.exception("Encountered exception, "\
-                          "probably during Gardener initialization.\n")
+                          "probably during Gardener initialization:\n")
         exit_code = 3
     finally:
         if gardener is not None:
@@ -86,8 +86,7 @@ if __name__ == '__main__':
         config_files.keys(),
         default_coise
         )
-    from irrigation.configuration import load_configuration
-    cfg = load_configuration(config_files[parsed_arguments.config])
+    cfg = irrigation.load_configuration(config_files[parsed_arguments.config])
     setup_logging(cfg.debug or parsed_arguments.debug)
     code = run_app(cfg)
     sys.exit(code)

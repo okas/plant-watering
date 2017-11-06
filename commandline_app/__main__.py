@@ -27,7 +27,7 @@ def get_config_choises() -> tuple:
 
 def get_argument_data(config_choices, default_choise):
     parser = argparse.ArgumentParser(
-        description='Lets water our plants! Version: '+__version__
+        description="Let's water our plants! Version: "+__version__
         )
     parser.add_argument(
         '-d', '--debug',

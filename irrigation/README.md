@@ -1,13 +1,15 @@
-* Configuration files must be valid JSON files.
-* All filed are required.
-* Below is example file content, use it as template to create additional files for production or development.
-* Do not save configs in /irrigation/ folder!
+# Configuration files
 
-## Example configuration for copy-paste:
+* Configuration files must be valid JSON files.
+* All fields are required.
+* Do not save configs in /irrigation/ folder!
+* Below is example file content, use it as template to create additional files for production or development.
+
+### Example configuration
 ```
 {
     "name": "default",
-    "database_dir": "data/",
+    "database_dir": "",
     "debug": false,
     "tank_args": {
         "probe_low_pin": ,
@@ -45,6 +47,49 @@
                 "dry_value": 0.875,
                 "wet_value": 0.250
             }
+        }
+    ]
+}
+```
+
+# Database
+
+* Database hold info about gardeners and plants that have been watered.
+* All plant measurements and waterings are recorded as well.
+* Purpose is to provide machine readable data about work. Many use cases possible...
+
+### Document database structure is like following:
+```
+{
+    "gardener_instances": [
+        {
+        "__id": <int>,
+            "uuid1": "uuid1()",
+            "watch_cycle": <float>,
+            "watering_cycle": <float>,
+            "plants": [
+                {
+            "uuid1": "uuid1()",
+                    "name": "",
+                    "moist_level": <float>
+                }
+            ]
+        }
+    ],
+    "plant_moistures": [
+        {
+            "gardener__id": <gardener_instances__id>,
+            "plant_uuid1": <parent plant>,
+            "ts_utc": "timestamp()",
+            "percent": <float>
+        }
+    ],
+    "plant_waterings": [
+        {
+            "gardener__id": <gardener_instances__id>,
+            "plant_uuid1": <parent plant>,
+            "ts_utc": "timestamp()",
+            "mil_lit": <float>
         }
     ]
 }

@@ -1,6 +1,2 @@
-configuration/*
-!configuration/__init__.py
-!configuration/*default*.json*
-!configuration/README.md
 data/*
 !data/README.md

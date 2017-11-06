@@ -1,7 +1,9 @@
-from version import __version__
-
 import os
+import sys
 import argparse
+sys.path.insert(1, os.path.abspath(__file__+'/../../'))
+
+from irrigation._version import __version__
 
 
 def get_config_choises():
@@ -27,7 +29,7 @@ def get_config_choises():
 
 def get_argument_data(config_choices, default_choise_index):
     parser = argparse.ArgumentParser(
-        description='Lets water our plants!'
+        description='Lets water our plants! Version: '+__version__
         )
     parser.add_argument(
         '-d', '--debug',
@@ -42,9 +44,9 @@ def get_argument_data(config_choices, default_choise_index):
         default=config_choices[default_choise_index],
         required=False,
         help="Default is [%(default)s]. Program configuration."\
-        "There is selection of *.json file names, that where found "\
-        "from ../configuration/. "\
-        "You must fill in configurations before program can run!"
+             "There is selection of *.json file names, that where "\
+             "found from ../configuration/. "\
+             "You must fill in configurations before program can run!"
         )
     return parser.parse_args()
 
@@ -58,19 +60,34 @@ def setup_logging(is_debug):
         )
 
 
-def main():
-    choises_data = get_config_choises()
-    parsed_arguments = get_argument_data(*choises_data)
-    import configuration
-    cfg = configuration.load_configuration(parsed_arguments.config)
-    setup_logging(cfg.debug or parsed_arguments.debug)
-    import __init__
-    __init__.run_commandline(cfg)
+def run_app(config):
+    from irrigation import Gardener
+    gardener = None
+    exit_code = 0
+    try:
+        gardener = Gardener(config)
+        gardener.stop_event.wait()
+    except KeyboardInterrupt:
+        logging.debug("~~~ Received keyboard interrupt.\n")
+        exit_code = 1
+    except SystemExit as err:
+        logging.exception("Someting wants to SystemExit.\n")
+        exit_code = 2
+    except BaseException as err:
+        logging.exception("Encountered exception, "\
+                          "probably during Gardener initialization.\n")
+        exit_code = 3
+    finally:
+        if gardener is not None:
+            gardener.__del__()
+    logging.info("Program done.\n")
+    sys.exit(exit_code)
 
 
 if __name__ == '__main__':
-    main()
-
-del os
-del argparse
-
+    choises_data = get_config_choises()
+    parsed_arguments = get_argument_data(*choises_data)
+    from irrigation.configuration import load_configuration
+    cfg = load_configuration(parsed_arguments.config)
+    setup_logging(cfg.debug or parsed_arguments.debug)
+    run_app(cfg)

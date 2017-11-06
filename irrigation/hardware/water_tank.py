@@ -7,7 +7,7 @@ if __name__ == "__main__":
     import sys
     import os
     sys.path.insert(1, os.path.abspath(__file__+'/../..'))
-from common import stoppable_sleep
+from ..common import stoppable_sleep
 
 @unique
 class State(Enum):

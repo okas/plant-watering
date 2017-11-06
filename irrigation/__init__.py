@@ -1,7 +1,7 @@
-from version import __version__
+from ._version import __version__
 
-from gardener import Gardener
-from configuration import load_configuration
+from .gardener import Gardener
+from .configuration import load_configuration
 
 #TODO only path should be accepted in future
 def run_and_return(config_name_or_path):

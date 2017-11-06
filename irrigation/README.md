@@ -1,6 +1,7 @@
 * Configuration files must be valid JSON files.
 * All filed are required.
-* default.json.example file can e used as template to create additional files for production or development.
+* config.json.example file can e used as template to create additional files for production or development.
+* Do not save configs in /irrigation/ folder, instead save them next to your app or elsewhere.
 
 # Configuration spec
 ```

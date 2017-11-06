@@ -4,7 +4,7 @@ import signal
 from flask import Flask
 #from werkzeug.serving import is_running_from_reloader
 sys.path.insert(1, os.path.abspath(__file__+'/../../../'))
-import commandline_app
+import irrigation
 
 
 def create_app(environment):
@@ -33,7 +33,7 @@ def configure_webapp(web_app, environment):
 def setup_plant_waterer(web_app):
     gardener = None
     try:
-        gardener = commandline_app.run_and_return('test1')
+        gardener = irrigation.run_and_return(web_app.config['IRRIGATION_CFG'])
     except Exception as err:
         print("Encountered some exception during starting of Gardener instance. "\
               "Details should follow...")

@@ -7,27 +7,23 @@ from irrigation._version import __version__
 
 
 def get_config_choises() -> tuple:
-    config_dir = os.path.abspath(__file__+'/../configuration/')
-    configs = [x[:-5] for x in os.listdir(config_dir) if x.endswith('.json')]
+    cd = os.path.abspath(__file__+'/../configuration/')
+    configs = {x[:-5]: cd+'/'+x for x in os.listdir(cd) if x.endswith('.json')}
     if len(configs) == 0:
         raise Exception(
             'Expected some *.json files in ../configuration/ !\n'\
             'Please add file using example file "default.json.example".'
             )
-    for e in ('default', 'production', 'prod', '/'):
-        if e != '/':
-            try:
-                default_index = configs.index(e)
-            except:
-                continue
-        else:
-            default_index = 0
-        if default_index > -1:
+    for e in ('default', 'production', 'prod'):
+        if e in configs:
+            default_key = e
             break
-    return (configs, default_index)
+    if default_key is None:
+        default_key = [configs.keys()][0]
+    return (configs, default_key)
 
 
-def get_argument_data(config_choices, default_choise_index):
+def get_argument_data(config_choices, default_choise):
     parser = argparse.ArgumentParser(
         description='Lets water our plants! Version: '+__version__
         )
@@ -41,7 +37,7 @@ def get_argument_data(config_choices, default_choise_index):
     parser.add_argument(
         '-c', '--config',
         choices=config_choices,
-        default=config_choices[default_choise_index],
+        default=default_choise,
         required=False,
         help="Default is [%(default)s]. Program configuration."\
              "There is selection of *.json file names, that where "\
@@ -85,10 +81,13 @@ def run_app(config):
 
 
 if __name__ == '__main__':
-    choises_data = get_config_choises()
-    parsed_arguments = get_argument_data(*choises_data)
+    config_files, default_coise = get_config_choises()
+    parsed_arguments = get_argument_data(
+        config_files.keys(),
+        default_coise
+        )
     from irrigation.configuration import load_configuration
-    cfg = load_configuration(parsed_arguments.config)
+    cfg = load_configuration(config_files[parsed_arguments.config])
     setup_logging(cfg.debug or parsed_arguments.debug)
     code = run_app(cfg)
     sys.exit(code)

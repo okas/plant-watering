@@ -15,7 +15,7 @@ def recursive_converter(obj):
 
 
 def load_configuration(name_or_path):
-    if '/' in name_or_path:
+    if '/' or '.json' in name_or_path:
         file_path = name_or_path
     else:
         file_path = os.path.abspath('%s/../%s.json' % (__file__, name_or_path))

@@ -1,12 +1,13 @@
 * Configuration files must be valid JSON files.
 * All filed are required.
-* config.json.example file can e used as template to create additional files for production or development.
-* Do not save configs in /irrigation/ folder, instead save them next to your app or elsewhere.
+* Below is example file content, use it as template to create additional files for production or development.
+* Do not save configs in /irrigation/ folder!
 
-# Configuration spec
+## Example configuration for copy-paste:
 ```
 {
     "name": "default",
+    "database_dir": "data/",
     "debug": false,
     "tank_args": {
         "probe_low_pin": ,

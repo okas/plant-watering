@@ -5,7 +5,7 @@ from .configuration import load_configuration
 
 
 def run_and_return(config_path):
-    cfg = load_configuration(config_name_or_path)
+    cfg = load_configuration(config_path)
     return Gardener(cfg)
 
 __all__ = ['__version__', 'Gardener', 'load_configuration', 'run_and_return']

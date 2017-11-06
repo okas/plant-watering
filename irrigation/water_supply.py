@@ -3,7 +3,6 @@ from contextlib import suppress
 import queue
 from threading import Thread, BoundedSemaphore
 from gpiozero import OutputDevice
-from .hardware import Pump, WaterTank
 
 
 class WaterSupply():

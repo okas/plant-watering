@@ -6,7 +6,7 @@ sys.path.insert(1, os.path.abspath(__file__+'/../../'))
 from irrigation._version import __version__
 
 
-def get_config_choises():
+def get_config_choises() -> tuple:
     config_dir = os.path.abspath(__file__+'/../configuration/')
     configs = [x[:-5] for x in os.listdir(config_dir) if x.endswith('.json')]
     if len(configs) == 0:
@@ -81,7 +81,7 @@ def run_app(config):
         if gardener is not None:
             gardener.__del__()
     logging.info("Program done.\n")
-    sys.exit(exit_code)
+    return exit_code
 
 
 if __name__ == '__main__':
@@ -90,4 +90,5 @@ if __name__ == '__main__':
     from irrigation.configuration import load_configuration
     cfg = load_configuration(parsed_arguments.config)
     setup_logging(cfg.debug or parsed_arguments.debug)
-    run_app(cfg)
+    code = run_app(cfg)
+    sys.exit(code)

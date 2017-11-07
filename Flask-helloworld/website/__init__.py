@@ -1,6 +1,9 @@
 import os
 import sys
+import logging
 import signal
+from threading import Thread
+from contextlib import suppress
 from flask import Flask
 #from werkzeug.serving import is_running_from_reloader
 sys.path.insert(1, os.path.abspath(__file__+'/../../../'))
@@ -10,6 +13,7 @@ import irrigation
 def create_app(environment):
     '''Application Factory'''
     app = Flask(__name__, instance_relative_config=True)
+    setup_logging(True)
     configure_webapp(app, environment)
     setup_webapp(app)
     setup_plant_waterer(app)
@@ -29,25 +33,31 @@ def configure_webapp(web_app, environment):
     web_app.jinja_env.auto_reload = True
     web_app.config['TEMPLATES_AUTO_RELOAD'] = True
 
+def setup_logging(is_debug):
+    logging.basicConfig(
+        style='{',
+        format='{asctime} | {threadName} | {message}',
+        level=logging.DEBUG if is_debug else logging.INFO
+        )
 
 def setup_plant_waterer(web_app):
-    gardener = None
-    try:
-        gardener = irrigation.run_and_return(web_app.config['IRRIGATION_CFG'])
-    except Exception as err:
-        print("Encountered some exception during starting of Gardener instance. "\
-              "Details should follow...")
-        if gardener is not None:
-            gardener.__del__()
-            print("Re-raised error, that occured during program execution:\n")
-        raise err
-    else:
-        web_app.plant_waterer = gardener
-
+    def worker():
+        try:
+            web_app.plant_waterer = irrigation.run_and_return(
+                web_app.config['IRRIGATION_CFG']
+                )
+        except BaseException as err:
+            logging.exception("Encountered exception, "\
+                              "probably during Gardener initialization:\n")
+            with suppress(AttributeError):
+                web_app.plant_waterer.__del__()
+        else:
+            web_app.plant_waterer.stop_event.wait()
     def handler(*a):
-        if hasattr(web_app, 'plant_waterer'):
+        with suppress(AttributeError):
             web_app.plant_waterer.__del__()
-            sys.exit()
-
+            sys.exit(0)
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
+    thread = Thread(name='Gardener', target=worker)
+    thread.start()

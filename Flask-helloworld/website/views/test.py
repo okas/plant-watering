@@ -13,14 +13,9 @@ from .. services import test_svc
 mod = Blueprint('test', __name__)
 
 #=======================================================================
-count = 0
-count += 1
-print(count)
+
 @mod.after_request
 def after_request(response):
-    global count
-    count += 1
-    print (count)
     return response
 
 #=======================================================================
@@ -30,8 +25,8 @@ def after_request(response):
 def index_page():
     for plant in app.plant_waterer.plants:
         measurement = plant.measure(True)
-        flash('Plant: {0.id} | state: {0.state} | '\
+        flash('Plant: {0.name} | state: {0.state} | '\
               'needed moisture: {0.moist_level} | '\
-              'current moisture: {1:3f}'
+              'current moisture: {1:.2f}'
               .format(plant, measurement[1]))
     return render_template('index.html')

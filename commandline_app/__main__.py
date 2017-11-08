@@ -2,14 +2,14 @@ import os
 import sys
 import argparse
 import logging
-sys.path.insert(1, os.path.abspath(__file__+'/../../'))
+sys.path.insert(1, os.path.realpath(__file__+'/../../'))
 import irrigation
 
 from irrigation._version import __version__
 
 
 def get_config_choises() -> tuple:
-    cd = os.path.abspath(__file__+'/../configuration/')
+    cd = os.path.realpath(__file__+'/../configuration/')
     configs = {x[:-5]: cd+'/'+x for x in os.listdir(cd) if x.endswith('.json')}
     if len(configs) == 0:
         raise Exception(

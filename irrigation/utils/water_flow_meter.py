@@ -8,7 +8,7 @@ from threading import Event, BoundedSemaphore
 from functools import partial
 from gpiozero import OutputDevice, DigitalInputDevice
 import faulthandler
-sys.path.insert(0, os.path.abspath(__file__+'/../..'))
+sys.path.insert(0, os.path.realpath(__file__+'/../..'))
 from ..pumping import Pump
 
 

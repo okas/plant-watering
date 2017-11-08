@@ -174,7 +174,7 @@ if __name__ == "__main__":
     from time import sleep
     import sys
     import os
-    sys.path.insert(1, os.path.abspath(__file__+'/../..'))
+    sys.path.insert(1, os.path.realpath(__file__+'/../..'))
 
 
     probes = [16, 21, 20]

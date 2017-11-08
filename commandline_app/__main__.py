@@ -1,6 +1,8 @@
 import os
 import sys
+import signal
 import argparse
+from contextlib import suppress
 import logging
 sys.path.insert(1, os.path.realpath(__file__+'/../../'))
 import irrigation
@@ -60,6 +62,14 @@ def setup_logging(is_debug):
 def run_app(config):
     gardener = None
     exit_code = 0
+
+    def handler(*_):
+        with suppress(AttributeError):
+            gardener.__del__()
+        logger.info('Program got SIGTERM, but Gardener was closed gracefully.')
+        sys.exit(4)
+
+    signal.signal(signal.SIGTERM, handler)
     try:
         gardener = irrigation.Gardener(config)
         gardener.stop_event.wait()

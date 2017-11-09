@@ -6,7 +6,7 @@ from threading import Thread
 from contextlib import suppress
 from flask import Flask
 #from werkzeug.serving import is_running_from_reloader
-sys.path.insert(1, os.path.abspath(__file__+'/../../../'))
+sys.path.insert(1, os.path.realpath(__file__+'/../../../'))
 import irrigation
 
 
@@ -33,6 +33,7 @@ def configure_webapp(web_app, environment):
     web_app.jinja_env.auto_reload = True
     web_app.config['TEMPLATES_AUTO_RELOAD'] = True
 
+
 def setup_logging(is_debug):
     logging.basicConfig(
         style='{',
@@ -40,23 +41,29 @@ def setup_logging(is_debug):
         level=logging.DEBUG if is_debug else logging.INFO
         )
 
+
 def setup_plant_waterer(web_app):
+    def handler(*_):
+        with suppress(AttributeError):
+            web_app.plant_waterer.__del__()
+        sys.exit(4)
+
     def worker():
+        exit_code = 0
         try:
             web_app.plant_waterer = irrigation.run_and_return(
                 web_app.config['IRRIGATION_CFG']
                 )
+            web_app.plant_waterer.stop_event.wait()
         except BaseException as err:
             logging.exception("Encountered exception, "\
                               "probably during Gardener initialization:\n")
+            exit_code = 2
+        finally:
             with suppress(AttributeError):
                 web_app.plant_waterer.__del__()
-        else:
-            web_app.plant_waterer.stop_event.wait()
-    def handler(*_):
-        with suppress(AttributeError):
-            web_app.plant_waterer.__del__()
-            sys.exit(0)
+                logging.debug('Exiting from Garndener worker thread.')
+            sys.exit(exit_code)
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
     thread = Thread(name='Gardener', target=worker)

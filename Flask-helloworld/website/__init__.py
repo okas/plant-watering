@@ -32,6 +32,9 @@ def configure_webapp(web_app, environment):
     web_app.config.from_envvar('PLANTWATER_OVERRIDES', silent=True)
     web_app.jinja_env.auto_reload = True
     web_app.config['TEMPLATES_AUTO_RELOAD'] = True
+    web_app.config.irrigation = irrigation.load_configuration(
+        web_app.config['IRRIGATION_CFG']
+        )
 
 
 def setup_logging(is_debug):
@@ -51,8 +54,8 @@ def setup_plant_waterer(web_app):
     def worker():
         exit_code = 0
         try:
-            web_app.plant_waterer = irrigation.run_and_return(
-                web_app.config['IRRIGATION_CFG']
+            web_app.plant_waterer = irrigation.Gardener(
+                web_app.config.irrigation
                 )
             web_app.plant_waterer.stop_event.wait()
         except BaseException as err:

@@ -16,6 +16,4 @@ DEBUG = True
 # operations using the other.
 #THREADS_PER_PAGE = 2
 
-IRRIGATION_CFG = '/home/pi/git-okas/plant-watering/Flask-helloworld/instance/irrigation_test1.json'
-
 del os

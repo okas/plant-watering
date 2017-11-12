@@ -1,11 +1,12 @@
 import os
+import sys
 
 
 # Statement for enabling the development environment NB! Use separate development.py config file!
 DEBUG = True
 
 # Define the application directory
-BASE_DIR = os.path.realpath(os.path.dirname(__file__))
+BASE_DIR = os.path.realpath(sys.path[0])
 
 # Define the database - we are working with
 # SQLite for this example
@@ -19,6 +20,12 @@ BASE_DIR = os.path.realpath(os.path.dirname(__file__))
 #THREADS_PER_PAGE = 2
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
-CSRF_ENABLED     = True
+CSRF_ENABLED  = True
+
+WEBPACK_MANIFEST_PATH = BASE_DIR + '/build/webpack.manifest.json'
+
+IRRIGATION_CFG = BASE_DIR + '/instance/irrigation_test1.json'
+
 
 del os
+del sys

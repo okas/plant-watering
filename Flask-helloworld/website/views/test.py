@@ -29,4 +29,7 @@ def index_page():
               'needed moisture: {0.moist_level} | '\
               'current moisture: {1:.2f}'
               .format(plant, measurement[1]))
+
+
+
     return render_template('index.html')

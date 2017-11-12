@@ -20,9 +20,8 @@
 <header><nav></nav></header>
 
 {% block content %}
-  <p id="body_footer">...igal pool...
+  <p id="bodyfooter">...igal pool...
 {% endblock %}
 
 <footer></footer>
-
-{% block scripts %}{% endblock %}
+{% include "./_webpack/injected_scripts.html" %}

@@ -32,11 +32,12 @@ def get_argument_data(config_choices, default_choise):
         description="Let's water our plants! Version: "+__version__
         )
     parser.add_argument(
-        '-d', '--debug',
-        action='store_true',
+        '-l', '--log',
+        choices=['info', 'debug'],
+        nargs='+',
         required=False,
-        help="Debug mode. Currently only for status logging behavior setting. "\
-             "This flag takes precedence over configuration setting."
+        help="If set, turns on logging. "\
+             "It configures logging (Python std.lib.) module's logger."
         )
     parser.add_argument(
         '-c', '--config',
@@ -51,15 +52,16 @@ def get_argument_data(config_choices, default_choise):
     return parser.parse_args()
 
 
-def setup_logging(is_debug):
-    logging.basicConfig(
-        style='{',
-        format='{asctime} | {threadName} | {message}',
-        level=logging.DEBUG if is_debug else logging.INFO
+def setup_logging(level):
+    if level:
+        logging.basicConfig(
+            style = irrigation.LOGGER_CONFIG['style'],
+            format = irrigation.LOGGER_CONFIG['format'],
+            level = logging._nameToLevel[level[0].upper()]
         )
 
 
-def run_app(config):
+def run_app(config_file):
     gardener = None
     exit_code = 0
 
@@ -71,10 +73,10 @@ def run_app(config):
 
     signal.signal(signal.SIGTERM, handler)
     try:
-        gardener = irrigation.Gardener(config)
+        gardener = irrigation.run_and_return_by_conf_path(config_file)
         gardener.stop_event.wait()
     except KeyboardInterrupt:
-        logging.debug("~~~ Received keyboard interrupt.\n")
+        logging.debug("~ ~ ~ Received keyboard interrupt.\n")
         exit_code = 1
     except SystemExit as err:
         logging.exception("Someting wants to SystemExit.\n")
@@ -96,7 +98,7 @@ if __name__ == '__main__':
         config_files.keys(),
         default_coise
         )
-    cfg = irrigation.load_configuration(config_files[parsed_arguments.config])
-    setup_logging(cfg.debug or parsed_arguments.debug)
-    code = run_app(cfg)
+    setup_logging(parsed_arguments.log)
+    asked_config_file = config_files[parsed_arguments.config]
+    code = run_app(asked_config_file)
     sys.exit(code)

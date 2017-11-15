@@ -19,7 +19,7 @@ def create_app(environment):
         )
     flask_app_config_loading(app, environment)
     flask_register_extensions(app)
-    setup_logging(True)
+    setup_logging(False)
     setup_webapp(app)
     setup_plant_waterer(app)
     return app

@@ -12,12 +12,15 @@ module.exports = {
         extensions: ['.js']
     },
     entry: {
-        site_js: './assets/site.js',
-        site_css: './assets/site.css'
+        site: [
+            './assets/site.js',
+            './assets/site.css'
+        ]
     },
     output: {
         path: path.join(projectRoot, './static'),
-        filename: '[name].[hash].bdl.js'
+        filename: 'bundel.[name].[hash].js',
+        publicPath: '/static'
     },
     devtool: 'inline-source-map',
     devServer: {

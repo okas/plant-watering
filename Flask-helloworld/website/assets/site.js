@@ -1,4 +1,4 @@
-import './site.css';
+//import './site.css';
 
 var func = function() {
     console.log('Hello world!')

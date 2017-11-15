@@ -10,7 +10,6 @@
 {
     "name": "default",
     "database_dir": "",
-    "debug": false,
     "tank_args": {
         "probe_low_pin": ,
         "probe_norm_pin": ,

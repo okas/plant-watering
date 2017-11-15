@@ -1,7 +1,6 @@
 {
     "name": "default",
     "database_dir": "data/",
-    "debug": false,
     "tank_args": {
         "probe_low_pin": 16,
         "probe_norm_pin": 20,

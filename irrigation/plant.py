@@ -1,9 +1,12 @@
-from logging import debug
+import logging
 from enum import Enum, unique
 from timeit import default_timer as timer
 from threading import Lock
 from gpiozero import PWMLED
 from .soil_sensor import CapacitiveSensor
+
+
+log = logging.getLogger(__name__)
 
 
 @unique
@@ -53,7 +56,7 @@ class Plant:
                 new_state = State.needs_water
                 result = True
             else:
-                debug(' %s, state: %s, moisture: %s, sensor: %s'
+                log.debug(' %s, state: %s, moisture: %s, sensor: %s'
                     % (self.name, self.state, self.moist_level, moist))
                 raise Exception('Should not end up here! Something is '\
                                 'wrong with Plant instance state handling.')
@@ -66,7 +69,7 @@ class Plant:
         self.led.close()
         self.sensor.close()
         self.closed = True
-        debug('Closed %s.' % self.name)
+        log.debug('Closed %s.' % self.name)
 
     @property
     def state(self) -> State:

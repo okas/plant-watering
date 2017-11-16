@@ -7,6 +7,9 @@ from .pumping import Pump
 from .water_tank import WaterTank
 
 
+log = logging.getLogger(__name__)
+
+
 class WaterSupply():
     def __init__(self, stop_event, pump_args, valve_pins, tank_args):
         self.closed = False
@@ -50,16 +53,16 @@ class WaterSupply():
                     self.__pump_work_result.put(stats)
         except:
             self.stop_event.set()
-            logging.exception(general_exc_msg)
+            log.exception(general_exc_msg)
         finally:
             self.__pump.close()
 
     def watering(self, millilitres, valve_pin, pump_speed=1) -> float:
         with self.__semaphore:
             if self.__must_stop_pump():
-                logging.debug("cannot start pump at this time!")
+                log.debug("cannot start pump at this time!")
                 return -1
-            logging.debug("   started pumping.")
+            log.debug("   started pumping.")
             self.__pump_work.put((
                 millilitres,
                 self.__valves[valve_pin],
@@ -71,12 +74,12 @@ class WaterSupply():
                 with suppress(queue.Empty):
                     stats = self.__pump_work_result.get(timeout=0.1)
                     break
-            logging.info("   done, pumped {}ml in {:.3f} seconds.".format(*stats))
+            log.info("   done, pumped {}ml in {:.3f} seconds.".format(*stats))
             return stats[0]
 
     def close(self):
         my_name = self.__class__.__name__
-        logging.debug("Ending %s, quitting worker threads. Please wait..." % my_name)
+        log.debug("Ending %s, quitting worker threads. Please wait..." % my_name)
         for d in self.__valves.values():
             d.close()
         with suppress(AttributeError):
@@ -86,7 +89,7 @@ class WaterSupply():
             if self.__tank_thread.is_alive():
                 self.__tank_thread.join()
         self.closed = True
-        logging.debug("Completed %s!" % my_name)
+        log.debug("Completed %s!" % my_name)
 
 
 general_exc_msg = 'Exception occured: '

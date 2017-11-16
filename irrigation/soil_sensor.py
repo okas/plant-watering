@@ -1,8 +1,11 @@
-from logging import debug
+import logging
 from time import sleep
 from timeit import default_timer as timer
 from statistics import median
 from gpiozero import MCP3008, OutputDevice
+
+
+log = logging.getLogger(__name__)
 
 
 class CapacitiveSensor():
@@ -53,7 +56,7 @@ class CapacitiveSensor():
         v = median(readings)
         ratio = (v - self.wet_value) / (self.dry_value - self.wet_value)
         result_ratio_inversed_rounded = round((1 - ratio) * 100, 2)
-        debug("  Sensor moisture median: [{}%], {:d} samples in {:.3f} seconds)."\
+        log.debug("  Sensor moisture median: [{}%], {:d} samples in {:.3f} seconds)."\
             .format(result_ratio_inversed_rounded, len(readings), elaps))
         return result_ratio_inversed_rounded
 

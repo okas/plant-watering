@@ -77,7 +77,7 @@ class Gardener:
         for plant in self.plants:
             self.__worker_queue.put(plant)
             Thread(
-                name = "[{}_worker]".format(plant.name),
+                name = "{}_watcher".format(plant.name),
                 target = self.plant_watcher_worker
                 ).start()
         log.info("Gardener is starting to watch for %d plants."\

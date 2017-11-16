@@ -5,6 +5,9 @@ from gpiozero import RGBLED, DigitalInputDevice
 from .common import stoppable_sleep
 
 
+log = logging.getLogger(__name__)
+
+
 @unique
 class State(Enum):
     not_measured = (0, 0, 0)
@@ -53,7 +56,7 @@ class WaterTank(Thread):
             self.close()
 
     def __begin_running(self):
-        logging.debug("Started Water tank watcher thread.")
+        log.debug("Started Water tank watcher thread.")
         self.measure()
         for p in self.probes:
             p.when_activated = p.when_deactivated = self.measure
@@ -61,7 +64,7 @@ class WaterTank(Thread):
     def __end_running(self):
         self.available_event.clear()
         self.close()
-        logging.debug("Completed Water tank watcher thread.")
+        log.debug("Completed Water tank watcher thread.")
 
     def _calculate_state(self, levels):
         if   levels == (False, False, False):
@@ -119,13 +122,13 @@ class WaterTank(Thread):
                     empt_e.clear()
         except:
             stop_e.set()
-            logging.exception(general_exc_msg)
+            log.exception(general_exc_msg)
         finally:
             self.__end_running()
 
     def measure(self):
         if self.stop_event.is_set():
-            logging.debug("<object: WaterTank>.measure() execution canceled, "\
+            log.debug("<object: WaterTank>.measure() execution canceled, "\
                 "because stop event is set.")
             return
         levels = tuple(p.value for p in self.probes)
@@ -158,14 +161,14 @@ class WaterTank(Thread):
     @state.setter
     def state(self, new_val):
         if self.stop_event.is_set():
-            logging.debug("<object: WaterTank>.state.setter attempt canceled, "\
+            log.debug("<object: WaterTank>.state.setter attempt canceled, "\
                 "because stop event is set.")
             return
         old_val = self.__state
         self.__state = new_val
         self.__change_tank_availability(new_val)
         self.__change_led(new_val, old_val)
-        logging.info('WaterTank state changed to [%s]' % new_val)
+        log.info('WaterTank state changed to [%s]' % new_val)
 
 
 general_exc_msg = 'Exception occured: '

@@ -1,0 +1,24 @@
+{
+    "version": 1,
+    "incremental": false,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "irrigation": {
+            "class": "logging.Formatter",
+            "style": "{",
+            "format": "~{asctime} | {threadName} | {message}"
+        }
+    },
+    "handlers": {
+        "irrigation_console": {
+            "class": "logging.StreamHandler",
+            "formatter": "irrigation"
+        }
+    },
+    "loggers": {
+        "irrigation": {
+            "handlers": ["irrigation_console"],
+            "level": "INFO"
+        }
+    }
+}

@@ -1,6 +1,8 @@
 import os
 import sys
 import logging
+import logging.config
+import json
 import signal
 from threading import Thread
 from contextlib import suppress
@@ -18,23 +20,15 @@ def create_app(environment):
         instance_relative_config=True
         )
     flask_app_config_loading(app, environment)
+    setup_logging(app)
     flask_register_extensions(app)
-    setup_logging(False)
     setup_webapp(app)
     setup_plant_waterer(app)
     return app
 
 
-def setup_logging(is_debug):
-    logging.basicConfig(
-        style='{',
-        format='{asctime} | {threadName} | {message}',
-        level=logging.DEBUG if is_debug else logging.INFO
-        )
-
-
 def flask_app_config_loading(app, environment):
-    app.config.from_object('config.default')
+    app.config.from_object('config.website_default')
     app.config.from_pyfile('secrets.py')
     app.config.from_object('config.{}'.format(environment))
     app.config.from_envvar('PLANTWATER_OVERRIDES', silent=True)
@@ -43,6 +37,11 @@ def flask_app_config_loading(app, environment):
     app.config.irrigation = irrigation.load_configuration(
         app.config['IRRIGATION_CFG']
         )
+
+
+def setup_logging(app):
+    with open(app.config['LOGGING_IRRIGATION']) as f:
+        logging.config.dictConfig(json.load(f))
 
 
 def flask_register_extensions(app):
@@ -63,7 +62,7 @@ def setup_plant_waterer(app):
     def worker():
         exit_code = 0
         try:
-            app.plant_waterer = irrigation.Gardener(
+            app.plant_waterer = irrigation.run_and_return_by_conf_obj(
                 app.config.irrigation
                 )
             app.plant_waterer.stop_event.wait()
@@ -78,5 +77,5 @@ def setup_plant_waterer(app):
             sys.exit(exit_code)
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
-    thread = Thread(name='Gardener', target=worker)
+    thread = Thread(name='Irrigation', target=worker)
     thread.start()

@@ -22,7 +22,7 @@ BASE_DIR = os.path.realpath(sys.path[0])
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
 CSRF_ENABLED  = True
 
-WEBPACK_MANIFEST_PATH = BASE_DIR + '/build/webpack.manifest.json'
+WEBPACK_MANIFEST_PATH = BASE_DIR + '/website/build/webpack.manifest.json'
 
 IRRIGATION_CFG = BASE_DIR + '/instance/irrigation_test1.json'
 

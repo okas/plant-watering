@@ -17,6 +17,7 @@ def create_app(environment):
     '''Application Factory'''
     app = Flask(
         __name__,
+        static_folder='./build/static',
         instance_relative_config=True
         )
     flask_app_config_loading(app, environment)

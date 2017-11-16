@@ -6,6 +6,9 @@ from .gardener import Gardener
 from .configuration import load_configuration
 
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+
 LOGGER_CONFIG = dict(
     style = '{',
     format = '{asctime} | {threadName} | {message}'

@@ -1,11 +1,12 @@
 # Configuration files
-
-* Configuration files must be valid JSON files.
-* All fields are required.
+* All configuration files must be valid JSON files.
 * Do not save configs in /irrigation/ folder!
+* Instead, put them near consuming application and refer them.
+## Irrigation configuration
+* All fields are required.
 * Below is example file content, use it as template to create additional files for production or development.
-
-### Example configuration
+* It has some sensible defaults.
+### Schema
 ```
 {
     "name": "default",
@@ -23,7 +24,7 @@
         "pin": ,
         "pump_speed": 1,
         "initial_value": 0,
-        "frequency": 200,
+        "frequency": 100,
         "delay_valve": 0.1,
         "flow_sensor_pin": ,
         "flow_sensor_vcc_pin":
@@ -51,6 +52,38 @@
 }
 ```
 
+## Logging module recommended configuration
+* It is used by Python's standard librarys _logging_ moduel.
+* Schema: https://docs.python.org/3/library/logging.config.html#configuration-dictionary-schema
+* Load it with logging.dictConfig()
+* Logging module has ben set up in _irrigation_ package using recommended best practices.
+### Schema
+```
+{
+    "version": 1,
+    "incremental": false,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "irrigation": {
+            "class": "logging.Formatter",
+            "style": "{",
+            "format": "~{asctime} | {threadName} | {message}"
+        }
+    },
+    "handlers": {
+        "irrigation_console": {
+            "class": "logging.StreamHandler",
+            "formatter": "irrigation"
+        }
+    },
+    "loggers": {
+        "irrigation": {
+            "handlers": ["irrigation_console"],
+            "level": "DEBUG"
+        }
+    }
+}
+```
 # Database
 
 * Database hold info about gardeners and plants that have been watered.

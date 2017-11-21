@@ -16,4 +16,6 @@ DEBUG = True
 # operations using the other.
 #THREADS_PER_PAGE = 2
 
+#WERKZEUG_DEBUG_PIN = 'off'
+
 del os

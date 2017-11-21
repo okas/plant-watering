@@ -5,23 +5,25 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ManifestRevisionPlugin = require('manifest-revision-webpack-plugin');
 
-const projectRoot = path.join(__dirname, '../website')
-const buildRootDir = path.join(projectRoot, '/build')
-const buildOutputDir = path.join(buildRootDir, '/static')
+const webRoot = path.join(__dirname, '../website')
+const templatesDir = path.join(webRoot, '/templates')
+const buildRootDir = path.join(webRoot, '/build')
+const buildOutputDir = path.join(buildRootDir, '/public/static')
 const webpackMainifest = path.join(buildRootDir, '/webpack.manifest.json')
-const assetsRootDir = path.join(projectRoot, '/assets')
+const layoutHtml = path.join(buildRootDir, '/templates/_layout.html')
+const assetsRootDir = path.join(webRoot, '/assets/')
 
 fs.mkdir(path.dirname(webpackMainifest), function(){});
 
 module.exports = {
-    context: projectRoot,
+    context: webRoot,
     resolve: {
         extensions: ['.js']
     },
     entry: {
         site: [
-            path.join(assetsRootDir, '/site.js'),
-            path.join(assetsRootDir, '/site.css')
+            path.join(assetsRootDir, '/site/main.js'),
+            path.join(assetsRootDir, '/site/main.css')
         ]
     },
     output: {
@@ -35,22 +37,21 @@ module.exports = {
     },
     module: {
         rules: [
-            {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader']
-            }
+            { test: /\.css$/, use: ['style-loader', 'css-loader'] }
         ]
     },
     plugins: [
-        new CleanWebpackPlugin([buildRootDir + '/*'], {
-            root: projectRoot
+        new CleanWebpackPlugin([buildRootDir + '/*', layoutHtml], {
+            root: webRoot
         }),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'common'
         }),
         new HtmlWebpackPlugin({
-            template: './templates/_webpack/empty.html',
-            filename: projectRoot + '/templates/_webpack/injected_scripts.html',
+            inject: false,
+            template: './templates/_webpack_layout.html',
+            filename: layoutHtml,
+            favicon: './assets/favicon.ico'
         }),
         new ManifestRevisionPlugin(webpackMainifest, {
             rootAssetPath: assetsRootDir

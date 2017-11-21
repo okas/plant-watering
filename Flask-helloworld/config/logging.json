@@ -10,6 +10,9 @@
         }
     },
     "handlers": {
+        "console": {
+            "class": "logging.StreamHandler"
+        },
         "irrigation_console": {
             "class": "logging.StreamHandler",
             "formatter": "irrigation"
@@ -18,7 +21,8 @@
     "loggers": {
         "irrigation": {
             "handlers": ["irrigation_console"],
-            "level": "INFO"
+            "level": "INFO",
+            "propagate": false
         }
     }
 }

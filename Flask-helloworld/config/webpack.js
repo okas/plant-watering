@@ -3,6 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WebpackCdnPlugin = require('webpack-cdn-plugin');
 const ManifestRevisionPlugin = require('manifest-revision-webpack-plugin');
 
 const webRoot = path.join(__dirname, '../website')

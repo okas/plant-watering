@@ -39,9 +39,21 @@ module.exports = {
     },
     module: {
         rules: [
-            { test: /\.css$/, use: ['style-loader', 'css-loader'] },
-            { test: /\.txt$/, use: 'raw-text-loader' }
-            //{ test: /\.ico$/, use: 'file-loader' }
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
+            },
+            {
+                test: /\.txt$/,
+                use: 'raw-text-loader'
+            },
+            {
+                test: /\.(png|jpg|gif|svg|ico)$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]?[hash]'
+                }
+            }
         ]
     },
     plugins: [
@@ -58,7 +70,7 @@ module.exports = {
             filename: outputLayoutHtml,
             lang: 'et',
             title: '{% block title %}Welcome{% endblock %} | HelloWorld app',
-            meta: [{ name:'theme-color', content:'#A688FD' }],
+            meta: [{ name:'theme-color', content:'#A688FD' }], // TODO: refactor to config
             favicon: './assets/favicon.ico',
             mobile: true,
             bodyHtmlSnippet: reqText(bodyPartialHtml, require)

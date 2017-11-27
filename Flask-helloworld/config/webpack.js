@@ -61,7 +61,7 @@ module.exports = {
             meta: [{ name:'theme-color', content:'#A688FD' }],
             favicon: './assets/favicon.ico',
             mobile: true,
-            bodyHtmlSnippet: bodyPartialHtml
+            bodyHtmlSnippet: reqText(bodyPartialHtml, require)
         }),
         new ManifestRevisionPlugin(webpackMainifest, {
             rootAssetPath: assetsRootDir

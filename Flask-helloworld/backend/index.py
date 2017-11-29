@@ -6,11 +6,8 @@ from flask import (
     g,
     current_app as app
     )
-from gpiozero import Button, PWMLED
-from time import sleep
-from .. services import test_svc
 
-mod = Blueprint('test', __name__)
+mod = Blueprint('index', __name__)
 
 #=======================================================================
 

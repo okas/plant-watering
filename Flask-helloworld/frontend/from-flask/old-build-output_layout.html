@@ -1,0 +1,85 @@
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="et" >
+  <head>
+    <meta charset="utf-8">
+    <meta content="ie=edge" http-equiv="x-ua-compatible">
+
+    
+
+    
+      
+      <meta name="theme-color" content="#A688FD">
+      
+    
+
+    <title>{% block title %}Welcome{% endblock %} | HelloWorld app</title>
+
+    
+    <link href="/static/favicon.ico" rel="shortcut icon">
+    
+
+    
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    
+
+    
+
+    
+    
+  </head>
+  <body>
+    
+    
+      {% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class=flashes>
+{% for m in messages %}
+  <li>{{ m }}
+{% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+<header>
+  <nav></nav>
+</header>
+
+{% block content %}
+  <p id="bodyfooter">...igal pool...
+{% endblock content %}
+
+<footer></footer>
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    
+    
+    <script src="/static/common.bundle.a037937bc7e83ccc4d5d.js" type="text/javascript"></script>
+    
+    
+    
+    <script src="/static/site.bundle.a037937bc7e83ccc4d5d.js" type="text/javascript"></script>
+    
+    
+
+    
+
+    
+  </body>
+</html>

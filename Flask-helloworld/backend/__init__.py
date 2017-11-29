@@ -52,8 +52,8 @@ def flask_register_extensions(app):
 
 
 def setup_webapp(app):
-    from .views import test
-    app.register_blueprint(test.mod)
+    import index
+    app.register_blueprint(index.mod)
 
 
 def setup_plant_waterer(app):

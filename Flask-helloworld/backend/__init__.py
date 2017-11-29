@@ -17,10 +17,10 @@ from . import (
 
 def create_app(environment):
     '''Application Factory'''
-    app = MyApp(
+    app = Flask(
         __name__,
         static_folder='../dist/static',
-        template_folders='../dist',
+        template_folder='../dist',
         instance_relative_config=True
         )
     flask_app_config_loading(app, environment)
@@ -78,47 +78,3 @@ def setup_plant_waterer(app):
     signal.signal(signal.SIGTERM, handler)
     thread = Thread(name='Irrigation', target=worker)
     thread.start()
-
-
-class MyApp(Flask):
-    '''
-    credits: http://fewstreet.com/2015/01/16/flask-blueprint-templates.html
-    '''
-    def __init__(
-            self,
-            import_name,
-            static_path=None,
-            static_url_path=None,
-            static_folder='static',
-            template_folders=['templates'],
-            instance_path=None,
-            instance_relative_config=False,
-            root_path=None):
-        Flask.__init__(
-            self,
-            import_name,
-            static_path,
-            static_url_path,
-            static_folder,
-            template_folders,
-            instance_path,
-            instance_relative_config,
-            root_path
-            )
-
-    @locked_cached_property
-    def jinja_loader(self):
-        file_loader = jinja2.FileSystemLoader(
-            os.path.join(self.root_path, t) for t in self.template_folder
-            )
-        return jinja2.ChoiceLoader([
-            file_loader,
-            jinja2.PrefixLoader({}, delimiter = ".")
-        ])
-
-    def create_global_jinja_loader(self):
-        return self.jinja_loader
-
-    def register_blueprint(self, bp):
-        Flask.register_blueprint(self, bp)
-        self.jinja_loader.loaders[1].mapping[bp.name] = bp.jinja_loader

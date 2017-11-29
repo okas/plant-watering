@@ -9,10 +9,11 @@ from contextlib import suppress
 import jinja2
 from flask import Flask
 from flask.helpers import locked_cached_property
-from flask_webpack import Webpack
 sys.path.insert(1, os.path.realpath(__file__+'/../../../'))
 import irrigation
-
+from . import (
+    index
+    )
 
 def create_app(environment):
     '''Application Factory'''
@@ -24,7 +25,6 @@ def create_app(environment):
         )
     flask_app_config_loading(app, environment)
     setup_logging(app)
-    flask_register_extensions(app)
     setup_webapp(app)
     setup_plant_waterer(app)
     return app
@@ -47,12 +47,7 @@ def setup_logging(app):
         logging.config.dictConfig(json.load(f))
 
 
-def flask_register_extensions(app):
-    Webpack().init_app(app)
-
-
 def setup_webapp(app):
-    import index
     app.register_blueprint(index.mod)
 
 

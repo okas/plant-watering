@@ -18,8 +18,8 @@ def create_app(environment):
     '''Application Factory'''
     app = MyApp(
         __name__,
-        static_folder='./build/public/static',
-        template_folders=['templates', 'build/templates'],
+        static_folder='../dist/static',
+        template_folders='../dist',
         instance_relative_config=True
         )
     flask_app_config_loading(app, environment)

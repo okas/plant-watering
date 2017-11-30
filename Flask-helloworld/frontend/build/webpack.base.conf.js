@@ -33,8 +33,10 @@ module.exports = {
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',
         enforce: 'pre',
+        exclude: /node_modules/,
         include: [resolve('src'), resolve('test')],
         options: {
+          cache: true,
           formatter: require('eslint-friendly-formatter'),
           emitWarning: !config.dev.showEslintErrorsInOverlay
         }

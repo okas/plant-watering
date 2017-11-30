@@ -4,5 +4,5 @@
 *.db
 *.sh
 env
-dist
+dist/
 __pycache__/

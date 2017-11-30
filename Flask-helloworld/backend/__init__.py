@@ -1,19 +1,17 @@
 import os
 import sys
+import importlib
 import logging
 import logging.config
 import json
 import signal
 from threading import Thread
 from contextlib import suppress
-import jinja2
 from flask import Flask
-from flask.helpers import locked_cached_property
+from flask_cors import CORS
 sys.path.insert(1, os.path.realpath(__file__+'/../../../'))
 import irrigation
-from . import (
-    index
-    )
+
 
 def create_app(environment):
     '''Application Factory'''
@@ -25,7 +23,8 @@ def create_app(environment):
         )
     flask_app_config_loading(app, environment)
     setup_logging(app)
-    setup_webapp(app)
+    CORS(app)
+    register_blueprints(app)
     setup_plant_waterer(app)
     return app
 
@@ -47,8 +46,11 @@ def setup_logging(app):
         logging.config.dictConfig(json.load(f))
 
 
-def setup_webapp(app):
-    app.register_blueprint(index.mod)
+def register_blueprints(app):
+    flask_views = ['.index', '.api']
+    for module in flask_views:
+        m = importlib.import_module(module, __name__)
+        app.register_blueprint(m.bp)
 
 
 def setup_plant_waterer(app):

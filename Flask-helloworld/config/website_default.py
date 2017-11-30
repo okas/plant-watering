@@ -28,5 +28,7 @@ IRRIGATION_CFG = BASE_DIR + '/instance/irrigation_test1.json'
 
 PLANTWATER_LOGGING = BASE_DIR + '/config/logging.json'
 
+CORS_ORIGINS = "<specify>"
+
 del os
 del sys

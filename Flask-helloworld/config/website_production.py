@@ -16,4 +16,6 @@ DEBUG = False
 # operations using the other.
 #THREADS_PER_PAGE = 2
 
+CORS_ORIGINS = "<specify>"
+
 del os

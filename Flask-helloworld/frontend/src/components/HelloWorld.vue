@@ -17,6 +17,10 @@
       <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
     </ul>
+    <h2>Experiments</h2>
+    <ul>
+      <li><a href="/plantwatcher">Check plant Irrigation system</a></li>
+    </ul>
   </div>
 </template>
 

@@ -1,34 +1,44 @@
 <template>
   <div>
-    <p v-text="plantWatcherStatus"></p>
-    <button @click="getPlantWatcherStatus">Get status</button>
+    <p v-for="p in plants">
+        {{ p.status }} > <a href="#" @click="refresh(p)">refresh</a>
+    </p>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 
+const apiBase = 'http://saarmas-rp3-1.saared.eu:4999/api'
+
 export default {
     name: 'PlantWatcher',
     data () {
         return {
             msg: 'Welcome to Plant Watcher page.',
-            plantWatcherStatus: 'waitng...'
+            plants: []
         }
     },
     methods: {
         getPlantWatcherStatus () {
-            const path = 'http://saarmas-rp3-1.saared.eu:4999/api/plant-watcher'
-            axios.get(path)
+            axios.get(apiBase + '/plant-watcher')
                 .then(resp => {
-                    this.plantWatcherStatus = resp.data.message
+                    this.plants = resp.data.plants
                 })
+                .catch(err => { console.log(err) })
+        },
+        refresh (p) {
+            axios.get(`${apiBase}/plant-status/${p.name}`)
+                .then(resp => { p.status = resp.data })
                 .catch(err => { console.log(err) })
         }
     },
-    beforeMount: this.getPlantWatcherStatus
+    beforeMount () { this.getPlantWatcherStatus() }
 }
 </script>
 
 <style scoped>
+    a {
+        color: blue;
+    }
 </style>

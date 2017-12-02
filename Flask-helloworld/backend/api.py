@@ -28,3 +28,9 @@ def get_plant_status(name):
     plant = next((p for p in app.plant_waterer.plants if p.name == name), None)
     resp = make_viewmodel(plant, plant.measure(True)[1])
     return jsonify(resp)
+
+@bp.route('/plant-stats/<name>')
+def get_plant_stats(name):
+    db = app.plant_waterer.db
+    col = db.collections('gardener_instances')
+    print(col.all())

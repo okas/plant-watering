@@ -7,26 +7,24 @@ from flask import (
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
-status_format = 'Plant: {0.name} | state: {0.state} | '\
-                'needed moisture: {0.moist_level} | '\
-                'current moisture: {1:.2f}'
+
+def make_viewmodel(plant, measure):
+    return {
+        'name': plant.name,
+        'state': plant.state.name,
+        'moist_level': plant.moist_level,
+        'moist_measured': (measure * 100) / 100,
+        }
 
 @bp.route('/plant-watcher')
 def index_page():
-    resp = {'plants': []}
     #TODO Do it async
-    for p in app.plant_waterer.plants:
-        measurement = p.measure(True)
-        resp['plants'].append({
-            'name': p.name,
-            'status': status_format.format(p, measurement[1])
-        })
+    resp = [make_viewmodel(p, p.measure(True)[1]) for p in app.plant_waterer.plants]
     return jsonify(resp)
 
 
 @bp.route('/plant-status/<name>')
 def get_plant_status(name):
     plant = next((p for p in app.plant_waterer.plants if p.name == name), None)
-    measurement = plant.measure(True)
-    resp = status_format.format(plant, measurement[1])
+    resp = make_viewmodel(plant, plant.measure(True)[1])
     return jsonify(resp)

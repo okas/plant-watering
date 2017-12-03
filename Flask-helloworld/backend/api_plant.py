@@ -39,5 +39,6 @@ def get_plant_statistics(name):
         plants.extend(list(p for p in g['plants'] if p[k] == v))
     gc.filter(lambda g: extraxt_plants(g, 'name', name))
     result = mc.filter(lambda m: m['plant_uuid1'] in (p['uuid1'] for p in plants))
+    project = {}
     return jsonify(result)
 

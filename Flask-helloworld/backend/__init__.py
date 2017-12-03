@@ -47,7 +47,7 @@ def setup_logging(app):
 
 
 def register_blueprints(app):
-    flask_views = ['.index', '.api']
+    flask_views = ['.index', '.api_plant']
     for module in flask_views:
         m = importlib.import_module(module, __name__)
         app.register_blueprint(m.bp)

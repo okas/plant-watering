@@ -37,8 +37,6 @@
 <script>
 import axios from 'axios'
 
-const apiBase = 'http://saarmas-rp3-1.saared.eu:4999/api/plant'
-
 export default {
     name: 'PlantWatcher',
     data () {
@@ -56,12 +54,12 @@ export default {
             }
         },
         getPlantWatcherStatus () {
-            axios.get(`${apiBase}/watcher`)
+            axios.get('/api/plant/watcher')
                 .then(this._handleResponse)
                 .catch(console.log)
         },
         refresh (p) {
-            axios.get(`${apiBase}/${p.name}/status`)
+            axios.get(`/api/plant/${p.name}/status`)
                 .then(resp => { Object.assign(p, resp.data) })
                 .catch(console.log)
         }

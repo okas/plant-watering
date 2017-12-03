@@ -24,8 +24,6 @@
 <script>
 import axios from 'axios'
 
-const apiBase = 'http://saarmas-rp3-1.saared.eu:4999/api/plant'
-
 export default {
     name: 'PlantStats',
     props: {
@@ -49,7 +47,7 @@ export default {
             }
         },
         getPlantStatistics () {
-            axios.get(`${apiBase}/${this.name}/statistics`)
+            axios.get(`/api/plant/${this.name}/statistics`)
                 .then(this._handleResponse)
                 .catch(console.log)
         }

@@ -31,7 +31,7 @@ class Gardener:
         self.plants = self.__init_plants(config.plants_args_list)
         self._db__id = None
         self.__db_thread = None
-        self.__init_db(config)
+        self.db = self.__init_db(config)
         self.water_supply = WaterSupply(
             self.stop_event,
             config.pump_args._asdict(),
@@ -55,15 +55,14 @@ class Gardener:
                 os.path.isdir(config.database_dir)):
             raise OSError("Expected existing and absolute directory "\
                           "path, instead of '%s'" % config.database_dir)
-        self.__db = UnQLite(
-            os.path.join(config.database_dir, config.name+'.bson')
-            )
-        c_gardener = self.__db.collection('gardener_instances')
-        self.__db_moistures = self.__db.collection('plant_moistures')
-        self.__db_waterings = self.__db.collection('plant_waterings')
+        db = UnQLite(os.path.join(config.database_dir, config.name+'.bson'))
+        c_gardener = db.collection('gardener_instances')
+        self.__db_moistures = db.collection('plant_moistures')
+        self.__db_waterings = db.collection('plant_waterings')
         c_gardener.create()
         self.__db_moistures.create()
         self.__db_waterings.create()
+        return db
 
     def __start_work_data(self):
         self._gardener_commiter()
@@ -95,7 +94,7 @@ class Gardener:
             self.stop_event.set()
             log.exception(general_exc_msg)
         finally:
-            self.__db.close()
+            self.db.close()
             log.debug('Completed database worker.')
 
     def _gardener_commiter(self):
@@ -114,13 +113,13 @@ class Gardener:
                     'moist_level': p.moist_level
                     } for p in extended_plants()
                 )}
-        with self.__db.transaction():
-            self._db__id = self.__db\
+        with self.db.transaction():
+            self._db__id = self.db\
                 .collection('gardener_instances')\
                 .store(gardener_record)
 
     def _measure_commiter(self, p_uuid1, moist):
-        with self.__db.transaction():
+        with self.db.transaction():
             self.__db_moistures.store({
                 'gardener__id': self._db__id,
                 'plant_uuid1': str(p_uuid1),
@@ -129,7 +128,7 @@ class Gardener:
                 })
 
     def _water_commiter(self, p_uuid1, water):
-        with self.__db.transaction():
+        with self.db.transaction():
             self.__db_waterings.store({
                 'gardener__id': self._db__id,
                 'plant_uuid1': str(p_uuid1),

@@ -1,11 +1,10 @@
 <template>
 <div>
-    <h2 v-text="heading"></h2>
-    <ul>
+    <h1>Welcome to Plant Watcher</h1>
+    <span v-if="plants.length == 0" v-text="status"></span>
+    <ul v-else>
         <dl class="plant-block" v-for="p in plants">
-            <dt class="h1">
-                <a href="#" @click="refresh(p)" v-text="p.name"></a>
-            </dt>
+            <dt class="h1" v-text="p.name"></dt>
             <div class="horizontal status">
                 <dt>state:</dt>
                 <dd v-text="p.state"></dd>
@@ -23,6 +22,12 @@
                     <dt>measured:</dt>
                     <dd v-text="p.moist_measured"></dd>
                 </div>
+                <div class="horizontal">
+                    <a href="#refresh" @click="refresh(p)">refresh</a>
+                    <router-link :to="{name: 'plantstats', params: {name: p.name}}">
+                        stats
+                    </router-link>
+                </div>
             </div>
         </dl>
     </ul>
@@ -32,28 +37,33 @@
 <script>
 import axios from 'axios'
 
-const apiBase = 'http://saarmas-rp3-1.saared.eu:4999/api'
+const apiBase = 'http://saarmas-rp3-1.saared.eu:4999/api/plant'
 
 export default {
     name: 'PlantWatcher',
     data () {
         return {
-            heading: 'Welcome to Plant Watcher page',
+            status: 'loading plants from server...',
             plants: []
         }
     },
     methods: {
+        _handleResponse (resp) {
+            if (Array.isArray(resp.data) && resp.data.length > 0) {
+                this.plants = resp.data
+            } else {
+                this.status = "didn't get any plants, check what's wrong'"
+            }
+        },
         getPlantWatcherStatus () {
-            axios.get(apiBase + '/plant-watcher')
-                .then(resp => {
-                    this.plants = resp.data
-                })
-                .catch(err => { console.log(err) })
+            axios.get(`${apiBase}/watcher`)
+                .then(this._handleResponse)
+                .catch(console.log)
         },
         refresh (p) {
-            axios.get(`${apiBase}/plant-status/${p.name}`)
+            axios.get(`${apiBase}/${p.name}/status`)
                 .then(resp => { Object.assign(p, resp.data) })
-                .catch(err => { console.log(err) })
+                .catch(console.log)
         }
     },
     beforeMount () { this.getPlantWatcherStatus() }
@@ -64,15 +74,14 @@ export default {
 .plant-block {
     width: 150px;
     float: left;
-    box-shadow: 0px -1px 1px #9fcbe4;
+    box-shadow: -1px -1px 4px 2px #52e4b585;
 }
 .h1 {
     font-size: 1.5em;
+    text-align: center;
 }
 .h2 {
     font-size: 1.25em;
-}
-.h1, .h2 {
     text-align: left;
 }
 .horizontal {

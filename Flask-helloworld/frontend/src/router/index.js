@@ -2,9 +2,15 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 const routerOptions = [
+    {
+        path: '/plant-statistics/:name',
+        name: 'plantstats',
+        component: 'PlantStats',
+        props: true
+    },
+    { path: '/plantwatcher', component: 'PlantWatcher' },
     { path: '/', component: 'HelloWorld' },
     { path: '/about', component: 'About' },
-    { path: '/plantwatcher', component: 'PlantWatcher' },
     { path: '/*', component: 'NotFound' }
 ]
 

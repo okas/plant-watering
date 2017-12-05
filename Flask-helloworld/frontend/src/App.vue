@@ -1,10 +1,10 @@
 <template>
-  <div id="app">
-    <router-link to="/">
-      <img src="./assets/logo.png" width="75px">
-    </router-link>
-    <router-view/>
-  </div>
+<main id="app">
+  <router-link to="/">
+    <img src="../static/logo_tk.png">
+  </router-link>
+  <router-view/>
+</main>
 </template>
 
 <script>
@@ -14,6 +14,12 @@ export default {
 </script>
 
 <style>
+main {
+  display:block; /*IE11*/
+}
+body {
+  background-color: #0a21880a;
+}
 h1, h2 {
   font-weight: normal;
 }
@@ -26,6 +32,11 @@ a {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 30px;
+}
+.clearfix:after {
+   content: "";
+   clear: both;
+   display: table;
 }
 </style>

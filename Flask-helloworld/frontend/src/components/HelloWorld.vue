@@ -3,7 +3,9 @@
     <h1>{{ msg }}</h1>
     <h2>Plant Irrigation</h2>
     <ul>
-      <li><router-link to="/plantwatcher">Check plant watcher system</router-link></li>
+      <li><router-link :to="{name: 'plantwatcher'}">
+        Check plant watcher system
+      </router-link></li>
     </ul>
     <hr/>
     <h2>Essential Links</h2>
@@ -30,13 +32,12 @@ export default {
     name: 'HelloWorld',
     data () {
         return {
-            msg: 'Welcome to Your Vue.js App'
+            msg: "Welcome to Saar family's smart home App!"
         }
     }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 ul {
   list-style-type: none;

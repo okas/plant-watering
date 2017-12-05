@@ -1,8 +1,8 @@
 <template>
 <div>
-    <h1>Welcome to Plant Watcher</h1>
-    <span v-if="plants.length == 0" v-text="status"></span>
-    <ul v-else>
+    <h1>Irrigation Module</h1>
+    <span v-if="status" v-text="status"></span>
+    <ul class="clearfix">
         <dl class="plant-block" v-for="p in plants">
             <dt class="h1" v-text="p.name"></dt>
             <div class="horizontal status">
@@ -24,6 +24,7 @@
                 </div>
                 <div class="horizontal">
                     <a href="#refresh" @click="refresh(p)">refresh</a>
+                    <span>&nbsp;|&nbsp;</span>
                     <router-link :to="{name: 'plantstats', params: {name: p.name}}">
                         stats
                     </router-link>
@@ -46,21 +47,30 @@ export default {
         }
     },
     methods: {
-        _handleResponse (resp) {
+        _handleListResp (resp) {
             if (Array.isArray(resp.data) && resp.data.length > 0) {
                 this.plants = resp.data
+                this.status = ''
             } else {
                 this.status = "didn't get any plants, check what's wrong'"
             }
         },
+        _handleSingleResp (resp, plant) {
+            if (resp.data) {
+                Object.assign(plant, resp.data)
+                this.status = ''
+            } else {
+                this.status = `didn't get refresh for "${plant.name}", check what's wrong'`
+            }
+        },
         getPlantWatcherStatus () {
             axios.get('/api/plant/watcher')
-                .then(this._handleResponse)
+                .then(this._handleListResp)
                 .catch(console.log)
         },
         refresh (p) {
             axios.get(`/api/plant/${p.name}/status`)
-                .then(resp => { Object.assign(p, resp.data) })
+                .then(resp => this._handleSingleResp(resp, p))
                 .catch(console.log)
         }
     },
@@ -69,10 +79,13 @@ export default {
 </script>
 
 <style scoped>
+.plant-list {
+    margin: 0
+}
 .plant-block {
     width: 150px;
-    float: left;
     box-shadow: -1px -1px 4px 2px #52e4b585;
+    display: inline-block;
 }
 .h1 {
     font-size: 1.5em;

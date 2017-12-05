@@ -8,7 +8,11 @@ const routerOptions = [
         component: 'PlantStats',
         props: true
     },
-    { path: '/plantwatcher', component: 'PlantWatcher' },
+    {
+        path: '/plant-watcher',
+        name: 'plantwatcher',
+        component: 'PlantWatcher'
+    },
     { path: '/', component: 'HelloWorld' },
     { path: '/about', component: 'About' },
     { path: '/*', component: 'NotFound' }

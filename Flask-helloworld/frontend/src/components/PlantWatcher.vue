@@ -3,6 +3,7 @@
     <h1>Irrigation Module</h1>
     <span v-if="status" v-text="status"></span>
     <ul class="plant-list clearfix">
+
         <dl class="plant-block" v-for="p in plants">
             <dt class="h1" v-text="p.name"></dt>
             <div class="horizontal status">

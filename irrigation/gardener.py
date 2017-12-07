@@ -1,8 +1,9 @@
 import logging
 import os
+from time import time, localtime, strftime
 import uuid
 from contextlib import suppress
-from datetime import datetime, timedelta
+from datetime import datetime
 import queue
 from threading import currentThread, Thread, Event, BoundedSemaphore
 from unqlite import UnQLite
@@ -11,10 +12,6 @@ from .water_supply import WaterSupply
 
 
 log = logging.getLogger(__name__)
-
-
-def add_seconds(s:float, format='%X') -> str:
-    return (datetime.now() + timedelta(seconds=s)).strftime(format)
 
 
 class Gardener:
@@ -28,7 +25,7 @@ class Gardener:
         self.__db_queue = queue.Queue()
         self.watch_cycle = config.gardener_args.watch_cycle
         self.watering_cycle = config.gardener_args.watering_cycle
-        self.plants = self.__init_plants(config.plants_args_list)
+        self.plants = tuple(Plant(**a._asdict()) for a in config.plants_args_list)
         self._db__id = None
         self.__db_thread = None
         self.db = self.__init_db(config)
@@ -39,16 +36,12 @@ class Gardener:
             config.tank_args._asdict()
             )
         self.__start_work_data()
-        self.__start_work_watchers()
+        Thread(name="PlantWatcher", target=self.__watcher_loop_thread).start()
 
     def __del__(self):
         if not self.closed:
             self.stop_event.set()
-            self.stop_event.set()
             self.close()
-
-    def __init_plants(self, a_list) -> tuple:
-        return tuple(Plant(self.stop_event, **a._asdict()) for a in a_list)
 
     def __init_db(self, config):
         if not (os.path.isabs(config.database_dir) and
@@ -72,15 +65,25 @@ class Gardener:
             )
         self.__db_thread.start()
 
-    def __start_work_watchers(self):
-        for plant in self.plants:
-            self.__worker_queue.put(plant)
-            Thread(
-                name = "{}_watcher".format(plant.name),
-                target = self.plant_watcher_worker
-                ).start()
-        log.info("Gardener is starting to watch for %d plants."\
+    def __watcher_loop_thread(self):
+        '''
+        Main watcher loop, keep as performant as possible!
+        All plants are in here at 'resting' or 'needs_water' state.
+        '''
+        log.info("Starting to watch for %d plants."\
             % len(self.plants))
+        while not self.stop_event.wait(0.1):
+            current_time = time()
+            for plant in (p for p in self.plants if p.next_action != 0):
+                if current_time > plant.next_action:
+                    plant.next_action = 0
+                    self.__worker_queue.put(plant)
+                    Thread(target = self.plant_worker_thread).start()
+        notify = [p.name for p in self.plants if p.state != State.resting]
+        if len(notify) > 0:
+            log.debug('  these plants were proccesed during '\
+                'interruption request: %s' % ', '.join(notify))
+        log.debug("Completed PlantWatcher.")
 
     def db_worker(self):
         log.debug('Started database worker.')
@@ -142,63 +145,37 @@ class Gardener:
     def _save_watering(self, p_uuid1, water):
         self.__db_queue.put((self._water_commiter, p_uuid1, water))
 
-    def plant_watcher_worker(self):
+    def plant_worker_thread(self):
+        plant = self.__worker_queue.get()
+        currentThread().name = "{}[w]".format(plant.name)
         try:
-            plant = self.__worker_queue.get()
-            while not self.stop_event.is_set():
-                moist = plant.measure()[1]
-                self._save_measure(plant.uuid1, moist)
-                if plant.state == State.needs_water:
-                    log.info(" Enter watering cycle, moisture low: "\
-                         "{:.2f}% (min {:.2f}%)."\
-                            .format(moist, plant.moist_level))
-                    self._handle_watering_cycle(plant)
-                    if self.stop_event.is_set():
-                        break
-                    log.info(" returned to watch cycle, re-measure at %s."\
-                        % add_seconds(self.watch_cycle))
-                else:
-                    log.info(" Enough moisture {:.2f}% (min {:.2f}%), "\
-                        "re-measure at {}."\
-                        .format(
-                            moist,
-                            plant.moist_level,
-                            add_seconds(self.watch_cycle)
-                        ))
-                if self.stop_event.wait(self.watch_cycle):
-                    log.debug(" stopping watcher cycle, because something asked.")
-                    break
+            old_state = plant.state
+            moist = plant.measure()[1]
+            self._save_measure(plant.uuid1, moist)
+            if plant.state == State.needs_water:
+                self._handle_watering_phase(plant, old_state, moist)
+            else:
+                self._handle_resting_phase(plant, old_state, moist)
         except:
             self.stop_event.set()
             log.exception(general_exc_msg)
         finally:
             self.__worker_queue.task_done()
-            log.debug(" completed plant watcher thread.")
 
-    def _handle_watering_cycle(self, plant):
-        '''Perform watering, measuring and re-watering if neccessary.'''
-        while True:
-            if not self._wait_for_tank():
-                log.debug(" stopping watering cycle, because something asked.")
-                break
-            log.debug("  start watering.")
-            actual_ml = self._water_plant(plant)
-            self._save_watering(plant.uuid1, actual_ml)
-            log.info("  re-measure moisture at %s."
-                % add_seconds(self.watering_cycle))
-            if self.stop_event.wait(self.watering_cycle):
-                log.debug(" stopping watering cycle, because something asked.")
-                break
-            measure, moist = plant.measure()
-            self._save_measure(plant.uuid1, moist)
-            if not measure:
-                log.info(" plant reached moisture "\
-                    "level of {:.2f}% (min {:.2f}%)."\
-                    .format(
-                        moist,
-                        plant.moist_level
-                    ))
-                break
+    def _handle_watering_phase(self, plant, old_state, moist):
+        if old_state == State.resting:
+            log.info(
+                " Entered watering phase, moisture low: {:.2f}% "\
+                "(min {:.2f}%).".format(moist, plant.moist_level)
+                )
+        if not self._wait_for_tank():
+            return
+        log.debug("  start watering.")
+        actual_ml = self._water_plant(plant)
+        plant.next_action = time() + self.watering_cycle
+        self._save_watering(plant.uuid1, actual_ml)
+        log.info("  re-measure moisture at %s."
+            % strftime('%X', localtime(plant.next_action)))
 
     def _water_plant(self, plant) -> float:
         with Gardener.__watering_semaphore:
@@ -211,10 +188,33 @@ class Gardener:
             plant.state = old_state
         return actual_ml
 
+    def _handle_resting_phase(self, plant, old_state, moist):
+        plant.next_action = time() + self.watch_cycle
+        if old_state == State.needs_water:
+            msg1 = " plant reached moisture level of {:.2f}% "\
+                "(min {:.2f}%);"
+            log.info(msg1.format(
+                moist,
+                plant.moist_level,
+                strftime('%X', localtime(plant.next_action))
+                ))
+            msg2 = " returned to watch phase, re-measure at %s."
+            log.info(msg2.format(
+                strftime('%X', localtime(plant.next_action))
+                ))
+        else:
+            msg1 = " Enough moisture {:.2f}% (min {:.2f}%), "\
+                "re-measure at {}."
+            log.info(msg1.format(
+                moist,
+                plant.moist_level,
+                strftime('%X', localtime(plant.next_action))
+                ))
+
     def _wait_for_tank(self) -> bool:
         '''
-        Return False to indicate that watering must in canceled.
-        Return True to indicate that tank is available.
+        Return False to indicate that stop event is set -- close ASAP.
+        Return True to indicate that tank is, or, became available.
         '''
         waiting = None
         while not self.water_supply.available_event.wait(0.1):

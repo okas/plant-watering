@@ -1,5 +1,6 @@
 import logging
 from enum import Enum, unique
+from time import time
 from timeit import default_timer as timer
 from threading import Lock
 from gpiozero import PWMLED
@@ -20,7 +21,6 @@ class State(Enum):
 class Plant:
     def __init__(
             self,
-            stop_event,
             name,
             valve_pin,
             led_pin,
@@ -28,13 +28,13 @@ class Plant:
             sensor_args,
             pour_millilitres=50
             ):
-        self.stop_event = stop_event
         self.name = name
         self.sensor = CapacitiveSensor(**sensor_args._asdict())
         self.moist_level = moist_percent
         self.valve_pin = valve_pin
         self.pour_millilitres = pour_millilitres
         self.led = PWMLED(led_pin, frequency=100)
+        self.next_action = time()
         self.__state = State.resting
         self.__p_state = None
         self.__measuring_lock = Lock()
@@ -45,6 +45,7 @@ class Plant:
             self.close()
 
     def measure(self, retain_state=False) -> tuple:
+        ''' Returns state and moisture in atomic way '''
         with self.__measuring_lock:
             self.__p_state = self.state
             self.state = State.measuring

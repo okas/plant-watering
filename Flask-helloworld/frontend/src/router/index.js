@@ -9,6 +9,12 @@ const routerOptions = [
         props: true
     },
     {
+        path: '/plant-calibrate/:name',
+        name: 'plantcalibrate',
+        component: 'PlantCalibrate',
+        props: true
+    },
+    {
         path: '/plant-watcher',
         name: 'plantwatcher',
         component: 'PlantWatcher'

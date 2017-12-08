@@ -1,15 +1,19 @@
 <template>
-<main id="app">
-  <router-link to="/">
-    <img src="../static/logo_tk.png">
-  </router-link>
+<div id="app">
+  <header>
+    <router-link to="/"><img src="../static/logo_tk.png"></router-link>
+  </header>
   <router-view/>
-</main>
+  <app-footer/>
+</div>
 </template>
 
 <script>
+import AppFooter from './AppFooter'
+
 export default {
-    name: 'app'
+    name: 'app',
+    components: { AppFooter }
 }
 </script>
 
@@ -22,6 +26,24 @@ body {
 }
 h1, h2 {
   font-weight: normal;
+}
+h1 {
+    font-size : 3em;
+    color : FF2C00;
+}
+
+h1.toptitle {
+    margin-bottom : 10px;
+}
+
+h2 {
+    font-size : 1.5em;
+    color : #FF8500;
+}
+
+h3 {
+    font-size : 1.2em;
+    color : #00B945;
 }
 a {
   color: #42b983;

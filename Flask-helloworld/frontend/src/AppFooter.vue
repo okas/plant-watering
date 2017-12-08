@@ -1,7 +1,9 @@
 <template>
 <footer>
   <hr/>
-  <div>Copyright © 2017</div>
+  <div>
+    Copyright © 2017
+  </div>
   <div>
     Powered by
     <a href="https://vuejs.org" target="_blank">
@@ -22,6 +24,7 @@ main {
   margin-bottom: 40px;
 }
 </style>
+
 <style scoped>
 footer {
   font-size: 0.9em;
@@ -63,6 +66,17 @@ footer > div {
                0 0 15px hsla(0, 0%, 100%, 1),
                0 0 15px hsla(0, 0%, 100%, 1),
                0 0 15px hsla(0, 0%, 100%, 1),
+               0 0 10px hsla(0, 0%, 100%, 1),
+               0 0 10px hsla(0, 0%, 100%, 1),
+               0 0 10px hsla(0, 0%, 100%, 1),
+               0 0 10px hsla(0, 0%, 100%, 1),
+               0 0 10px hsla(0, 0%, 100%, 1),
+               0 0 10px hsla(0, 0%, 100%, 1),
+               0 0 10px hsla(0, 0%, 100%, 1),
+               0 0 10px hsla(0, 0%, 100%, 1),
+               0 0 10px hsla(0, 0%, 100%, 1),
+               0 0 5px hsla(0, 0%, 100%, 1),
+               0 0 5px hsla(0, 0%, 100%, 1),
                0 0 5px hsla(0, 0%, 100%, 1),
                0 0 5px hsla(0, 0%, 100%, 1),
                0 0 5px hsla(0, 0%, 100%, 1),

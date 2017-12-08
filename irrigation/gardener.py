@@ -36,7 +36,7 @@ class Gardener:
             config.tank_args._asdict()
             )
         self.__start_work_data()
-        Thread(name="PlantWatcher", target=self.__watcher_loop_thread).start()
+        Thread(name='PlantWatcher', target=self.__watcher_loop_thread).start()
 
     def __del__(self):
         if not self.closed:
@@ -46,8 +46,8 @@ class Gardener:
     def __init_db(self, config):
         if not (os.path.isabs(config.database_dir) and
                 os.path.isdir(config.database_dir)):
-            raise OSError("Expected existing and absolute directory "\
-                          "path, instead of '%s'" % config.database_dir)
+            raise OSError('Expected existing and absolute directory '\
+                          'path, instead of "%s"' % config.database_dir)
         db = UnQLite(os.path.join(config.database_dir, config.name+'.bson'))
         c_gardener = db.collection('gardener_instances')
         self.__db_moistures = db.collection('plant_moistures')
@@ -70,7 +70,7 @@ class Gardener:
         Main watcher loop, keep as performant as possible!
         All plants are in here at 'resting' or 'needs_water' state.
         '''
-        log.info("Starting to watch for %d plants."\
+        log.info('Starting to watch for %d plants.'\
             % len(self.plants))
         while not self.stop_event.wait(0.1):
             current_time = time()
@@ -83,7 +83,7 @@ class Gardener:
         if len(notify) > 0:
             log.debug('  these plants were proccesed during '\
                 'interruption request: %s' % ', '.join(notify))
-        log.debug("Completed PlantWatcher.")
+        log.debug('Completed PlantWatcher.')
 
     def db_worker(self):
         log.debug('Started database worker.')
@@ -164,17 +164,15 @@ class Gardener:
 
     def _handle_watering_phase(self, plant, old_state, moist):
         if old_state == State.resting:
-            log.info(
-                " Entered watering phase, moisture low: {:.2f}% "\
-                "(min {:.2f}%).".format(moist, plant.moist_level)
-                )
+            log.info(' Entered watering phase, moisture low: {:.2f}% '\
+                '(min {:.2f}%).'.format(moist, plant.moist_level))
         if not self._wait_for_tank():
             return
-        log.debug("  start watering.")
+        log.debug('  start watering.')
         actual_ml = self._water_plant(plant)
         plant.next_action = time() + self.watering_cycle
         self._save_watering(plant.uuid1, actual_ml)
-        log.info("  re-measure moisture at %s."
+        log.info('  re-measure moisture at %s.'
             % strftime('%X', localtime(plant.next_action)))
 
     def _water_plant(self, plant) -> float:
@@ -191,25 +189,21 @@ class Gardener:
     def _handle_resting_phase(self, plant, old_state, moist):
         plant.next_action = time() + self.watch_cycle
         if old_state == State.needs_water:
-            msg1 = " plant reached moisture level of {:.2f}% "\
-                "(min {:.2f}%);"
+            msg1 = ' plant reached moisture level of {:.2f}% '\
+                '(min {:.2f}%);'
             log.info(msg1.format(
                 moist,
                 plant.moist_level,
-                strftime('%X', localtime(plant.next_action))
-                ))
-            msg2 = " returned to watch phase, re-measure at %s."
-            log.info(msg2.format(
-                strftime('%X', localtime(plant.next_action))
-                ))
+                strftime('%X', localtime(plant.next_action))))
+            log.info(' returned to watch phase, re-measure at {}.'
+                .format(strftime('%X', localtime(plant.next_action))))
         else:
-            msg1 = " Enough moisture {:.2f}% (min {:.2f}%), "\
-                "re-measure at {}."
+            msg1 = ' Enough moisture {:.2f}% (min {:.2f}%), '\
+                're-measure at {}.'
             log.info(msg1.format(
                 moist,
                 plant.moist_level,
-                strftime('%X', localtime(plant.next_action))
-                ))
+                strftime('%X', localtime(plant.next_action))))
 
     def _wait_for_tank(self) -> bool:
         '''
@@ -222,19 +216,20 @@ class Gardener:
                 result = False
                 break
             if waiting is None:
-                log.info(" watering cycle is waiting for tank to become available...")
+                log.info(' watering cycle is waiting for tank to become available...')
                 waiting = True
         else:
             result = True
         if waiting and result:
-            log.debug(" ended waiting: tank became available.")
+            log.debug(' ended waiting: tank became available.')
         elif waiting:
-            log.debug(" tank waiting interrupted!")
+            log.debug(' tank waiting interrupted!')
         return result
 
     def close(self):
         my_name = self.__class__.__name__
-        log.debug("Ending %s, quitting worker threads. Please wait..." % my_name)
+        log.debug('Ending %s, quitting worker threads. Please wait...'
+            % my_name)
         self.__worker_queue.join()
         if hasattr(self, 'water_supply'):
             self.water_supply.close()
@@ -245,7 +240,7 @@ class Gardener:
         with suppress(AttributeError):
             self.__db_thread.join()
         self.closed = True
-        log.debug("Completed %s!" % my_name)
+        log.debug('Completed %s!' % my_name)
 
 
 general_exc_msg = 'Exception occured: '

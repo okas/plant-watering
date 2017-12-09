@@ -1,6 +1,6 @@
 <template>
 <main class="clearfix">
-    <header><h1>Plant Irrigation Module</h1></header>
+    <header><h1 class="toptitle">Plant Irrigation Module</h1></header>
     <plant-aside/>
     <slot/>
 </main>

@@ -19,6 +19,11 @@ const routerOptions = [
         name: 'plantwatcher',
         component: 'PlantWatcher'
     },
+    {
+        path: '/plant-manager',
+        name: 'plantmanager',
+        component: 'PlantManager'
+    },
     { path: '/', component: 'HelloWorld' },
     { path: '/about', component: 'About' },
     { path: '/*', component: 'NotFound' }

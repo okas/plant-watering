@@ -31,16 +31,13 @@ h1 {
     font-size : 3em;
     color : FF2C00;
 }
-
 h1.toptitle {
     margin-bottom : 10px;
 }
-
 h2 {
     font-size : 1.5em;
     color : #FF8500;
 }
-
 h3 {
     font-size : 1.2em;
     color : #00B945;
@@ -60,5 +57,8 @@ a {
    content: "";
    clear: both;
    display: table;
+}
+a.router-link-exact-active {
+   text-shadow: 0px 0px 20px #00f9ff;
 }
 </style>

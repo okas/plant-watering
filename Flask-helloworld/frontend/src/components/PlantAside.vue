@@ -1,11 +1,13 @@
 <template>
 <aside>
     <section>
-        <h3>Interests...</h3>
+        <h4>Interests...</h4>
         <ul>
-            <li>Show tank</li>
-            <li>Water statistics</li>
-            <li>Configure</li>
+            <li><a href="#">Show tank</a></li>
+            <li><a href="#">Water statistics</a></li>
+            <li><router-link :to="{name: 'plantmanager'}">
+                Manage service
+            </router-link></li>
         </ul>
     </section>
 </aside>

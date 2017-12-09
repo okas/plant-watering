@@ -1,44 +1,44 @@
 <template>
 <plant-layout>
 <section>
-<article>
-    <h2>'Real-time' plant overview</h2>
-    <span v-if="status" v-text="status"></span>
-    <ul class="plant-list clearfix">
-        <dl class="plant-block" v-for="p in plants">
-            <dt class="h1" v-text="p.name"></dt>
-            <div class="horizontal status">
-                <dt>state:</dt>
-                <dd v-text="p.state"></dd>
-            </div>
-            <div class="horizontal">
-                <dt class="h2">Moisture</dt>
-                <dd class="h2">%</dd>
-            </div>
-            <div>
+    <header><h2>'Real-time' plant overview</h2></header>
+    <article>
+        <span v-if="status" v-text="status"></span>
+        <ul class="plant-list clearfix">
+            <dl class="plant-block" v-for="p in plants">
+                <dt class="h1" v-text="p.name"></dt>
                 <div class="horizontal status">
-                    <dt>required:</dt>
-                    <dd v-text="p.moist_level"></dd>
-                </div>
-                <div class="horizontal status">
-                    <dt>measured:</dt>
-                    <dd v-text="p.moist_measured"></dd>
+                    <dt>state:</dt>
+                    <dd v-text="p.state"></dd>
                 </div>
                 <div class="horizontal">
-                    <a href="#refresh" @click="refresh(p)">refresh</a>
-                    <span>&nbsp;|&nbsp;</span>
-                    <router-link :to="{name: 'plantstats', params: {name: p.name}}">
-                        stats
-                    </router-link>
-                    <span>&nbsp;|&nbsp;</span>
-                    <router-link :to="{name: 'plantcalibrate', params: {name: p.name}}">
-                        calibrate
-                    </router-link>
+                    <dt class="h2">Moisture</dt>
+                    <dd class="h2">%</dd>
                 </div>
-            </div>
-        </dl>
-    </ul>
-</article>
+                <div>
+                    <div class="horizontal status">
+                        <dt>required:</dt>
+                        <dd v-text="p.moist_level"></dd>
+                    </div>
+                    <div class="horizontal status">
+                        <dt>measured:</dt>
+                        <dd v-text="p.moist_measured"></dd>
+                    </div>
+                    <div class="horizontal">
+                        <a href="#refresh" @click="refresh(p)">refresh</a>
+                        <span>&nbsp;|&nbsp;</span>
+                        <router-link :to="{name: 'plantstats', params: {name: p.name}}">
+                            stats
+                        </router-link>
+                        <span>&nbsp;|&nbsp;</span>
+                        <router-link :to="{name: 'plantcalibrate', params: {name: p.name}}">
+                            calibrate
+                        </router-link>
+                    </div>
+                </div>
+            </dl>
+        </ul>
+    </article>
 </section>
 </plant-layout>
 </template>

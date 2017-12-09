@@ -1,6 +1,12 @@
 <template>
 <main class="clearfix">
-    <header><h1 class="toptitle">Plant Irrigation Module</h1></header>
+    <header>
+        <h1 class="toptitle">
+            <router-link :to="{name: 'plantwatcher'}">
+                Plant Irrigation Module
+            </router-link>
+        </h1>
+    </header>
     <plant-aside/>
     <slot/>
 </main>

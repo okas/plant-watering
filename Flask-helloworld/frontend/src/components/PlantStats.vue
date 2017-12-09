@@ -1,56 +1,55 @@
 <template>
 <plant-layout>
-    <section>
-        <header>
-            <h2>Statistics for <span v-text="name"></span></h2>
-            <span>Activities that irrigation system performs automatically.</span>
-            <ul>
-                <li v-if="status" v-text="status"></li>
-                <li v-if="w_status" v-text="w_status"></li>
-                <li v-if="m_status" v-text="m_status"></li>
-            </ul>
-        </header>
-        <article>
-            <table v-if="waterings.length > 0">
-                <caption>
-                    <span>Waterings</span>&nbsp;|&nbsp;<a href="#refresh" @click="getPlantWaterings">refresh</a>
-                </caption>
-                <tr>
-                    <th>id</th>
-                    <th>time</th>
-                    <th>amount ml</th>
-                </tr>
-                <tr v-for="s in waterings">
-                    <td v-text="s.__id"></td>
-                    <td v-html="datetimeHtml(s.ts_utc)"></td>
-                    <td v-text="s.mil_lit"></td>
-                </tr>
-            </table>
-        </article>
-        <article>
-             <table v-if="measurings.length > 0">
-                <caption>
-                    <span>Measurings</span>&nbsp;|&nbsp;<a href="#refresh" @click="getPlantMeasurings">refresh</a>
-                </caption>
-                <tr>
-                    <th>id</th>
-                    <th>time</th>
-                    <th>moist %</th>
-                </tr>
-                <tr v-for="s in measurings">
-                    <td v-text="s.__id"></td>
-                    <td v-html="datetimeHtml(s.ts_utc)"></td>
-                    <td v-text="s.percent"></td>
-                </tr>
-            </table>
-        </article>
-    </section>
+<section>
+    <header>
+        <h2>Statistics for <span v-text="name" class="highlight"></span></h2>
+        <span>Activities that irrigation system performs automatically.</span>
+        <ul class="list-inline">
+            <li v-if="status" v-text="status"></li>
+            <li v-if="w_status" v-text="w_status"></li>
+            <li v-if="m_status" v-text="m_status"></li>
+        </ul>
+    </header>
+    <article>
+        <table v-if="waterings.length > 0">
+            <caption>
+                <span>Waterings</span>&nbsp;|&nbsp;<a href="#refresh" @click="getPlantWaterings">refresh</a>
+            </caption>
+            <tr>
+                <th>id</th>
+                <th>time</th>
+                <th>amount ml</th>
+            </tr>
+            <tr v-for="s in waterings">
+                <td v-text="s.__id"></td>
+                <td v-html="datetimeHtml(s.ts_utc)"></td>
+                <td v-text="s.mil_lit"></td>
+            </tr>
+        </table>
+    </article>
+    <article>
+         <table v-if="measurings.length > 0">
+            <caption>
+                <span>Measurings</span>&nbsp;|&nbsp;<a href="#refresh" @click="getPlantMeasurings">refresh</a>
+            </caption>
+            <tr>
+                <th>id</th>
+                <th>time</th>
+                <th>moist %</th>
+            </tr>
+            <tr v-for="s in measurings">
+                <td v-text="s.__id"></td>
+                <td v-html="datetimeHtml(s.ts_utc)"></td>
+                <td v-text="s.percent"></td>
+            </tr>
+        </table>
+    </article>
+</section>
 </plant-layout>
 </template>
 
 <script>
 import PlantLayout from './PlantLayout'
-
 import axios from 'axios'
 
 export default {
@@ -125,15 +124,11 @@ export default {
 </script>
 
 <style scoped>
-h1 > span {
-  box-shadow: -1px -1px 1px 1px #52e4b585;
+table td:nth-last-child(n+2), th:nth-last-child(n+2) {
+  border-right: 1px solid lightgrey;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-table {
-  margin: 0 auto 1.5em;
+table tr:nth-child(odd) td {
+  background: #9effc657;
 }
 caption > span {
   font-weight: bolder;
@@ -141,11 +136,8 @@ caption > span {
 caption, th {
   border-bottom: 1px solid lightgrey;
 }
-table td:nth-last-child(n+2), th:nth-last-child(n+2) {
-  border-right: 1px solid lightgrey;
-}
-table tr:nth-child(odd) td {
-  background: #9effc657;
+table {
+  margin: 0 auto 1.5em;
 }
 </style>
 

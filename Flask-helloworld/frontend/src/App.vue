@@ -45,14 +45,6 @@ h3 {
 a {
   color: #42b983;
 }
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 30px;
-}
 .clearfix:after {
    content: "";
    clear: both;
@@ -60,5 +52,23 @@ a {
 }
 a.router-link-exact-active {
    text-shadow: 0px 0px 20px #00f9ff;
+}
+.highlight {
+  box-shadow: -1px -1px 1px 1px #52e4b585;
+}
+.highlight-neg {
+  box-shadow: -1px -1px 1px 1px #ea373785;
+}
+.list-inline {
+    list-style-type: none;
+    padding: 0;
+}
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 30px;
 }
 </style>

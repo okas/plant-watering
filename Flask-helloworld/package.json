@@ -1,6 +1,6 @@
 {
   "name": "plant-watering",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Website to provide UI for my Smart Home",
   "author": "Lauri Saar <lauri.saar@eesti.ee>",
   "private": true,

@@ -6,7 +6,7 @@ import sys
 DEBUG = False
 
 # Define the application directory
-BASE_DIR = os.path.realpath(sys.path[0])
+BASE_DIR = sys.path[0]
 
 PLANTWATER_LOGGING = BASE_DIR + '/config/logging.json'
 
@@ -22,7 +22,7 @@ PLANTWATER_LOGGING = BASE_DIR + '/config/logging.json'
 THREADS_PER_PAGE = 6
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
-CSRF_ENABLED  = True
+CSRF_ENABLED = True
 
 CORS_ORIGINS = "<specify>"
 
@@ -31,7 +31,7 @@ WEBPACK_MANIFEST_PATH = BASE_DIR + '/website/build/webpack.manifest.json'
 IRRIGATION_CFG = BASE_DIR + '/instance/irrigation_test1.json'
 
 # If true, then service is started immediately. Otherwise it can be started later.
-IRRIGATION_SVC_START = True
+IRRIGATION_SERVICE_AUTOSTART = True
 
 del os
 del sys

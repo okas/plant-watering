@@ -9,7 +9,7 @@ from . import svc_irrigation as service
 
 
 log = logging.getLogger(__name__)
-bp = Blueprint('api', __name__, url_prefix='/api/plant')
+bp = Blueprint('api', __name__, url_prefix='/api/irrigation')
 
 #TODO: All service usages should check it's availability beforehand!
 

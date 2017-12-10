@@ -7,7 +7,7 @@ def setup_flask_and_blueprint(app):
     __setup_extensions(app)
     flask_controller_names = [
         '.index',
-        '.api_plant'
+        '.api_irrigation'
         ]
     for module in flask_controller_names:
         m = importlib.import_module(module, __name__)

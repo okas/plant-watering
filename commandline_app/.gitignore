@@ -1,3 +1,4 @@
 configuration/*
 !configuration/default.json
 data/*
+!data/.keep

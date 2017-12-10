@@ -5,7 +5,7 @@ import signal
 import logging
 import logging.config
 from contextlib import suppress
-from flask import Flask
+from flask import Flask, current_app
 from backend import setup_flask_and_blueprint, svc_irrigation
 
 
@@ -15,11 +15,11 @@ log = logging.getLogger(__name__)
 def create_app(app_name, environment, static_folder, template_folder):
     '''Application Factory'''
     app = Flask(
-        import_name=app_name,
-        static_folder=static_folder,
-        template_folder=template_folder,
-        instance_path=BASE_DIR+'/instance',
-        instance_relative_config=True
+        import_name = app_name,
+        static_folder = static_folder,
+        template_folder = template_folder,
+        instance_path = BASE_DIR+'/instance',
+        instance_relative_config = True
         )
     setup_flask_app_config(app, environment)
     setup_logging(app)
@@ -35,8 +35,8 @@ def setup_flask_app_config(app, environment):
 
 
 def setup_logging(app):
-    with open(app.config['PLANTWATER_LOGGING']) as f:
-        logging.config.dictConfig(json.load(f))
+    with open(app.config['PLANTWATER_LOGGING']) as file:
+        logging.config.dictConfig(json.load(file))
 
 
 def setup_cleanup():

@@ -10,10 +10,17 @@ import irrigation
 
 log = logging.getLogger(__name__)
 
+__instance = None
+__app = None
+
 __this = sys.modules[__name__]
 __this.instance_counter = 0
-__instance = None
 __this.get_worker = lambda: __instance
+
+
+def init_app(app=None):
+    global __app
+    __app = app
 
 
 def get_state():
@@ -30,18 +37,19 @@ def get_state():
 
 
 def start_new():
-    current_app.config.irrigation = irrigation.load_configuration(
-        current_app.config['IRRIGATION_CFG']
-        )
-    global __instance
-    try:
-        __instance = irrigation.run_and_return_by_conf_obj(
-            current_app.config.irrigation
+    with __app.app_context():
+        current_app.config.irrigation = irrigation.load_configuration(
+            current_app.config['IRRIGATION_CFG']
             )
-    except BaseException as err:
-        logging.exception(
-            'Encountered exception during Gardener initialization:\n')
-    __this.instance_counter += 1
+        global __instance
+        try:
+            __instance = irrigation.run_and_return_by_conf_obj(
+                current_app.config.irrigation
+                )
+        except BaseException as err:
+            logging.exception(
+                'Encountered exception during Gardener initialization:\n')
+        __this.instance_counter += 1
 
 
 def stop():

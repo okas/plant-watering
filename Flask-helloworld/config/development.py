@@ -10,6 +10,6 @@ DEBUG = True
 
 CORS_ORIGINS = r'.*http://saarmas-rp3-1.saared.eu.*'
 
-IRRIGATION_SERVICE_AUTOSTART = False
+IRRIGATION_SERVICE_AUTOSTART = True
 
 del os

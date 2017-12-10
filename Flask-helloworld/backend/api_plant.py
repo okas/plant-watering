@@ -1,14 +1,19 @@
+import logging
+from contextlib import suppress
 from flask import (
     Blueprint,
     jsonify,
-    current_app as app
+    current_app
     )
+from . import svc_irrigation as service
 
 
-bp = Blueprint('api', __name__, url_prefix='/api')
+log = logging.getLogger(__name__)
+bp = Blueprint('api', __name__, url_prefix='/api/plant')
 
+#TODO: All service usages should check it's availability beforehand!
 
-def make_viewmodel(plant, measure):
+def _make_viewmodel(plant, measure):
     return {
         'name': plant.name,
         'state': plant.state.name,
@@ -17,23 +22,24 @@ def make_viewmodel(plant, measure):
         }
 
 
-@bp.route('/plant/watcher')
+@bp.route('/watcher')
 def index_page():
     #TODO Do it async
+    log.debug(service.get_worker().plants)
     resp = [
-        make_viewmodel(p, p.measure(True)[1])
-        for p in app.plant_waterer.plants
+        _make_viewmodel(p, p.measure(True)[1])
+        for p in service.get_worker().plants
         ]
     return jsonify(resp)
 
 
-@bp.route('/plant/<name>/status')
+@bp.route('/<name>/status')
 def get_plant_status(name):
     plant = next(
-        (p for p in app.plant_waterer.plants if p.name == name),
+        (p for p in service.get_worker().plants if p.name == name),
         None
         )
-    resp = make_viewmodel(plant, plant.measure(True)[1])
+    resp = _make_viewmodel(plant, plant.measure(True)[1])
     return jsonify(resp)
 
 
@@ -56,19 +62,52 @@ def _extract_statistics_for(name, stat_collection_name, db):
     return shaped_plants
 
 
-@bp.route('/plant/<name>/statistics/watering')
+@bp.route('/<name>/statistics/watering')
 def get_plant_stats_measurings(name):
     plants_statistics = _extract_statistics_for(
         name,
         'plant_waterings',
-        app.plant_waterer.db)
+        service.get_worker().db)
     return jsonify(plants_statistics)
 
 
-@bp.route('/plant/<name>/statistics/measuring')
+@bp.route('/<name>/statistics/measuring')
 def get_plant_stats_waterings(name):
     plants_statistics = _extract_statistics_for(
         name,
         'plant_moistures',
-        app.plant_waterer.db)
+        service.get_worker().db)
     return jsonify(plants_statistics)
+
+
+@bp.route('/service-state')
+def get_plant_service_state():
+    return jsonify({ 'state': service.get_state() })
+
+
+@bp.route('/service-start')
+def get_plant_service_start():
+    state = service.get_state()
+    resp = { 'state': None }
+    if state == 'on':
+        resp['state'] = 'already_on'
+    elif state == 'off':
+        service.start_new()
+        resp['state'] = 'on'
+    else:
+        resp['state'] = state
+    return jsonify(resp)
+
+
+@bp.route('/service-stop')
+def get_plant_service_stop():
+    state = service.get_state()
+    resp = { 'state': None }
+    if state == 'off':
+        resp['state'] = 'already_off'
+    elif state == 'on':
+        service.stop()
+        resp['state'] = 'off'
+    else:
+        resp['state'] = state
+    return jsonify(resp)

@@ -6,9 +6,10 @@ import logging
 import logging.config
 from contextlib import suppress
 from flask import Flask
-#from backend import
 from backend import setup_flask_and_blueprint, svc_irrigation
-#import backend.svc_irrigation
+
+
+log = logging.getLogger(__name__)
 
 
 def create_app(app_name, environment, static_folder, template_folder):
@@ -17,12 +18,13 @@ def create_app(app_name, environment, static_folder, template_folder):
         import_name=app_name,
         static_folder=static_folder,
         template_folder=template_folder,
+        instance_path=BASE_DIR+'/instance',
         instance_relative_config=True
         )
     setup_flask_app_config(app, environment)
     setup_logging(app)
     setup_flask_and_blueprint(app)
-    setup_cleanup(app)
+    setup_cleanup()
     return app
 
 
@@ -30,8 +32,6 @@ def setup_flask_app_config(app, environment):
     app.config.from_pyfile('secrets.py')
     app.config.from_object('config.default')
     app.config.from_object('config.{}'.format(environment))
-    app.config.from_envvar('PLANTWATER_OVERRIDES', silent=True)
-    app.config.from_envvar('IRRIGATION_SVC_START', silent=True)
 
 
 def setup_logging(app):
@@ -39,26 +39,25 @@ def setup_logging(app):
         logging.config.dictConfig(json.load(f))
 
 
-def setup_cleanup(app):
+def setup_cleanup():
     def handler(*_):
         with suppress(AttributeError):
-            app.plant_waterer.__del__()
+            svc_irrigation.stop()
         sys.exit(4)
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
 
 
 ########################################################################
+BASE_DIR = sys.path[0]
 APP_NAME = os.path.basename(sys.path[0])
 STATIC_FOLDER ='./dist/static'
 TEMPLATE_FOLDER ='./dist'
+ENVIRONMENT = os.getenv('PLANTWATER_ENVIRONMENT', 'production')
 ########################################################################
-app = create_app(
-    APP_NAME,
-    os.getenv('PLANTWATER_ENVIRONMENT', 'production'),
-    STATIC_FOLDER,
-    TEMPLATE_FOLDER
-    )
-if app.config['IRRIGATION_SVC_START'] == True:
-    service_thread = svc_irrigation.start_new(app)
+app = create_app(APP_NAME, ENVIRONMENT, STATIC_FOLDER, TEMPLATE_FOLDER)
 
+
+if app.config['IRRIGATION_SERVICE_AUTOSTART'] == True:
+    svc_irrigation.start_new()
+########################################################################

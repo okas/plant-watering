@@ -1,41 +1,48 @@
 import os
 import sys
 import logging
-from threading import Thread
 from contextlib import suppress
+from flask import current_app
 
 sys.path.insert(1, os.path.dirname(sys.path[0]))
 import irrigation
 
 
 log = logging.getLogger(__name__)
-instance_counter = 0
+
+__this = sys.modules[__name__]
+__this.instance_counter = 0
+__instance = None
+__this.get_worker = lambda: __instance
 
 
-def start_new(app):
-    global instance_counter
-    app.config.irrigation = irrigation.load_configuration(
-        app.config['IRRIGATION_CFG']
+def get_state():
+    svc = None
+    with suppress(AttributeError):
+        svc = __instance
+    if svc is None or (svc.stop_event.is_set() and svc.closed):
+        return 'off'
+    elif not svc.closed and svc.stop_event.is_set():
+        return 'changig state currently, try again later'
+    else:
+        return 'on'
+    return resp
+
+
+def start_new():
+    current_app.config.irrigation = irrigation.load_configuration(
+        current_app.config['IRRIGATION_CFG']
         )
-    thread = Thread(name='Irrigation', target=__worker, args=(app,))
-    instance_counter += 1
-    thread.start()
-    return thread
-
-
-def __worker(app):
-    exit_code = 0
+    global __instance
     try:
-        app.plant_waterer = irrigation.run_and_return_by_conf_obj(
-            app.config.irrigation
+        __instance = irrigation.run_and_return_by_conf_obj(
+            current_app.config.irrigation
             )
-        app.plant_waterer.stop_event.wait()
     except BaseException as err:
-        logging.exception("Encountered exception, "\
-                          "probably during Gardener initialization:\n")
-        exit_code = 2
-    finally:
-        with suppress(AttributeError):
-            app.plant_waterer.__del__()
-            logging.debug('Exiting from Garndener worker thread.')
-        sys.exit(exit_code)
+        logging.exception(
+            'Encountered exception during Gardener initialization:\n')
+    __this.instance_counter += 1
+
+
+def stop():
+    __instance.__del__()

@@ -57,7 +57,7 @@ a.router-link-exact-active {
   box-shadow: -1px -1px 1px 1px #52e4b585;
 }
 .highlight-neg {
-  box-shadow: -1px -1px 1px 1px #ea373785;
+  box-shadow: -1px -1px 1px 1px #e2181863;
 }
 .list-inline {
     list-style-type: none;

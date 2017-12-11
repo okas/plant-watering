@@ -7,16 +7,16 @@
             </router-link>
         </h1>
     </header>
-    <plant-aside/>
+    <irrigation-aside/>
     <slot/>
 </main>
 </template>
 
 <script>
-import PlantAside from './PlantAside'
+import IrrigationAside from './IrrigationAside'
 
 export default {
-    name: 'plant-layout',
-    components: { PlantAside }
+    name: 'irrigation-layout',
+    components: { IrrigationAside }
 }
 </script>

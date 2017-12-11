@@ -1,5 +1,5 @@
 <template>
-<plant-layout>
+<layout>
 <section>
     <header>
         <h2>Manage irrigation service</h2>
@@ -8,6 +8,7 @@
         </ul>
     </header>
     <article>
+        <h3>Service state</h3>
         <p>
             You can start or stop irrigation service.
             Restarting service means two things: configuration is
@@ -24,24 +25,23 @@
             <a
                 href="#toggle"
                 v-text="newState"
-                @click="toggleState"
+                @click="apiToggleState"
                 class="state"/>
-            &nbsp;|&nbsp;(
-            <a href="#refresh" @click="retreiveState">refresh</a>
-            )
+            &nbsp;|&nbsp;
+            <a href="#refresh" @click="apiGetState">refresh</a>
         </p>
     </article>
 </section>
-</plant-layout>
+</layout>
 </template>
 
 <script>
-import PlantLayout from './PlantLayout'
+import Layout from './IrrigationLayout'
 import axios from 'axios'
 
 export default {
-    name: 'PlantManager',
-    components: { PlantLayout },
+    name: 'IrrigationManager',
+    components: { Layout },
     data () {
         return {
             status: '..loading from database..',
@@ -70,8 +70,8 @@ export default {
         }
     },
     methods: {
-        retreiveState () {
-            axios.get('/api/plant/service-state')
+        apiGetState () {
+            axios.get('/api/irrigation/service-state')
                 .then(resp => {
                     if (['on', 'off'].indexOf(resp.data.state) !== -1) {
                         this.state = resp.data.state
@@ -83,7 +83,7 @@ export default {
                 })
                 .catch(console.log)
         },
-        toggleState () {
+        apiToggleState () {
             // this.state = this.newState
             var act
             if (this.newState === 'on') {
@@ -92,10 +92,10 @@ export default {
                 act = 'stop'
             } else {
                 console.log(`Bad value of ${this.newState} in this.state!
-                              Cannot toggle service state with this, aborting!`)
+                             Cannot toggle service state with this, aborting!`)
                 return
             }
-            axios.get(`/api/plant/service-${act}`)
+            axios.get(`/api/irrigation/service-${act}`)
                 .then(resp => {
                     if (['on', 'off'].indexOf(resp.data.state) !== -1) {
                         this.state = resp.data.state
@@ -110,12 +110,16 @@ export default {
         }
     },
     beforeMount () {
-        this.retreiveState()
+        this.apiGetState()
     }
 }
 </script>
 
 <style scoped>
+article {
+    border: 1px solid lightgrey;
+    border-radius: 25px;
+}
 .activity {
     font-weight: 600;
 }

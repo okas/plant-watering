@@ -1,5 +1,5 @@
 <template>
-<plant-layout>
+<layout>
 <section>
     <header><h2>'Real-time' plant overview</h2></header>
     <article>
@@ -25,7 +25,7 @@
                         <dd v-text="p.moist_measured"></dd>
                     </div>
                     <div class="horizontal">
-                        <a href="#refresh" @click="refresh(p)">refresh</a>
+                        <a href="#refresh" @click="apiRefreshPlant(p)">refresh</a>
                         <span>&nbsp;|&nbsp;</span>
                         <router-link :to="{name: 'plantstats', params: {name: p.name}}">
                             stats
@@ -40,16 +40,16 @@
         </ul>
     </article>
 </section>
-</plant-layout>
+</layout>
 </template>
 
 <script>
-import PlantLayout from './PlantLayout'
+import Layout from './IrrigationLayout'
 import axios from 'axios'
 
 export default {
-    name: 'PlantWatcher',
-    components: { PlantLayout },
+    name: 'IrrigationMain',
+    components: { Layout },
     data () {
         return {
             status: 'loading plants from server...',
@@ -73,18 +73,18 @@ export default {
                 this.status = `didn't get refresh for "${plant.name}", check what's wrong'`
             }
         },
-        getPlantWatcherStatus () {
-            axios.get('/api/plant/watcher')
+        apiGetPlantWatcherStatus () {
+            axios.get('/api/irrigation/watcher')
                 .then(this._handleListResp)
                 .catch(console.log)
         },
-        refresh (p) {
-            axios.get(`/api/plant/${p.name}/status`)
+        apiRefreshPlant (p) {
+            axios.get(`/api/irrigation/${p.name}/status`)
                 .then(resp => this._handleSingleResp(resp, p))
                 .catch(console.log)
         }
     },
-    beforeMount () { this.getPlantWatcherStatus() }
+    beforeMount () { this.apiGetPlantWatcherStatus() }
 }
 </script>
 

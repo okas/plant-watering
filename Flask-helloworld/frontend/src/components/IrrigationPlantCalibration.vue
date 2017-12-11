@@ -1,5 +1,5 @@
 <template>
-<plant-layout>
+<layout>
 <section>
     <h2>Calibrate <span v-text="name"></span></h2>
     <article>
@@ -17,17 +17,17 @@
         </div>
     </article>
 </section>
-</plant-layout>
+</layout>
 </template>
 
 <script>
-import PlantLayout from './PlantLayout'
+import Layout from './IrrigationLayout'
 
 // import axios from 'axios'
 
 export default {
-    name: 'PlantCalibrate',
-    components: { PlantLayout },
+    name: 'IrrigationPlantCalibration',
+    components: { Layout },
     props: {
         name: {
             type: String,

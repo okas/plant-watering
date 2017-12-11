@@ -1,5 +1,5 @@
 <template>
-<plant-layout>
+<layout>
 <section>
     <header>
         <h2>Statistics for <span v-text="name" class="highlight"></span></h2>
@@ -13,7 +13,7 @@
     <article>
         <table v-if="waterings.length > 0">
             <caption>
-                <span>Waterings</span>&nbsp;|&nbsp;<a href="#refresh" @click="getPlantWaterings">refresh</a>
+                <span>Waterings</span>&nbsp;|&nbsp;<a href="#refresh" @click="apiGetPlantWaterings">refresh</a>
             </caption>
             <tr>
                 <th>id</th>
@@ -30,7 +30,7 @@
     <article>
          <table v-if="measurings.length > 0">
             <caption>
-                <span>Measurings</span>&nbsp;|&nbsp;<a href="#refresh" @click="getPlantMeasurings">refresh</a>
+                <span>Measurings</span>&nbsp;|&nbsp;<a href="#refresh" @click="apiGetPlantMeasurings">refresh</a>
             </caption>
             <tr>
                 <th>id</th>
@@ -45,16 +45,16 @@
         </table>
     </article>
 </section>
-</plant-layout>
+</layout>
 </template>
 
 <script>
-import PlantLayout from './PlantLayout'
+import Layout from './IrrigationLayout'
 import axios from 'axios'
 
 export default {
-    name: 'PlantStats',
-    components: { PlantLayout },
+    name: 'IrrigationPlantStats',
+    components: { Layout },
     props: {
         name: {
             type: String,
@@ -105,20 +105,20 @@ export default {
                 this.m_status = msg
             }
         },
-        getPlantWaterings () {
-            axios.get(`/api/plant/${this.name}/statistics/watering`)
+        apiGetPlantWaterings () {
+            axios.get(`/api/irrigation/${this.name}/statistics/watering`)
                 .then(resp => this._handleResponse(resp, 'waterings'))
                 .catch(console.log)
         },
-        getPlantMeasurings () {
-            axios.get(`/api/plant/${this.name}/statistics/measuring`)
+        apiGetPlantMeasurings () {
+            axios.get(`/api/irrigation/${this.name}/statistics/measuring`)
                 .then(resp => this._handleResponse(resp, 'measurings'))
                 .catch(console.log)
         }
     },
     beforeMount () {
-        this.getPlantMeasurings()
-        this.getPlantWaterings()
+        this.apiGetPlantMeasurings()
+        this.apiGetPlantWaterings()
     }
 }
 </script>

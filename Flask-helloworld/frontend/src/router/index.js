@@ -3,29 +3,29 @@ import Router from 'vue-router'
 
 const routerOptions = [
     {
-        path: '/plant-statistics/:name',
+        path: '/irrigation/:name/statistics',
         name: 'plantstats',
-        component: 'PlantStats',
+        component: 'IrrigationPlantStats',
         props: true
     },
     {
-        path: '/plant-calibrate/:name',
+        path: '/irrigation/:name/calibrate',
         name: 'plantcalibrate',
-        component: 'PlantCalibrate',
+        component: 'IrrigationPlantCalibration',
         props: true
     },
     {
-        path: '/plant-watcher',
+        path: '/irrigation/main',
         name: 'plantwatcher',
-        component: 'PlantWatcher'
+        component: 'IrrigationMain'
     },
     {
-        path: '/plant-manager',
+        path: '/irrigation/manager',
         name: 'plantmanager',
-        component: 'PlantManager'
+        component: 'IrrigationManager'
     },
-    { path: '/', component: 'HelloWorld' },
     { path: '/about', component: 'About' },
+    { path: '/', component: 'HelloWorld' },
     { path: '/*', component: 'NotFound' }
 ]
 

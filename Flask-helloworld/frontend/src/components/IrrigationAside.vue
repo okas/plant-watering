@@ -14,7 +14,7 @@
 </template>
 
 <script>
-export default { name: 'plan-aside' }
+export default { name: 'irrigation-aside' }
 </script>
 
 <style scoped>

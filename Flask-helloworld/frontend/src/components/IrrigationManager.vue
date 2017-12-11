@@ -117,14 +117,16 @@ export default {
 
 <style scoped>
 article {
-    border: 1px solid lightgrey;
-    border-radius: 25px;
+    margin-bottom: 1px;
+}
+article:first-of-type {
+    border-top: 1px solid lightgrey;
+}
+article:not(:last-of-type) {
+    border-bottom: 1px solid lightgrey;
 }
 .activity {
     font-weight: 600;
-}
-.activity::before {
-    content: "=>";
 }
 .state {
     text-transform: uppercase;

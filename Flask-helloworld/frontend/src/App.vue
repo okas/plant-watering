@@ -22,7 +22,15 @@ main {
   display:block; /*IE11*/
 }
 body {
+  clear: both;
+  margin: 0 auto;
+  width: 800px;
   background-color: #0a21880a;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
 }
 h1, h2 {
   font-weight: normal;
@@ -62,13 +70,5 @@ a.router-link-exact-active {
 .list-inline {
     list-style-type: none;
     padding: 0;
-}
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 30px;
 }
 </style>

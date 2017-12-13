@@ -2,21 +2,19 @@
 export default {
     name: 'IrrigationConfiguration',
     props: ['dataObj'],
-    render: function (createElement) {
-        return this._getDescrList(this.dataObj, createElement)
+    render: function (ce) {
+        return this._getDescrList(this.dataObj, ce)
     },
     methods: {
-        _getDescrList (obj, createElement) {
-            return createElement('dl', {}, [
+        _getDescrList (obj, ce) {
+            return ce('dl', {},
                 Object.entries(obj).map(prop => {
                     return [
-                        createElement('dt', {}, prop[0]),
-                        createElement('dd', {},
-                            [this._getDescContent(prop[1], createElement)]
-                    )]
-                })])
+                        ce('dt', {}, prop[0]),
+                        ce('dd', {}, this._getDescContent(prop[1], ce))]
+                }))
         },
-        _getDescContent (val, createElement) {
+        _getDescContent (val, ce) {
             switch (Object.prototype.toString.call(val)) {
             case '[object String]':
             case '[object Number]':
@@ -25,10 +23,10 @@ export default {
                 return val
             case '[object Array]':
                 return val.map(obj => {
-                    return this._getDescrList(obj, createElement)
+                    return this._getDescrList(obj, ce)
                 })
             case '[object Object]':
-                return this._getDescrList(val, createElement)
+                return [this._getDescrList(val, ce)]
             }
         }
     }

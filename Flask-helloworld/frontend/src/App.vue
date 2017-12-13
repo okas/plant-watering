@@ -23,8 +23,8 @@ main {
 }
 body {
   clear: both;
-  margin: 0 auto;
-  width: 800px;
+  margin: 10px 0 auto;
+  width: 960px;
   background-color: #0a21880a;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -70,5 +70,11 @@ a.router-link-exact-active {
 .list-inline {
     list-style-type: none;
     padding: 0;
+}
+</style>
+
+<style scoped>
+img {
+  width: 15%;
 }
 </style>

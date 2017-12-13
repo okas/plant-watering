@@ -32,25 +32,29 @@ export default {
 <style scoped>
 main > aside {
     float: left;
-    margin: 0 1.5%;
-    width: 17.0%;
+    margin: 0 1.2%;
+    width: 16.7%;
     background-color : #D0D0D0 ;
     border: 1px solid #A8A8A8;
-    border-radius: 20px;
-    padding-top: 15px;
-    padding-left: 15px;
+    border-radius: 15px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
     text-align: left;
     white-space: nowrap;
 }
 main > aside h4 {
     margin: 0 auto 15px 0;
 }
+main > aside ul {
+    margin: 0;
+}
 main > section {
     float: right;
-    width: 73.2%;
-    margin: 0 1.5%;
+    width: 74.7%;
+    margin: 0 1.2%;
     border: 1px solid lightgrey;
-    border-radius: 20px;
-    padding: 0 5px;
+    border-radius: 15px;
+    padding: 0 10px;
 }
 </style>

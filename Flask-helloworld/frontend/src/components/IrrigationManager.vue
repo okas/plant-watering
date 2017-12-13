@@ -10,10 +10,10 @@
     <article>
         <h3>Service state</h3>
         <p>
-            You can start or stop irrigation service.
-            Restarting service means two things: configuration is
-            loaded again and measurements start right away.
-            It doesn't consider any state from previous session.
+            You can start or stop irrigation service. Restarting service
+            means two things:<br/>
+            configuration is loaded again <i>and</i> measurements start
+            right away. It doesn't consider any state from previous session.
         </p>
         <p v-if="state != defaultState" class="activity">
             Service state:
@@ -31,22 +31,39 @@
             <a href="#refresh" @click="apiGetState">refresh</a>
         </p>
     </article>
+    <article>
+        <h3>Service configuration</h3>
+        <p>
+            Change configuration service configuration. <br/>
+            This includes plant's configuration.
+        </p>
+        <p>
+            <a href="#retreiveConfig" @click="apiGetServiceConfig">
+                Retrieve config from server
+            </a>
+        </p>
+        <p>
+            <irrigation-configuration :dataObj="configDocumentObject"/>
+        </p>
+    </article>
 </section>
 </layout>
 </template>
 
 <script>
 import Layout from './IrrigationLayout'
+import IrrigationConfiguration from './IrrigationConfiguration'
 import axios from 'axios'
 
 export default {
     name: 'IrrigationManager',
-    components: { Layout },
+    components: { Layout, IrrigationConfiguration },
     data () {
         return {
             status: '..loading from database..',
             defaultState: '..loading..',
-            state: '..loading..'
+            state: '..loading..',
+            configDocumentObject: {}
         }
     },
     computed: {
@@ -84,7 +101,6 @@ export default {
                 .catch(console.log)
         },
         apiToggleState () {
-            // this.state = this.newState
             var act
             if (this.newState === 'on') {
                 act = 'start'
@@ -106,6 +122,11 @@ export default {
                         console.log(resp.data)
                     }
                 })
+                .catch(console.log)
+        },
+        apiGetServiceConfig () {
+            axios.get('/api/irrigation/service-config')
+                .then(resp => { this.configDocumentObject = resp.data })
                 .catch(console.log)
         }
     },

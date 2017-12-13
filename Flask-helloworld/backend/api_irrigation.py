@@ -111,3 +111,8 @@ def get_plant_service_stop():
     else:
         resp['state'] = state
     return jsonify(resp)
+
+
+@bp.route('/service-config')
+def get_irrigation_service_config():
+    return jsonify(current_app.config.irrigation)

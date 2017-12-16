@@ -31,7 +31,7 @@ export default {
 
 <style>
 main {
-  margin-bottom: 40px;
+  margin-bottom: 45px;
 }
 </style>
 

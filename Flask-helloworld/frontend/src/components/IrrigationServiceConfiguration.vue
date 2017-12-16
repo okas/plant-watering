@@ -1,6 +1,6 @@
 <script>
 export default {
-    name: 'IrrigationConfiguration',
+    name: 'IrrigationServiceConfiguration',
     props: ['dataObj'],
     render: function (ce) {
         return this._getDescrList(this.dataObj, ce)

@@ -32,8 +32,8 @@ export default {
 <style scoped>
 main > aside {
     float: left;
-    margin: 0 1.2%;
-    width: 16.7%;
+    margin: 0 1.0%;
+    width: 15.0%;
     background-color : #D0D0D0 ;
     border: 1px solid #A8A8A8;
     border-radius: 15px;
@@ -51,8 +51,8 @@ main > aside ul {
 }
 main > section {
     float: right;
-    width: 74.7%;
-    margin: 0 1.2%;
+    width: 77.4%;
+    margin: 0 1.0%;
     border: 1px solid lightgrey;
     border-radius: 15px;
     padding: 0 10px;

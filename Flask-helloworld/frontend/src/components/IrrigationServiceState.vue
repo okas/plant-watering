@@ -34,6 +34,7 @@
 import axios from 'axios'
 
 export default {
+    name: 'ServiceState',
     data () {
         return {
             status: '..loading from database..',

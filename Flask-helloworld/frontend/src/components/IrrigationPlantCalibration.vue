@@ -26,7 +26,7 @@ import Layout from './IrrigationLayout'
 // import axios from 'axios'
 
 export default {
-    name: 'IrrigationPlantCalibration',
+    name: 'PlantCalibration',
     components: { Layout },
     props: {
         name: {

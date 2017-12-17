@@ -52,7 +52,7 @@ import Layout from './IrrigationLayout'
 import axios from 'axios'
 
 export default {
-    name: 'IrrigationMain',
+    name: 'IrrigationPlantWatcher',
     components: { Layout },
     data () {
         return {

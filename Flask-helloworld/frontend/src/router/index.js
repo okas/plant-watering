@@ -17,7 +17,7 @@ const routerOptions = [
     {
         path: '/irrigation/main',
         name: 'plantwatcher',
-        component: 'IrrigationMain'
+        component: 'IrrigationPlantWatcher'
     },
     {
         path: '/irrigation/manager',

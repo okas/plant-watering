@@ -1,9 +1,13 @@
 <template>
 <layout>
 <section>
-    <header><h2>'Real-time' plant overview</h2></header>
+    <header>
+        <h2>'Real-time' plant overview</h2>
+        <ul class="list-inline">
+            <li v-if="status" v-text="status"></li>
+        </ul>
+    </header>
     <article>
-        <span v-if="status" v-text="status"></span>
         <ul class="plant-list clearfix">
             <dl class="plant-block" v-for="p in plants">
                 <dt class="h1" v-text="p.name"></dt>
@@ -25,7 +29,7 @@
                         <dd v-text="p.moist_measured"></dd>
                     </div>
                     <div class="horizontal">
-                        <a href="#refresh" @click="apiRefreshPlant(p)">refresh</a>
+                        <a href="#" @click.prevent="apiRefreshPlant(p)">refresh</a>
                         <span>&nbsp;|&nbsp;</span>
                         <router-link :to="{name: 'plantstats', params: {name: p.name}}">
                             stats

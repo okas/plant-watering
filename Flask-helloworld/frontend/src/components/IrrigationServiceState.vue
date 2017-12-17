@@ -5,13 +5,13 @@
         <ul class="list-inline">
             <li v-if="status" v-text="status"></li>
         </ul>
+        <p>
+            You can start or stop irrigation service. Restarting service
+            means two things:<br/>
+            configuration is loaded again <i>and</i> measurements start
+            right away. It doesn't consider any state from previous session.
+        </p>
     </header>
-    <p>
-        You can start or stop irrigation service. Restarting service
-        means two things:<br/>
-        configuration is loaded again <i>and</i> measurements start
-        right away. It doesn't consider any state from previous session.
-    </p>
     <p v-if="state != defaultState" class="activity">
         Service state:
         <span
@@ -22,10 +22,10 @@
         <a
             href="#toggle"
             v-text="newState"
-            @click="apiToggleState"
+            @click.prevent="apiToggleState"
             class="state"/>
         &nbsp;|&nbsp;
-        <a href="#refresh" @click="apiGetState">refresh</a>
+        <a href="#refresh" @click.prevent="apiGetState">refresh</a>
     </p>
 </article>
 </template>

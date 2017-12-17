@@ -10,7 +10,7 @@
     <aside>
         <section>
             <h4>Interests...</h4>
-            <ul class="list-inline">
+            <ul class="list-style-none">
                 <li><a href="#">Show tank</a></li>
                 <li><a href="#">Water statistics</a></li>
                 <li><router-link :to="{name: 'plantmanager'}">

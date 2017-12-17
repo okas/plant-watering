@@ -67,9 +67,12 @@ a.router-link-exact-active {
 .highlight-neg {
   box-shadow: -1px -1px 1px 1px #e2181863;
 }
-.list-inline {
+.list-inline, .list-style-none {
     list-style-type: none;
     padding: 0;
+}
+.list-inline li {
+  display: inline-block;
 }
 </style>
 

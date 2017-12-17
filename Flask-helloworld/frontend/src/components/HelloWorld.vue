@@ -39,7 +39,6 @@ export default {
 
 <style scoped>
 li {
-  display: inline-block;
   margin: 0 10px;
 }
 </style>

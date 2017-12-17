@@ -1,3 +1,4 @@
+import os
 import logging
 from contextlib import suppress
 from flask import (
@@ -115,4 +116,8 @@ def get_plant_service_stop():
 
 @bp.route('/service-config')
 def get_irrigation_service_config():
-    return jsonify(current_app.config.irrigation)
+    resp = {
+        'filename': os.path.basename(current_app.config['IRRIGATION_CFG']),
+        'content': current_app.config.irrigation
+    }
+    return jsonify(resp)

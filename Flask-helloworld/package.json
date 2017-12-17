@@ -13,6 +13,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "vue": "^2.5.2",
+    "vue-json-tree-view": "^2.1.1",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {

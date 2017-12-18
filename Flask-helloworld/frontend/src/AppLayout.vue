@@ -1,19 +1,20 @@
 <template>
-<div id="app">
-  <header>
-    <router-link to="/"><img src="../static/logo_tk.png"></router-link>
-  </header>
-  <router-view/>
+<div id="app-layout" class="clearfix">
+  <app-header/>
+  <main>
+    <router-view/>
+  </main>
   <app-footer/>
 </div>
 </template>
 
 <script>
+import AppHeader from './AppHeader'
 import AppFooter from './AppFooter'
 
 export default {
-    name: 'app',
-    components: { AppFooter }
+    name: 'app-layout',
+    components: { AppHeader, AppFooter }
 }
 </script>
 
@@ -23,7 +24,7 @@ main {
 }
 body {
   clear: both;
-  margin: 10px 0 auto;
+  margin: 10px auto 0;
   width: 960px;
   background-color: #0a21880a;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -73,11 +74,5 @@ a.router-link-exact-active {
 }
 .list-inline li {
   display: inline-block;
-}
-</style>
-
-<style scoped>
-img {
-  width: 15%;
 }
 </style>

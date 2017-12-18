@@ -5,24 +5,24 @@ const routerOptions = [
     {
         path: '/irrigation/:name/statistics',
         name: 'plantstats',
-        component: 'IrrigationPlantStats',
+        component: 'Irrigation/PlantStats',
         props: true
     },
     {
         path: '/irrigation/:name/calibrate',
         name: 'plantcalibrate',
-        component: 'IrrigationPlantCalibration',
+        component: 'Irrigation/PlantCalibration',
         props: true
     },
     {
-        path: '/irrigation/main',
-        name: 'plantwatcher',
-        component: 'IrrigationPlantWatcher'
+        path: '/irrigation/',
+        name: 'irrigation',
+        component: 'Irrigation/PlantWatcher'
     },
     {
-        path: '/irrigation/manager',
-        name: 'plantmanager',
-        component: 'IrrigationManager'
+        path: '/irrigation/service',
+        name: 'irrigationservice',
+        component: 'Irrigation/Service'
     },
     { path: '/about', component: 'About' },
     { path: '/', component: 'HelloWorld' },

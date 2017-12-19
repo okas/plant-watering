@@ -35,8 +35,8 @@ def setup_flask_app_config(app, environment):
 
 
 def setup_logging(app):
-    with open(app.config['PLANTWATER_LOGGING']) as file:
-        logging.config.dictConfig(json.load(file))
+    with open(app.config['PLANTWATER_LOGGING']) as j_file:
+        logging.config.dictConfig(json.load(j_file))
 
 
 def setup_cleanup():
@@ -49,14 +49,18 @@ def setup_cleanup():
 
 
 ########################################################################
+
 BASE_DIR = sys.path[0]
 APP_NAME = os.path.basename(sys.path[0])
 STATIC_FOLDER ='./dist/static'
 TEMPLATE_FOLDER ='./dist'
 ENVIRONMENT = os.getenv('PLANTWATER_ENVIRONMENT', 'production')
+
 ########################################################################
+
 app = create_app(APP_NAME, ENVIRONMENT, STATIC_FOLDER, TEMPLATE_FOLDER)
 
+########################################################################
 
 if app.config['IRRIGATION_SERVICE_AUTOSTART'] == True:
     svc_irrigation.start_new()

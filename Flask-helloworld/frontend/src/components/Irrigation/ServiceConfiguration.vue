@@ -5,7 +5,6 @@
         <p>
             You can evaluate and change configuration.<br/>
             Service restart will be done only if service is started already.
-            <br/> <code>TODO: disable save link, when no config loaded</code>
         </p>
         <ul class="list-inline">
             <li v-if="status" v-text="status"></li>

@@ -21,6 +21,8 @@ PLANTWATER_LOGGING = BASE_DIR + '/config/logging.json'
 # operations using the other.
 THREADS_PER_PAGE = 6
 
+JSON_SORT_KEYS = False
+
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
 CSRF_ENABLED = True
 

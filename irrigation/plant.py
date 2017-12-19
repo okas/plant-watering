@@ -29,7 +29,7 @@ class Plant:
             pour_millilitres=50
             ):
         self.name = name
-        self.sensor = CapacitiveSensor(**sensor_args._asdict())
+        self.sensor = CapacitiveSensor(**sensor_args)
         self.moist_level = moist_percent
         self.valve_pin = valve_pin
         self.pour_millilitres = pour_millilitres

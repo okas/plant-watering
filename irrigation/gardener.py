@@ -23,17 +23,17 @@ class Gardener:
         self.__db_worker_stop = Event()
         self.__worker_queue = queue.Queue()
         self.__db_queue = queue.Queue()
-        self.watch_cycle = config.gardener_args.watch_cycle
-        self.watering_cycle = config.gardener_args.watering_cycle
-        self.plants = tuple(Plant(**a._asdict()) for a in config.plants_args_list)
+        self.watch_cycle = config['gardener_args']['watch_cycle']
+        self.watering_cycle = config['gardener_args']['watering_cycle']
+        self.plants = tuple(Plant(**pa) for pa in config['plants_args_list'])
         self._db__id = None
         self.__db_thread = None
-        self.db = self.__init_db(config)
+        self.db = self.__init_db(config['database_dir'], config['name'])
         self.water_supply = WaterSupply(
             self.stop_event,
-            config.pump_args._asdict(),
-            (p.valve_pin for p in config.plants_args_list),
-            config.tank_args._asdict()
+            config['pump_args'],
+            (p['valve_pin'] for p in config['plants_args_list']),
+            config['tank_args']
             )
         self.__start_work_data()
         Thread(name='PlantWatcher', target=self.__watcher_loop_thread).start()
@@ -43,12 +43,12 @@ class Gardener:
             self.stop_event.set()
             self.close()
 
-    def __init_db(self, config):
-        if not (os.path.isabs(config.database_dir) and
-                os.path.isdir(config.database_dir)):
+    def __init_db(self, database_dir, name):
+        if not (os.path.isabs(database_dir) and
+                os.path.isdir(database_dir)):
             raise OSError('Expected existing and absolute directory '\
-                          'path, instead of "%s"' % config.database_dir)
-        db = UnQLite(os.path.join(config.database_dir, config.name+'.bson'))
+                          'path, instead of "%s"' % database_dir)
+        db = UnQLite(os.path.join(database_dir, name+'.bson'))
         c_gardener = db.collection('gardener_instances')
         self.__db_moistures = db.collection('plant_moistures')
         self.__db_waterings = db.collection('plant_waterings')

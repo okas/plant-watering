@@ -29,7 +29,7 @@
                         <dd v-text="p.moist_measured"></dd>
                     </div>
                     <div class="horizontal">
-                        <a href="#" @click.prevent="apiRefreshPlant(p)">refresh</a>
+                        <a href="" @click.prevent="apiRefreshPlant(p)">refresh</a>
                         <span>&nbsp;|&nbsp;</span>
                         <router-link :to="{name: 'plantstats', params: {name: p.name}}">
                             stats
@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import Layout from './IrrigationLayout'
+import Layout from './Layout'
 import axios from 'axios'
 
 export default {

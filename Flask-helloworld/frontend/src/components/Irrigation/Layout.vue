@@ -2,7 +2,7 @@
 <div class="content clearfix">
     <header>
         <h1 class="toptitle">
-            <router-link :to="{name: 'plantwatcher'}">
+            <router-link :to="{name: 'irrigation'}">
                 Plant Irrigation Module
             </router-link>
         </h1>
@@ -11,9 +11,9 @@
         <section>
             <h4>Interests...</h4>
             <ul class="list-style-none">
-                <li><a href="#">Show tank</a></li>
-                <li><a href="#">Water statistics</a></li>
-                <li><router-link :to="{name: 'plantmanager'}">
+                <li><a href="">Show tank</a></li>
+                <li><a href="">Water statistics</a></li>
+                <li><router-link :to="{name: 'irrigationservice'}">
                     Manage service
                 </router-link></li>
             </ul>
@@ -24,9 +24,7 @@
 </template>
 
 <script>
-export default {
-    name: 'IrrigationLayout'
-}
+export default { name: 'IrrigationLayout' }
 </script>
 
 <style scoped>

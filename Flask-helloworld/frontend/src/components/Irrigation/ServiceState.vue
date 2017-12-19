@@ -20,12 +20,12 @@
             class="state"/>
         &nbsp;|&nbsp; toggle to
         <a
-            href="#toggle"
+            href=""
             v-text="newState"
             @click.prevent="apiToggleState"
             class="state"/>
         &nbsp;|&nbsp;
-        <a href="#refresh" @click.prevent="apiGetState">refresh</a>
+        <a href="" @click.prevent="apiGetState">refresh</a>
     </p>
 </article>
 </template>
@@ -34,7 +34,7 @@
 import axios from 'axios'
 
 export default {
-    name: 'ServiceState',
+    name: 'IrrigationServiceState',
     data () {
         return {
             status: '..loading from database..',

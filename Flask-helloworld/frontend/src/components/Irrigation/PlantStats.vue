@@ -13,7 +13,7 @@
     <article>
         <table v-if="waterings.length > 0">
             <caption>
-                <span>Waterings</span>&nbsp;|&nbsp;<a href="#" @click.prevent="apiGetPlantWaterings">refresh</a>
+                <span>Waterings</span>&nbsp;|&nbsp;<a href="" @click.prevent="apiGetPlantWaterings">refresh</a>
             </caption>
             <tr>
                 <th>id</th>
@@ -30,7 +30,7 @@
     <article>
          <table v-if="measurings.length > 0">
             <caption>
-                <span>Measurings</span>&nbsp;|&nbsp;<a href="#" @click.prevent="apiGetPlantMeasurings">refresh</a>
+                <span>Measurings</span>&nbsp;|&nbsp;<a href="" @click.prevent="apiGetPlantMeasurings">refresh</a>
             </caption>
             <tr>
                 <th>id</th>
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import Layout from './IrrigationLayout'
+import Layout from './Layout'
 import axios from 'axios'
 
 export default {

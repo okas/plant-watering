@@ -4,7 +4,7 @@
   <h2>Plant Irrigation</h2>
   <ul class="list-inline">
     <li>
-      <router-link :to="{name: 'plantwatcher'}">
+      <router-link :to="{name: 'irrigation'}">
         Check plant watcher system
       </router-link>
     </li>

@@ -11,9 +11,9 @@
 </template>
 
 <script>
-import Layout from './IrrigationLayout'
-import ServiceState from './IrrigationServiceState'
-import ServiceConfiguration from './IrrigationServiceConfiguration'
+import Layout from './Layout'
+import ServiceState from './ServiceState'
+import ServiceConfiguration from './ServiceConfiguration'
 
 export default {
     name: 'IrrigationManager',

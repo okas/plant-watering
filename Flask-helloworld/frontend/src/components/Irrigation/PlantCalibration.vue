@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import Layout from './IrrigationLayout'
+import Layout from './Layout'
 
 // import axios from 'axios'
 

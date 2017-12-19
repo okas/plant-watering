@@ -39,7 +39,7 @@ import TreeView from 'vue-json-tree-view'
 Vue.use(TreeView)
 
 export default {
-    name: 'ServiceConfiguration',
+    name: 'IrrigationServiceConfiguration',
     data () {
         return {
             status: '',

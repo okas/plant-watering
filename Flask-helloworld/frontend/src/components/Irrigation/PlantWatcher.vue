@@ -74,7 +74,7 @@ export default {
                 Object.assign(plant, resp.data)
                 this.status = ''
             } else {
-                this.status = `didn't get refresh for "${plant.name}", check what's wrong'`
+                this.status = `didn't get refresh for "${plant.name}", check what's wrong.`
             }
         },
         apiGetPlantWatcherStatus () {

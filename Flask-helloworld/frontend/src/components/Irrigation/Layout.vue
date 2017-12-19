@@ -1,5 +1,5 @@
 <template>
-<main class="content clearfix">
+<div class="content clearfix">
     <header>
         <h1 class="toptitle">
             <router-link :to="{name: 'plantwatcher'}">
@@ -20,7 +20,7 @@
         </section>
     </aside>
     <slot/>
-</main>
+</div>
 </template>
 
 <script>
@@ -30,7 +30,7 @@ export default {
 </script>
 
 <style scoped>
-main > aside {
+.content > aside {
     float: left;
     margin: 0 1.0%;
     width: 15.0%;
@@ -43,13 +43,13 @@ main > aside {
     text-align: left;
     white-space: nowrap;
 }
-main > aside h4 {
+.content > aside h4 {
     margin: 0 auto 15px 0;
 }
-main > aside ul {
+.content > aside ul {
     margin: 0;
 }
-main > section {
+.content > section {
     float: right;
     width: 77.4%;
     margin: 0 1.0%;

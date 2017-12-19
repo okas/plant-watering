@@ -1,5 +1,4 @@
 <template>
-<main>
 <section class="hello">
   <h1 class="toptitle">Welcome to Saar family's Smart Home App!</h1>
   <h2>Plant Irrigation</h2>
@@ -28,7 +27,6 @@
     <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
   </ul>
 </section>
-</main>
 </template>
 
 <script>

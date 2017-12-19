@@ -1,6 +1,6 @@
 <template>
 <layout>
-<section>
+<article>
     <header>
         <h2>Statistics for <span v-text="name" class="highlight"></span></h2>
         <span>Activities that irrigation system performs automatically.</span>
@@ -44,7 +44,7 @@
             </tr>
         </table>
     </article>
-</section>
+</article>
 </layout>
 </template>
 

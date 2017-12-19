@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 from contextlib import suppress
-from flask import current_app
+from flask import current_app, json
 
 sys.path.insert(1, os.path.dirname(sys.path[0]))
 import irrigation
@@ -36,11 +36,23 @@ def get_state():
     return resp
 
 
-def start_new():
+def load_config():
     with __app.app_context():
-        current_app.config.irrigation = irrigation.load_configuration(
-            current_app.config['IRRIGATION_CFG']
-            )
+        config_file = current_app.config['IRRIGATION_CFG']
+        cfg = irrigation.load_configuration(config_file)
+        current_app.config.irrigation = cfg
+
+
+def save_config(json_content):
+    with __app.app_context():
+        config_file = current_app.config['IRRIGATION_CFG']
+        with open(config_file, 'w', encoding='utf8') as outfile:
+            json.dump(json_content, outfile, ensure_ascii=False, indent=4)
+
+
+def start_new():
+    load_config()
+    with __app.app_context():
         global __instance
         try:
             __instance = irrigation.run_and_return_by_conf_obj(
@@ -53,4 +65,5 @@ def start_new():
 
 
 def stop():
-    __instance.__del__()
+    if __instance:
+        __instance.__del__()

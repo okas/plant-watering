@@ -64,4 +64,6 @@ app = create_app(APP_NAME, ENVIRONMENT, STATIC_FOLDER, TEMPLATE_FOLDER)
 
 if app.config['IRRIGATION_SERVICE_AUTOSTART'] == True:
     svc_irrigation.start_new()
-########################################################################
+else:
+    svc_irrigation.load_config()
+

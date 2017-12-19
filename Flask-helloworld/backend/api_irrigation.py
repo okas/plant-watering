@@ -4,7 +4,8 @@ from contextlib import suppress
 from flask import (
     Blueprint,
     jsonify,
-    current_app
+    current_app,
+    request
     )
 from . import svc_irrigation as service
 
@@ -82,12 +83,12 @@ def get_plant_stats_waterings(name):
 
 
 @bp.route('/service-state')
-def get_plant_service_state():
+def get_service_state():
     return jsonify({ 'state': service.get_state() })
 
 
 @bp.route('/service-start')
-def get_plant_service_start():
+def get_service_start():
     state = service.get_state()
     resp = { 'state': None }
     if state == 'on':
@@ -101,7 +102,7 @@ def get_plant_service_start():
 
 
 @bp.route('/service-stop')
-def get_plant_service_stop():
+def get_service_stop():
     state = service.get_state()
     resp = { 'state': None }
     if state == 'off':
@@ -115,9 +116,57 @@ def get_plant_service_stop():
 
 
 @bp.route('/service-config')
-def get_irrigation_service_config():
+def get_service_config():
     resp = {
         'filename': os.path.basename(current_app.config['IRRIGATION_CFG']),
         'content': current_app.config.irrigation
     }
     return jsonify(resp)
+
+
+def _validate_config_in_request(jsonData):
+    #TODO Add config file validaton: schema
+    if jsonData is None or len(jsonData) < 1:
+        j_resp = jsonify({ 'message': 'JSON content is missing or empty.' })
+        j_resp.status_code = 400
+    else:
+        j_resp = None
+    return j_resp
+
+
+def _restart_service_if_possible():
+    state = service.get_state()
+    if state == 'on':
+        service.stop()
+        service.start_new()
+        j_resp = jsonify()
+        j_resp.status_code = 204
+    else:
+        j_resp = jsonify({
+            'state': state,
+            'message': 'Configuration is updated, but service must '\
+                'be running beforehand to be restarted.'
+            })
+        j_resp.status_code = 202
+    return j_resp
+
+
+@bp.route('/service-config/<string:filename>/update-restart', methods=['PUT'])
+def put_service_config_file_update_restart(filename):
+    jsonData = request.get_json(silent=True, cache=False)
+    j_resp = _validate_config_in_request(jsonData)
+    if j_resp is not None:
+        return j_resp
+    if filename == os.path.basename(current_app.config['IRRIGATION_CFG']):
+        service.save_config(jsonData)
+        j_resp = _restart_service_if_possible()
+    else:
+        j_resp = jsonify({
+            'state': service.get_state(),
+            'message': 'Filename mismatch, didn\'t expect "{}". Either, '\
+                'config filename is already changed on server or you\'ve '\
+                'created request with bad filename.'.format(filename)
+            })
+        j_resp.status_code = 422
+    return j_resp
+

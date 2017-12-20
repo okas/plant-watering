@@ -1,9 +1,7 @@
 <template>
 <div id="app-layout" class="clearfix">
   <app-header/>
-  <main>
-    <router-view/>
-  </main>
+  <router-view/>
   <app-footer/>
 </div>
 </template>

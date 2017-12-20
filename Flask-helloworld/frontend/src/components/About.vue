@@ -1,7 +1,7 @@
 <template>
-<section>
+<main>
     <p>About</p>
-</section>
+</main>
 </template>
 
 <script>

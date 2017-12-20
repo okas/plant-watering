@@ -1,7 +1,7 @@
 <template>
-<section>
+<main>
     <p>404 - Not Found</p>
-</section>
+</main>
 </template>
 
 <script>

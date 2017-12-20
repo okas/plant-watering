@@ -1,5 +1,5 @@
 <template>
-<section class="hello">
+<main>
   <h1 class="toptitle">Welcome to Saar family's Smart Home App!</h1>
   <h2>Plant Irrigation</h2>
   <ul class="list-inline">
@@ -26,7 +26,7 @@
     <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
     <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
   </ul>
-</section>
+</main>
 </template>
 
 <script>

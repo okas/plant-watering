@@ -1,5 +1,5 @@
 <template>
-<div class="content clearfix">
+<main class="content clearfix">
     <header>
         <h1 class="toptitle">
             <router-link :to="{name: 'irrigation'}">
@@ -20,7 +20,7 @@
         </section>
     </aside>
     <slot/>
-</div>
+</main>
 </template>
 
 <script>
@@ -53,6 +53,6 @@ export default { name: 'IrrigationLayout' }
     margin: 0 1.0%;
     border: 1px solid lightgrey;
     border-radius: 15px;
-    padding: 0 10px;
+    padding: 0 10px 10px;
 }
 </style>

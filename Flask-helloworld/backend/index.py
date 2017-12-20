@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template
+import flask
 
 
-bp = Blueprint('index', __name__)
+bp = flask.Blueprint('index', __name__)
 
 
-@bp.route('/', defaults={'path': ''})
+@bp.route('/', defaults={ 'path': '' })
 @bp.route('/<path:path>')
 def catch_all(path):
-    return render_template('index.html')
+    return flask.render_template('index.html')

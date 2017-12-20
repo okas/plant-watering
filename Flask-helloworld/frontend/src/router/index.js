@@ -24,8 +24,12 @@ const routerOptions = [
         name: 'irrigationservice',
         component: 'Irrigation/Service'
     },
+    {
+        path: '/',
+        alias: '/index',
+        component: 'HelloWorld'
+    },
     { path: '/about', component: 'About' },
-    { path: '/', component: 'HelloWorld' },
     { path: '/*', component: 'NotFound' }
 ]
 

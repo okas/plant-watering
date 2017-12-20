@@ -17,7 +17,8 @@ import ServiceConfiguration from './ServiceConfiguration'
 
 export default {
     name: 'IrrigationManager',
-    components: { Layout, ServiceState, ServiceConfiguration }
+    components: { Layout, ServiceState, ServiceConfiguration },
+    head: { title: { inner: 'Manage Irrigation' } }
 }
 </script>
 

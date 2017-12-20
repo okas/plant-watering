@@ -27,6 +27,7 @@ import Layout from './Layout'
 
 export default {
     name: 'PlantCalibration',
+    head: { title: { inner: 'Plant calibration' } },
     components: { Layout },
     props: {
         name: {

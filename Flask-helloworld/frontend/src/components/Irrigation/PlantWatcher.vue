@@ -54,6 +54,7 @@ import axios from 'axios'
 export default {
     name: 'IrrigationPlantWatcher',
     components: { Layout },
+    head: { title: { inner: 'Plant watcher' } },
     data () {
         return {
             status: 'loading plants from server...',

@@ -55,6 +55,7 @@ import axios from 'axios'
 export default {
     name: 'IrrigationPlantStats',
     components: { Layout },
+    head: { title: { inner: 'Plant statistics' } },
     props: {
         name: {
             type: String,

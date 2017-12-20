@@ -31,7 +31,8 @@
 
 <script>
 export default {
-    name: 'HelloWorld'
+    name: 'HelloWorld',
+    head: { title: { inner: 'Hello!' } }
 }
 </script>
 

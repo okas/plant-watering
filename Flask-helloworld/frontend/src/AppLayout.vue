@@ -14,7 +14,27 @@ import AppFooter from './AppFooter'
 
 export default {
     name: 'app-layout',
-    components: { AppHeader, AppFooter }
+    components: { AppHeader, AppFooter },
+    head: {
+        link () {
+            return ['16x16', '32x32'].map(sz => {
+                return {
+                    rel: 'shortcut icon',
+                    href: require(`../static/favicon-${sz}.png`),
+                    sizes: sz,
+                    type: 'image/png',
+                    undo: false
+                }
+            })
+        },
+        style: [
+            {
+                type: 'text/css',
+                inner: 'body { background-color: #0a21880a; color: #2c3e50}',
+                undo: false
+            }
+        ]
+    }
 }
 </script>
 
@@ -26,12 +46,10 @@ body {
   clear: both;
   margin: 10px auto 0;
   width: 960px;
-  background-color: #0a21880a;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
 }
 h1, h2 {
   font-weight: normal;

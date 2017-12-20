@@ -12,22 +12,6 @@ from backend import setup_flask_and_blueprint, svc_irrigation
 log = logging.getLogger(__name__)
 
 
-def create_app(app_name, environment, static_folder, template_folder):
-    '''Application Factory'''
-    app = Flask(
-        import_name = app_name,
-        static_folder = static_folder,
-        template_folder = template_folder,
-        instance_path = BASE_DIR+'/instance',
-        instance_relative_config = True
-        )
-    setup_flask_app_config(app, environment)
-    setup_logging(app)
-    setup_flask_and_blueprint(app)
-    setup_cleanup()
-    return app
-
-
 def setup_flask_app_config(app, environment):
     app.config.from_pyfile('secrets.py')
     app.config.from_object('config.default')
@@ -52,13 +36,25 @@ def setup_cleanup():
 
 BASE_DIR = sys.path[0]
 APP_NAME = os.path.basename(sys.path[0])
-STATIC_FOLDER ='./dist/static'
-TEMPLATE_FOLDER ='./dist'
+STATIC_FOLDER ='dist/static'
+TEMPLATE_FOLDER ='dist'
 ENVIRONMENT = os.getenv('PLANTWATER_ENVIRONMENT', 'production')
 
 ########################################################################
 
-app = create_app(APP_NAME, ENVIRONMENT, STATIC_FOLDER, TEMPLATE_FOLDER)
+'''Application Factory'''
+app = Flask(
+        import_name = APP_NAME,
+        static_folder = STATIC_FOLDER,
+        template_folder = TEMPLATE_FOLDER,
+        instance_path = BASE_DIR+'/instance',
+        instance_relative_config = True,
+        root_path = BASE_DIR
+        )
+setup_flask_app_config(app, ENVIRONMENT)
+setup_logging(app)
+setup_flask_and_blueprint(app)
+setup_cleanup()
 
 ########################################################################
 

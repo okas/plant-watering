@@ -5,7 +5,7 @@ import signal
 import logging
 import logging.config
 from contextlib import suppress
-from flask import Flask, current_app
+import flask
 from backend import setup_flask_and_blueprint, svc_irrigation
 
 
@@ -43,7 +43,7 @@ ENVIRONMENT = os.getenv('PLANTWATER_ENVIRONMENT', 'production')
 ########################################################################
 
 '''Application Factory'''
-app = Flask(
+app = flask.Flask(
         import_name = APP_NAME,
         static_folder = STATIC_FOLDER,
         template_folder = TEMPLATE_FOLDER,

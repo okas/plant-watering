@@ -11,39 +11,55 @@
         </ul>
     </header>
     <ul class="list-inline activities">
-        <li><a
-            href=""
-            @click.prevent="apiGetServiceConfig"
-            v-text="state">
-        </a></li>
-        <li><a
-                href=""
-                @click.prevent="modify = !modify"
-                :class="stateClass">
-                modify
-        </a></li>
-        <li v-if="hasConf"><a href="" @click.prevent="apiUpdateServiceConfig">
-            save and restart service
-        </a></li>
+        <li>
+            <a href="" @click.prevent="apiGetServiceConfig" v-text="state"></a>
+        </li>
+        <li v-if="hasConf">
+            <a href="" @click.prevent="modify=!modify" :class="this.modify ? 'highlight': 'highlight-neg'">
+                modify</a>
+        </li>
+        <li v-if="hasConf">
+            <a href="" @click.prevent="apiUpdateServiceConfig">
+                save and restart service</a>
+        </li>
     </ul>
-    <tree-view
-        v-if="hasConf"
-        :data="configData.content"
-        :options="{
-            rootObjectKey: configData.filename,
-            maxDepth: 3,
-            modifiable: this.modify}"
-        @change-data="onChangeData"/>
+    <ul v-if="hasConf" class="list-inline activities">
+        <li>
+            <a href="" @click.prevent="addPlant">
+                add new plant</a>
+        </li>
+        <li>
+            <label for="p_r">remove plant</label>
+            <select id="p_r" v-model="plantToRemove" :disabled="disableRemove" :title="selectTitle">
+                <option :value="null">
+                    ...chose...</option>
+                <option
+                    v-for="p in configData.content.plants_args_list"
+                    v-text="p.name"
+                    :key="p.name"/>
+            </select>
+        </li>
+    </ul>
+    <p>
+        <tree-view
+            v-if="hasConf"
+            :data="configData.content"
+            @change-data="onTreeViewDataChange"
+            :options="{
+                rootObjectKey: configData.filename,
+                maxDepth: 3,
+                modifiable: this.modify}"/>
+    </p>
 </article>
 </template>
 
 <script>
 import Vue from 'vue'
 import axios from 'axios'
-import TreeView from 'vue-json-tree-view'
-Vue.use(TreeView)
+Vue.use(require('vue-json-tree-view'))
 
 const apiConf = { headers: { 'Content-Type': 'application/json' } }
+var counter = 0
 
 export default {
     name: 'IrrigationServiceConfiguration',
@@ -55,8 +71,43 @@ export default {
         }
     },
     methods: {
-        onChangeData (updatedDocument) {
+        addPlant () {
+            var plants = this.configData.content.plants_args_list
+            if (plants === undefined) {
+                this.status = 'can\'t add plant, expected [plants_args_list] key in configuration'
+                return
+            }
+            // TODO: automate this schema retreival somehow :)
+            plants.push({
+                'name': `Lill ${++counter}`,
+                'valve_pin': -1,
+                'led_pin': -1,
+                'moist_percent': 65,
+                'pour_millilitres': 50,
+                'sensor_args': {
+                    'spi_device': -1,
+                    'spi_channel': -1,
+                    'vcc_pin': -1,
+                    'wet_value': 0.44,
+                    'dry_value': 0.85
+                }
+            })
+            this.status = 'please calibrate new plant\'s sensor before usage'
+        },
+        onTreeViewDataChange (updatedDocument) {
             this.configData.content = updatedDocument
+        },
+        removePlant (name) {
+            if (name === null) {
+                return
+            }
+            var plants = this.configData.content.plants_args_list
+            const index = plants.findIndex(p => p.name === name)
+            if (index !== -1) {
+                plants.splice(index, 1)
+            } else {
+                this.status = 'plant you were trying to remove do not existn in array'
+            }
         },
         apiGetServiceConfig () {
             this.modify = false
@@ -84,17 +135,18 @@ export default {
         }
     },
     computed: {
-        hasConf () {
-            return this.configData
+        selectTitle () {
+            return this.disableRemove ? 'cannot remove single plant' : ''
         },
-        stateClass () {
-            if (this.modify) {
-                return 'highlight'
-            } else if (!this.modify) {
-                return 'highlight-neg'
-            } else {
-                return 'error'
-            }
+        disableRemove () {
+            return this.configData.content.plants_args_list.length <= 1
+        },
+        plantToRemove: {
+            get () { return null },
+            set (name) { this.removePlant(name) }
+        },
+        hasConf () {
+            return this.configData && Object.keys(this.configData).length > 0
         },
         state () {
             return !this.hasConf ? 'load from server' : 'reload from server'

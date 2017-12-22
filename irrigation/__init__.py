@@ -3,7 +3,7 @@ from ._version import __version__
 import sys
 import logging
 from .gardener import Gardener
-from .configuration import load_configuration
+from .configuration import load_configuration, store_configuration
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

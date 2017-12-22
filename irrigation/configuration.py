@@ -46,3 +46,16 @@ def load_configuration(config_file):
         log.debug('Loaded Irrigation configuration is valid. '\
             'File: %s' % config_file)
     return ordered_config
+
+
+def store_configuration(config_file, json_content):
+    try:
+        validate(content_obj)
+    except:
+        log.exception('Provided Irrigation configuration is not valid! '\
+            'File: %s' % config_file)
+    else:
+        log.debug('Provided Irrigation configuration is valid. '\
+            'File: %s' % config_file)
+    with open(config_file, 'w', encoding='utf8') as outfile:
+        json.dump(json_content, outfile, ensure_ascii=False, indent=4)

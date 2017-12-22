@@ -18,7 +18,7 @@
             <a href="" @click.prevent="modify=!modify" :class="this.modify ? 'highlight': 'highlight-neg'">
                 modify</a>
         </li>
-        <li v-if="hasConf">
+        <li v-if="hasConf && wortSaving">
             <a href="" @click.prevent="apiUpdateServiceConfig">
                 save and restart service</a>
         </li>
@@ -67,16 +67,49 @@ export default {
         return {
             status: '',
             configData: '',
-            modify: false
+            modify: false,
+            wortSaving: false
         }
     },
     methods: {
+        apiGetServiceConfig () {
+            this.modify = this.wortSaving = false
+            axios.get('/api/irrigation/service-config')
+                .then(resp => {
+                    this.status = ''
+                    this.configData = resp.data
+                })
+                .catch(console.log)
+        },
+        apiUpdateServiceConfig () {
+            if (!this.wortSaving) {
+                return
+            }
+            this.modify = this.wortSaving = false
+            let filename = this.configData.filename || ''
+            let api = `/api/irrigation/service-config/${filename}/update-restart`
+            axios.put(api, this.configData.content, apiConf)
+                .then(resp => {
+                    this.status = resp.status !== 204 ? resp.data.message : ''
+                })
+                .catch((err) => {
+                    if (!this.inProduction) {
+                        this.status = err.response.data.message
+                        console.log(err)
+                    }
+                })
+        },
+        onTreeViewDataChange (updatedDocument) {
+            this.wortSaving = true
+            this.configData.content = updatedDocument
+        },
         addPlant () {
             var plants = this.configData.content.plants_args_list
             if (plants === undefined) {
                 this.status = 'can\'t add plant, expected [plants_args_list] key in configuration'
                 return
             }
+            this.wortSaving = true
             // TODO: automate this schema retreival somehow :)
             plants.push({
                 'name': `Lill ${++counter}`,
@@ -94,13 +127,11 @@ export default {
             })
             this.status = 'please calibrate new plant\'s sensor before usage'
         },
-        onTreeViewDataChange (updatedDocument) {
-            this.configData.content = updatedDocument
-        },
         removePlant (name) {
             if (name === null) {
                 return
             }
+            this.wortSaving = true
             var plants = this.configData.content.plants_args_list
             const index = plants.findIndex(p => p.name === name)
             if (index !== -1) {
@@ -108,30 +139,6 @@ export default {
             } else {
                 this.status = 'plant you were trying to remove do not existn in array'
             }
-        },
-        apiGetServiceConfig () {
-            this.modify = false
-            axios.get('/api/irrigation/service-config')
-                .then(resp => {
-                    this.status = ''
-                    this.configData = resp.data
-                })
-                .catch(console.log)
-        },
-        apiUpdateServiceConfig () {
-            this.modify = false
-            let filename = this.configData.filename || ''
-            let api = `/api/irrigation/service-config/${filename}/update-restart`
-            axios.put(api, this.configData.content, apiConf)
-                .then(resp => {
-                    this.status = resp.status !== 204 ? resp.data.message : ''
-                })
-                .catch((err) => {
-                    if (!this.inProduction) {
-                        this.status = err.response.data.message
-                        console.log(err)
-                    }
-                })
         }
     },
     computed: {

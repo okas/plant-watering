@@ -34,21 +34,28 @@ def validate(instance):
     raise Exception()
 
 
-def load_configuration(name_or_path):
-    if '/' or '.json' in name_or_path:
-        file_path = name_or_path
-    else:
-        file_path = os.path.realpath(
-            '{}/../{}.json'.format(__file__, name_or_path)
-            )
-    with open(file_path) as j_file:
+def load_configuration(config_file):
+    with open(config_file) as j_file:
         ordered_config = json.load(j_file, object_pairs_hook = OrderedDict)
     try:
         validate(ordered_config)
     except:
         log.exception('Loaded Irrigation configuration is not valid! '\
-            'File: %s' % file_path)
+            'File: %s' % config_file)
     else:
         log.debug('Loaded Irrigation configuration is valid. '\
-            'File: %s' % file_path)
+            'File: %s' % config_file)
     return ordered_config
+
+
+def store_configuration(config_file, json_content):
+    try:
+        validate(content_obj)
+    except:
+        log.exception('Provided Irrigation configuration is not valid! '\
+            'File: %s' % config_file)
+    else:
+        log.debug('Provided Irrigation configuration is valid. '\
+            'File: %s' % config_file)
+    with open(config_file, 'w', encoding='utf8') as outfile:
+        json.dump(json_content, outfile, ensure_ascii=False, indent=4)

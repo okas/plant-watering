@@ -1,0 +1,291 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://saarmas-rp3-1.saared.eu/lib/sh/irrigation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "id": "/properties/name",
+      "type": "string",
+      "title": "The Name Schema.",
+      "description": "An explanation about the purpose of this instance.",
+      "default": ""
+    },
+    "database_dir": {
+      "id": "/properties/database_dir",
+      "type": "string",
+      "title": "The Database_dir Schema.",
+      "description": "An explanation about the purpose of this instance.",
+      "default": ""
+    },
+    "tank_args": {
+      "id": "/properties/tank_args",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "probe_low_pin": {
+          "id": "/properties/tank_args/properties/probe_low_pin",
+          "type": "number",
+          "title": "The Probe_low_pin Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "probe_norm_pin": {
+          "id": "/properties/tank_args/properties/probe_norm_pin",
+          "type": "number",
+          "title": "The Probe_norm_pin Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "probe_full_pin": {
+          "id": "/properties/tank_args/properties/probe_full_pin",
+          "type": "number",
+          "title": "The Probe_full_pin Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "led_low_pin": {
+          "id": "/properties/tank_args/properties/led_low_pin",
+          "type": "number",
+          "title": "The Led_low_pin Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "led_norm_pin": {
+          "id": "/properties/tank_args/properties/led_norm_pin",
+          "type": "number",
+          "title": "The Led_norm_pin Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "led_full_pin": {
+          "id": "/properties/tank_args/properties/led_full_pin",
+          "type": "number",
+          "title": "The Led_full_pin Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "water_pour_time": {
+          "id": "/properties/tank_args/properties/water_pour_time",
+          "type": "number",
+          "title": "The Water_pour_time Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        }
+      },
+      "required": [
+        "probe_low_pin",
+        "probe_norm_pin",
+        "probe_full_pin",
+        "led_low_pin",
+        "led_norm_pin",
+        "led_full_pin",
+        "water_pour_time"
+      ]
+    },
+    "gardener_args": {
+      "id": "/properties/gardener_args",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "watch_cycle": {
+          "id": "/properties/gardener_args/properties/watch_cycle",
+          "type": "number",
+          "title": "The Watch_cycle Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "watering_cycle": {
+          "id": "/properties/gardener_args/properties/watering_cycle",
+          "type": "number",
+          "title": "The Watering_cycle Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        }
+      },
+      "required": [
+        "watch_cycle",
+        "watering_cycle"
+      ]
+    },
+    "pump_args": {
+      "id": "/properties/pump_args",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pin": {
+          "id": "/properties/pump_args/properties/pin",
+          "type": "number",
+          "title": "The Pin Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "pump_speed": {
+          "id": "/properties/pump_args/properties/pump_speed",
+          "type": "number",
+          "title": "The Pump_speed Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "initial_value": {
+          "id": "/properties/pump_args/properties/initial_value",
+          "type": "number",
+          "title": "The Initial_value Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "frequency": {
+          "id": "/properties/pump_args/properties/frequency",
+          "type": "number",
+          "title": "The Frequency Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "delay_valve": {
+          "id": "/properties/pump_args/properties/delay_valve",
+          "type": "number",
+          "title": "The Delay_valve Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "flow_sensor_pin": {
+          "id": "/properties/pump_args/properties/flow_sensor_pin",
+          "type": "number",
+          "title": "The Flow_sensor_pin Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        },
+        "flow_sensor_vcc_pin": {
+          "id": "/properties/pump_args/properties/flow_sensor_vcc_pin",
+          "type": "number",
+          "title": "The Flow_sensor_vcc_pin Schema.",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0
+        }
+      },
+      "required": [
+        "pin",
+        "pump_speed",
+        "initial_value",
+        "frequency",
+        "delay_valve",
+        "flow_sensor_pin",
+        "flow_sensor_vcc_pin"
+      ]
+    },
+    "plants_args_list": {
+      "id": "/properties/plants_args_list",
+      "type": "array",
+      "additionalItems": true,
+      "uniqueItems": true,
+      "items": {
+        "id": "/properties/plants_args_list/items",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "id": "/properties/plants_args_list/items/properties/name",
+            "type": "string",
+            "title": "The Name Schema.",
+            "description": "An explanation about the purpose of this instance.",
+            "default": ""
+          },
+          "led_pin": {
+            "id": "/properties/plants_args_list/items/properties/led_pin",
+            "type": "number",
+            "title": "The Led_pin Schema.",
+            "description": "An explanation about the purpose of this instance.",
+            "default": 0
+          },
+          "valve_pin": {
+            "id": "/properties/plants_args_list/items/properties/valve_pin",
+            "type": "number",
+            "title": "The Valve_pin Schema.",
+            "description": "An explanation about the purpose of this instance.",
+            "default": 0
+          },
+          "moist_percent": {
+            "id": "/properties/plants_args_list/items/properties/moist_percent",
+            "type": "number",
+            "title": "The Moist_percent Schema.",
+            "description": "An explanation about the purpose of this instance.",
+            "default": 0
+          },
+          "pour_millilitres": {
+            "id": "/properties/plants_args_list/items/properties/pour_millilitres",
+            "type": "number",
+            "title": "The Pour_millilitres Schema.",
+            "description": "An explanation about the purpose of this instance.",
+            "default": 0
+          },
+          "sensor_args": {
+            "id": "/properties/plants_args_list/items/properties/sensor_args",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "vcc_pin": {
+                "id": "/properties/plants_args_list/items/properties/sensor_args/properties/vcc_pin",
+                "type": "number",
+                "title": "The Vcc_pin Schema.",
+                "description": "An explanation about the purpose of this instance.",
+                "default": 0
+              },
+              "spi_device": {
+                "id": "/properties/plants_args_list/items/properties/sensor_args/properties/spi_device",
+                "type": "number",
+                "title": "The Spi_device Schema.",
+                "description": "An explanation about the purpose of this instance.",
+                "default": 0
+              },
+              "spi_channel": {
+                "id": "/properties/plants_args_list/items/properties/sensor_args/properties/spi_channel",
+                "type": "number",
+                "title": "The Spi_channel Schema.",
+                "description": "An explanation about the purpose of this instance.",
+                "default": 0
+              },
+              "dry_value": {
+                "id": "/properties/plants_args_list/items/properties/sensor_args/properties/dry_value",
+                "type": "number",
+                "title": "The Dry_value Schema.",
+                "description": "An explanation about the purpose of this instance.",
+                "default": 0
+              },
+              "wet_value": {
+                "id": "/properties/plants_args_list/items/properties/sensor_args/properties/wet_value",
+                "type": "number",
+                "title": "The Wet_value Schema.",
+                "description": "An explanation about the purpose of this instance.",
+                "default": 0
+              }
+            },
+            "required": [
+              "vcc_pin",
+              "spi_device",
+              "spi_channel",
+              "dry_value",
+              "wet_value"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "led_pin",
+          "valve_pin",
+          "moist_percent",
+          "pour_millilitres",
+          "sensor_args"
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "database_dir",
+    "tank_args",
+    "gardener_args",
+    "pump_args",
+    "plants_args_list"
+  ]
+}

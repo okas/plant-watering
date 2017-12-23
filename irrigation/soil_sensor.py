@@ -1,6 +1,7 @@
 import logging
 from time import sleep
 from timeit import default_timer as timer
+from contextlib import suppress
 from statistics import median
 from gpiozero import MCP3008, OutputDevice
 
@@ -18,8 +19,12 @@ class CapacitiveSensor():
             wet_value,
             measuring_samples=40):
         self.closed = False
-        self.__spi_dev = MCP3008(device = spi_device, channel = spi_channel)
-        self.__spi_vcc = OutputDevice(vcc_pin)#using GPIO pin to power the Sensor!
+        try:
+            self.__spi_dev = MCP3008(device=spi_device, channel=spi_channel)
+            self.__spi_vcc = OutputDevice(vcc_pin)#using GPIO pin to power the Sensor!
+        except:
+            self.close()
+            raise
         self.dry_value = dry_value
         self.wet_value = wet_value
         self.samples = measuring_samples
@@ -61,6 +66,7 @@ class CapacitiveSensor():
         return result_ratio_inversed_rounded
 
     def close(self):
-        self.__spi_dev.close()
-        self.__spi_vcc.close()
+        with suppress(AttributeError):
+            self.__spi_dev.close()
+            self.__spi_vcc.close()
         self.closed = True

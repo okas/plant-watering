@@ -50,7 +50,7 @@ def load_configuration(config_file):
 
 def store_configuration(config_file, json_content):
     try:
-        validate(content_obj)
+        validate(json_content)
     except:
         log.exception('Provided Irrigation configuration is not valid! '\
             'File: %s' % config_file)

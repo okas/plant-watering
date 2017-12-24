@@ -1,10 +1,9 @@
 <template>
 <footer>
-  <hr/>
   <div>
     Copyright&nbsp;©
   </div>
-  <div v-text="getYears()"></div>
+  <div v-text="years"></div>
   <div>
     Powered by
     <a href="https://vuejs.org" target="_blank">
@@ -17,8 +16,8 @@
 <script>
 export default {
     name: 'app-footer',
-    methods: {
-        getYears () {
+    computed: {
+        years () {
             const startYear = 2017
             const currentTear = new Date().getFullYear()
             return currentTear !== startYear
@@ -45,10 +44,14 @@ footer {
   width: 100%;
   left: 2px;
   right: 2px;
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  border-top: #8c8b8b solid 1px;
+  background-color: #73fbce17;
 }
 footer > div {
   display: inline-block;
-  margin-bottom: 10px;
+  margin: 10px 0;
   color: black;
   text-shadow:
     0 0 20px hsla(0, 0%, 100%, 1),
@@ -85,23 +88,5 @@ footer > div {
 img {
   vertical-align: middle;
   width: 17px;
-}
-hr {
-  height: 30px;
-  border-style: solid;
-  border-color: #8c8b8b;
-  border-width: 1px 0 0 0;
-  border-radius: 20px;
-  margin-bottom: -20px;
-}
-hr:before {
-  display: block;
-  content: "";
-  height: 30px;
-  margin-top: -31px;
-  border-style: solid;
-  border-color: #8c8b8b;
-  border-width: 0 0 1px 0;
-  border-radius: 20px;
 }
 </style>

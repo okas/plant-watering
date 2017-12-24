@@ -28,7 +28,7 @@ export default {
         style: [
             {
                 type: 'text/css',
-                inner: 'body { background-color: #0a21880a; color: #2c3e50}',
+                inner: 'body { background-color: #4e111103; color: #3e0101;}',
                 undo: false
             }
         ]
@@ -54,7 +54,6 @@ h1, h2 {
 }
 h1 {
     font-size : 3em;
-    color : FF2C00;
 }
 h1.toptitle {
     margin-bottom : 10px;
@@ -68,7 +67,7 @@ h3 {
     color : #00B945;
 }
 a {
-  color: #42b983;
+  color: #7e008c;
 }
 .clearfix:after {
    content: "";

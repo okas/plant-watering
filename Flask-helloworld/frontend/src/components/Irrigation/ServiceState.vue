@@ -2,30 +2,27 @@
 <article>
     <header>
         <h3>Service state</h3>
-        <ul class="list-inline">
-            <li v-if="status" v-text="status"></li>
-        </ul>
         <p>
             You can start or stop irrigation service. Restarting service
             means two things:<br/>
             configuration is loaded again <i>and</i> measurements start
             right away. It doesn't consider any state from previous session.
         </p>
+        <ul class="list-inline">
+            <li v-if="status" v-text="status" :class="statusClass"></li>
+        </ul>
     </header>
-    <p v-if="state != defaultState" class="activity">
-        Service state:
-        <span
-            v-text="state"
-            :class="stateClass"
-            class="state"/>
-        &nbsp;|&nbsp; toggle to
-        <a
-            href=""
-            v-text="newState"
-            @click.prevent="apiToggleState"
-            class="state"/>
-        &nbsp;|&nbsp;
-        <a href="" @click.prevent="apiGetState">refresh</a>
+    <p v-if="state" class="activity">
+        <span>
+            Service state:</span>
+        <span v-text="state" :class="stateClass" class="state"/>
+        <span>
+            &nbsp;|&nbsp; toggle to</span>
+        <a href="" v-text="newState" @click.prevent="apiToggleState" class="state"/>
+        <span>
+            &nbsp;|&nbsp;</span>
+        <a href="" @click.prevent="apiGetState">
+            refresh</a>
     </p>
 </article>
 </template>
@@ -39,8 +36,6 @@ export default {
     data () {
         return {
             status: '..loading from database..',
-            defaultState: '..loading..',
-            state: '..loading..',
             configDocumentObject: ''
         }
     },
@@ -61,7 +56,7 @@ export default {
                 return 'error'
             }
         },
-        newState: function () {
+        newState () {
             if (this.state === 'on') {
                 return 'off'
             } else if (this.state === 'off') {
@@ -72,6 +67,11 @@ export default {
         }
     },
     methods: {
+        _handleReject (err, forEmptyResponse) {
+            let newStatus = err.response ? err.response.data : forEmptyResponse
+            this.status = `${newStatus} (${err.message})`
+            console.log(err)
+        },
         apiGetState () {
             axios.get('/api/irrigation/service-state')
                 .then(resp => {
@@ -80,10 +80,11 @@ export default {
                         this.status = ''
                     } else {
                         this.status = resp.data.state
-                        console.log(resp.data)
                     }
                 })
-                .catch(console.log)
+                .catch(err => this._handleReject(
+                    err, 'Error occured during service state retreival.'
+                ))
         },
         apiToggleState () {
             var act
@@ -92,7 +93,7 @@ export default {
             } else if (this.newState === 'off') {
                 act = 'stop'
             } else {
-                console.log(`Bad value of ${this.newState} in this.state!
+                console.log(`Bad value of ${this.newState} in [this.state]!
                              Cannot toggle service state with this, aborting!`)
                 return
             }
@@ -107,7 +108,9 @@ export default {
                         console.log(resp.data)
                     }
                 })
-                .catch(console.log)
+                .catch(err => this._handleReject(
+                    err, `Error occured during service ${act}.`
+                ))
         }
     },
     beforeMount () {

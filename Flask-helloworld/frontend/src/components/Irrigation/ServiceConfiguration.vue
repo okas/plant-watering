@@ -7,18 +7,18 @@
             Service restart will be done only if service is started already.
         </p>
         <ul class="list-inline">
-            <li v-if="status" v-text="status"></li>
+            <li v-if="status" v-text="status" :class="statusClass"></li>
         </ul>
     </header>
     <ul class="list-inline activities">
         <li>
-            <a href="" @click.prevent="apiGetServiceConfig" v-text="state"></a>
+            <a href="" @click.prevent="apiGetServiceConfig" v-text="actionText"></a>
         </li>
         <li v-if="hasConf">
-            <a href="" @click.prevent="modify=!modify" :class="this.modify ? 'highlight': 'highlight-neg'">
+            <a href="" @click.prevent="modify=!modify" :class="stateClass">
                 modify</a>
         </li>
-        <li v-if="hasConf && wortSaving">
+        <li v-if="hasConf && (worthSaving || modify)">
             <a href="" @click.prevent="apiUpdateServiceConfig">
                 save and restart service</a>
         </li>
@@ -40,16 +40,21 @@
             </select>
         </li>
     </ul>
-    <p>
-        <tree-view
-            v-if="hasConf"
-            :data="configData.content"
-            @change-data="onTreeViewDataChange"
-            :options="{
-                rootObjectKey: configData.filename,
-                maxDepth: 3,
-                modifiable: this.modify}"/>
+    <p v-if="hasConf">
+        Please, be very careful with changing configuration!
+        Saving faulty configuration might prevent to start service!
+        False GPIO pin settings most probably disables service or
+        it my behave in unexpected way and even burn down hardware.
+        You've been warned...
     </p>
+    <tree-view
+        v-if="hasConf"
+        :data="configData.content"
+        @change-data="onTreeViewDataChange"
+        :options="{
+            rootObjectKey: configData.filename,
+            maxDepth: 3,
+            modifiable: this.modify}"/>
 </article>
 </template>
 
@@ -69,24 +74,59 @@ export default {
             status: '',
             configData: '',
             modify: false,
-            wortSaving: false
+            worthSaving: false
+        }
+    },
+    computed: {
+        selectTitle () {
+            return this.disableRemove ? 'cannot remove single plant' : ''
+        },
+        statusClass () {
+            return this.status ? 'highlight-neg' : ''
+        },
+        stateClass () {
+            return this.modify ? 'highlight' : 'highlight-neg'
+        },
+        disableRemove () {
+            return this.configData.content.plants_args_list.length <= 1
+        },
+        plantToRemove: {
+            get () { return null },
+            set (name) { this.removePlant(name) }
+        },
+        hasConf () {
+            return this.configData && Object.keys(this.configData).length > 0
+        },
+        actionText () {
+            return !this.hasConf ? 'load from server' : 'reload from server'
+        },
+        inProduction () {
+            return process.env.NODE_ENV === 'production'
         }
     },
     methods: {
+        _handleReject (err, forEmptyResponse) {
+            let newStatus = err.response ? err.response.data : forEmptyResponse
+            this.status = `${newStatus} (${err.message})`
+            console.log(err)
+        },
         apiGetServiceConfig () {
-            this.modify = this.wortSaving = false
+            this.modify = this.worthSaving = false
             axios.get('/api/irrigation/service-config')
                 .then(resp => {
                     this.status = ''
                     this.configData = resp.data
                 })
-                .catch(console.log)
+                .catch(err => this._handleReject(
+                    err, 'Cannot get configuration from server!'
+                ))
         },
         apiUpdateServiceConfig () {
-            if (!this.wortSaving) {
+            this.modify = false
+            if (!this.worthSaving) {
                 return
             }
-            this.modify = this.wortSaving = false
+            this.worthSaving = false
             let filename = this.configData.filename || ''
             let api = `/api/irrigation/service-config/${filename}/update-restart`
             axios.put(api, this.configData.content, apiConf)
@@ -95,14 +135,14 @@ export default {
                 })
                 .catch((err) => {
                     this.$emit('update:serviceState', 'off')
+                    this.status = err.response.data.message
                     if (!this.inProduction) {
-                        this.status = err.response.data.message
                         console.log(err)
                     }
                 })
         },
         onTreeViewDataChange (updatedDocument) {
-            this.wortSaving = true
+            this.worthSaving = true
             this.configData.content = updatedDocument
         },
         addPlant () {
@@ -111,7 +151,7 @@ export default {
                 this.status = 'can\'t add plant, expected [plants_args_list] key in configuration'
                 return
             }
-            this.wortSaving = true
+            this.worthSaving = true
             // TODO: automate this schema retreival somehow :)
             plants.push({
                 'name': `Lill ${++counter}`,
@@ -133,7 +173,7 @@ export default {
             if (name === null) {
                 return
             }
-            this.wortSaving = true
+            this.worthSaving = true
             var plants = this.configData.content.plants_args_list
             const index = plants.findIndex(p => p.name === name)
             if (index !== -1) {
@@ -142,34 +182,21 @@ export default {
                 this.status = 'plant you were trying to remove do not existn in array'
             }
         }
-    },
-    computed: {
-        selectTitle () {
-            return this.disableRemove ? 'cannot remove single plant' : ''
-        },
-        disableRemove () {
-            return this.configData.content.plants_args_list.length <= 1
-        },
-        plantToRemove: {
-            get () { return null },
-            set (name) { this.removePlant(name) }
-        },
-        hasConf () {
-            return this.configData && Object.keys(this.configData).length > 0
-        },
-        state () {
-            return !this.hasConf ? 'load from server' : 'reload from server'
-        },
-        inProduction () {
-            return process.env.NODE_ENV === 'production'
-        }
     }
 }
 </script>
 
+<style>
+.tree-view-wrapper > div > div > div.tree-view-item-node > span.tree-view-item-key {
+    font-size: large;
+    color: #980303;
+}
+</style>
+
 <style scoped>
 .tree-view-wrapper, pre {
     text-align: left;
+    margin: 1em;
 }
 .activities > *:not(:first-child)::before{
     content: " | ";

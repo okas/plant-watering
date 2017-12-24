@@ -12,11 +12,8 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
         '/api': {
-            target: 'http://saarmas-rp3-1.saared.eu:4999/api',
-            changeOrigin: true,
-            pathRewrite: {
-              '^/api': ''
-            }
+            target: 'http://saarmas-rp3-1.saared.eu:4999',
+            changeOrigin: true
         }
     },
 

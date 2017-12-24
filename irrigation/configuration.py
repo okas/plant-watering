@@ -31,7 +31,8 @@ def validate(instance):
         return
     for err in validator.iter_errors(instance):
         log.debug(err.message)
-    raise Exception()
+    raise Exception('Validation detected bad configuration. '\
+        'Details provided in previous log messages.')
 
 
 def load_configuration(config_file):
@@ -42,6 +43,7 @@ def load_configuration(config_file):
     except:
         log.exception('Loaded Irrigation configuration is not valid! '\
             'File: %s' % config_file)
+        raise
     else:
         log.debug('Loaded Irrigation configuration is valid. '\
             'File: %s' % config_file)
@@ -54,8 +56,9 @@ def store_configuration(config_file, json_content):
     except:
         log.exception('Provided Irrigation configuration is not valid! '\
             'File: %s' % config_file)
+        raise
     else:
         log.debug('Provided Irrigation configuration is valid. '\
             'File: %s' % config_file)
-    with open(config_file, 'w', encoding='utf8') as outfile:
-        json.dump(json_content, outfile, ensure_ascii=False, indent=4)
+        with open(config_file, 'w', encoding='utf8') as outfile:
+            json.dump(json_content, outfile, ensure_ascii=False, indent=4)

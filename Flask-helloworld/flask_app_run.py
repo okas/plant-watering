@@ -59,7 +59,11 @@ setup_cleanup()
 ########################################################################
 
 if app.config['IRRIGATION_SERVICE_AUTOSTART'] == True:
-    svc_irrigation.start_new()
+    try:
+        svc_irrigation.start()
+    except BaseException as err:
+        log.exception(
+            'Problem during application Irrigation service autostart!')
 else:
-    svc_irrigation.load_config()
+    svc_irrigation._load_config()
 

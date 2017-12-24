@@ -4,8 +4,8 @@
     <header>
         <h2>Manage irrigation service</h2>
     </header>
-    <service-state/>
-    <service-configuration/>
+    <service-state :service-state.sync="commonServiceState"/>
+    <service-configuration :service-state.sync="commonServiceState"/>
 </section>
 </layout>
 </template>
@@ -18,7 +18,8 @@ import ServiceConfiguration from './ServiceConfiguration'
 export default {
     name: 'IrrigationManager',
     components: { Layout, ServiceState, ServiceConfiguration },
-    head: { title: { inner: 'Manage Irrigation' } }
+    head: { title: { inner: 'Manage Irrigation' } },
+    data () { return { commonServiceState: '' } }
 }
 </script>
 

@@ -35,6 +35,7 @@ import axios from 'axios'
 
 export default {
     name: 'IrrigationServiceState',
+    props: ['serviceState'],
     data () {
         return {
             status: '..loading from database..',
@@ -44,7 +45,14 @@ export default {
         }
     },
     computed: {
-        stateClass: function () {
+        state: {
+            get () { return this.serviceState },
+            set (val) { this.$emit('update:serviceState', val) }
+        },
+        statusClass () {
+            return this.status ? 'highlight-neg' : ''
+        },
+        stateClass () {
             if (this.state === 'on') {
                 return 'highlight'
             } else if (this.state === 'off') {

@@ -63,6 +63,7 @@ var counter = 0
 
 export default {
     name: 'IrrigationServiceConfiguration',
+    props: ['serviceState'],
     data () {
         return {
             status: '',
@@ -93,6 +94,7 @@ export default {
                     this.status = resp.status !== 204 ? resp.data.message : ''
                 })
                 .catch((err) => {
+                    this.$emit('update:serviceState', 'off')
                     if (!this.inProduction) {
                         this.status = err.response.data.message
                         console.log(err)

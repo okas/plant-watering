@@ -23,13 +23,14 @@
                 save and restart service</a>
         </li>
     </ul>
-    <ul v-if="hasConf" class="list-inline activities">
+    <ul v-if="hasConf && modify" class="list-inline activities">
         <li>
             <a href="" @click.prevent="addPlant">
                 add new plant</a>
         </li>
         <li>
-            <label for="p_r">remove plant</label>
+            <label for="p_r">
+                remove plant</label>
             <select id="p_r" v-model="plantToRemove" :disabled="disableRemove" :title="selectTitle">
                 <option :value="null">
                     ...chose...</option>
@@ -40,7 +41,7 @@
             </select>
         </li>
     </ul>
-    <p v-if="hasConf">
+    <p v-if="hasConf && modify">
         Please, be very careful with changing configuration!
         Saving faulty configuration might prevent to start service!
         False GPIO pin settings most probably disables service or

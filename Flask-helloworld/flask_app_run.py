@@ -6,7 +6,7 @@ import logging
 import logging.config
 from contextlib import suppress
 import flask
-from backend import setup_flask_and_blueprint, svc_irrigation
+import backend
 
 
 log = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ def setup_logging(app):
 def setup_cleanup():
     def handler(*_):
         with suppress(AttributeError):
-            svc_irrigation.stop()
+            backend.service_irrigation.stop()
         sys.exit(4)
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
@@ -53,17 +53,19 @@ app = flask.Flask(
         )
 setup_flask_app_config(app, ENVIRONMENT)
 setup_logging(app)
-setup_flask_and_blueprint(app)
+backend.init(app)
 setup_cleanup()
+
+# TODO: Where and what cleanup activities must be performed?
 
 ########################################################################
 
 if app.config['IRRIGATION_SERVICE_AUTOSTART'] == True:
     try:
-        svc_irrigation.start()
+        backend.service_irrigation.start()
     except BaseException as err:
         log.exception(
             'Problem during application Irrigation service autostart!')
 else:
-    svc_irrigation._load_config()
+    backend.service_irrigation._load_config()
 

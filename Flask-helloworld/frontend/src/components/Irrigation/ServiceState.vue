@@ -21,7 +21,7 @@
         <a href="" v-text="newState" @click.prevent="apiToggleState" class="state"/>
         <span>
             &nbsp;|&nbsp;</span>
-        <a href="" @click.prevent="apiGetState">
+        <a href="" @click.prevent="wsRefreshState">
             refresh</a>
     </p>
 </article>
@@ -32,7 +32,7 @@ import axios from 'axios'
 
 export default {
     name: 'IrrigationServiceState',
-    props: ['serviceState'],
+    props: ['statusObj'],
     data () {
         return {
             status: '..loading from database..',
@@ -40,9 +40,8 @@ export default {
         }
     },
     computed: {
-        state: {
-            get () { return this.serviceState },
-            set (val) { this.$emit('update:serviceState', val) }
+        state () {
+            return this.statusObj.state || ''
         },
         statusClass () {
             return this.status ? 'highlight-neg' : ''
@@ -72,19 +71,21 @@ export default {
             this.status = `${newStatus} (${err.message})`
             console.log(err)
         },
-        apiGetState () {
-            axios.get('/api/irrigation/service-state')
-                .then(resp => {
-                    if (['on', 'off'].indexOf(resp.data.state) !== -1) {
-                        this.state = resp.data.state
-                        this.status = ''
-                    } else {
-                        this.status = resp.data.state
-                    }
-                })
-                .catch(err => this._handleReject(
-                    err, 'Error occured during service state retreival.'
-                ))
+        wsRefreshState () {
+            this.$emit('refresh-status')
+            // this.$socket.emit('refresh_status')
+            // axios.get('/api/irrigation/service-state')
+                // .then(resp => {
+                    // if (['on', 'off'].indexOf(resp.data.state) !== -1) {
+                        // this.state = resp.data.state
+                        // this.status = ''
+                    // } else {
+                        // this.status = resp.data.state
+                    // }
+                // })
+                // .catch(err => this._handleReject(
+                    // err, 'Error occured during service state retreival.'
+                // ))
         },
         apiToggleState () {
             var act
@@ -100,11 +101,11 @@ export default {
             axios.get(`/api/irrigation/service-${act}`)
                 .then(resp => {
                     if (['on', 'off'].indexOf(resp.data.state) !== -1) {
-                        this.state = resp.data.state
+                        // this.state = resp.data.state
                     } else if (['already_on', 'already_off']
                                 .indexOf(resp.data.state) !== -1) {
                     } else {
-                        this.status = resp.data.state
+                        // this.status = resp.data.state
                         console.log(resp.data)
                     }
                 })
@@ -112,9 +113,6 @@ export default {
                     err, `Error occured during service ${act}.`
                 ))
         }
-    },
-    beforeMount () {
-        this.apiGetState()
     }
 }
 </script>

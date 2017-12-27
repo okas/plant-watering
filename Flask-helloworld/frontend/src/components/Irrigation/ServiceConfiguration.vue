@@ -69,7 +69,7 @@ var counter = 0
 
 export default {
     name: 'IrrigationServiceConfiguration',
-    props: ['serviceState'],
+    props: ['statusObj'],
     data () {
         return {
             status: '',

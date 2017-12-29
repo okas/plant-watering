@@ -43,13 +43,13 @@ export default {
     },
     computed: {
         statusClass () {
-            return this.status ? 'highlight-neg' : ''
+            return this.status ? 'highlight-crit' : ''
         },
         stateClass () {
             if (this.state === 'on') {
                 return 'highlight'
             } else if (this.state === 'off') {
-                return 'highlight-neg'
+                return 'highlight-crit'
             } else {
                 return 'error'
             }

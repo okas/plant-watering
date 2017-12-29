@@ -77,10 +77,22 @@ a {
 a.router-link-exact-active {
    text-shadow: 0px 0px 20px #00f9ff;
 }
+.inf {
+  color: #52e4b585;
+}
+.warn {
+  color: #e3e6068f;
+}
+.crit {
+  color: #e2181863;
+}
 .highlight {
   box-shadow: -1px -1px 1px 1px #52e4b585;
 }
-.highlight-neg {
+.highlight-warn {
+  box-shadow: -1px -1px 1px 1px #e3e6068f;
+}
+.highlight-crit {
   box-shadow: -1px -1px 1px 1px #e2181863;
 }
 .list-inline, .list-style-none {

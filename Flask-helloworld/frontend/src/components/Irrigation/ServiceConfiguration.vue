@@ -82,10 +82,10 @@ export default {
             return this.disableRemove ? 'cannot remove single plant' : ''
         },
         statusClass () {
-            return this.status ? 'highlight-neg' : ''
+            return this.status ? 'highlight-crit' : ''
         },
         stateClass () {
-            return this.modify ? 'highlight' : 'highlight-neg'
+            return this.modify ? 'highlight' : 'highlight-crit'
         },
         disableRemove () {
             return this.configData.content.plants_args_list.length <= 1

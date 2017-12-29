@@ -30,8 +30,7 @@ def __setup_extensions(app):
         json=flask.json,
         logger=log,
         #TODO: Verify it!
-        cors_allowed_origins=app.config['CORS_ORIGINS'],
-        engineio_logger=True
+        cors_allowed_origins=app.config['CORS_ORIGINS']
         )
 
 
@@ -44,5 +43,5 @@ def __setup_blueprints(app):
 
 
 def __setup_websockets(app):
-    __socketio.on_namespace(websocket_default.DefaultNamespace())
+    __socketio.on_namespace(websocket_default.DefaultNamespaceHandlers())
     __socketio.on_namespace(websocket_irrigation.IrrigationNamespaceHandlers())

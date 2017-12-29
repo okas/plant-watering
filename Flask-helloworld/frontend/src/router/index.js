@@ -27,7 +27,7 @@ const routerOptions = [
     {
         path: '/',
         alias: '/index',
-        component: 'HelloWorld'
+        component: 'Home'
     },
     { path: '/about', component: 'About' },
     { path: '/*', component: 'NotFound' }

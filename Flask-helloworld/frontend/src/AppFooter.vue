@@ -1,15 +1,19 @@
 <template>
 <footer>
-  <div>
-    Copyright&nbsp;©
-  </div>
-  <div v-text="years"></div>
-  <div>
-    Powered by
-    <a href="https://vuejs.org" target="_blank">
-      <img src="../static/logo_vue.png">
-    </a>
-  </div>
+  <ul class="list-inline">
+    <li>Copyright&nbsp;©</li>
+    <li v-text="years"></li>
+    <li>
+      Powered by
+      <a href="https://vuejs.org" target="_blank">
+        <img src="../static/logo_vue.png">
+      </a>
+    </li>
+    <li class="about">
+      <router-link to="/about">
+        About app</router-link>
+      </li>
+  </ul>
 </footer>
 </template>
 
@@ -21,8 +25,8 @@ export default {
             const startYear = 2017
             const currentTear = new Date().getFullYear()
             return currentTear !== startYear
-              ? `${startYear}-${currentTear}`
-              : startYear
+                ? `${startYear}-${currentTear}`
+                : startYear
         }
     }
 }
@@ -35,11 +39,15 @@ main {
 </style>
 
 <style scoped>
+.about {
+  position: fixed;
+  right: 1.5em;
+}
 footer {
   font-size: 0.9em;
   text-align: center;
-  position:fixed;
-  bottom:0;
+  position: fixed;
+  bottom: 0;
   clear: both;
   width: 100%;
   left: 2px;
@@ -49,10 +57,8 @@ footer {
   border-top: #8c8b8b solid 1px;
   background-color: #73fbce17;
 }
-footer > div {
-  display: inline-block;
+footer > ul {
   margin: 10px 0;
-  color: black;
   text-shadow:
     0 0 20px hsla(0, 0%, 100%, 1),
     0 0 20px hsla(0, 0%, 100%, 1),

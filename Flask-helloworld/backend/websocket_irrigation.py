@@ -6,14 +6,26 @@ from . _globals import socketio
 from . import service_irrigation
 
 
+ns = '/irrigation'
 log = logging.getLogger(__name__)
 
-NSP = '/irrigation'
+
+@service_irrigation.state_changed_event.connect_via('svc_start')
+@service_irrigation.state_changed_event.connect_via('svc_stop')
+def broadcast_service_status(sender, **kw):
+    print('---------- sender: % s ; data: %s' % (sender, kw))
+    socketio.emit('service_status', kw, namespace=ns)
+
+
+@socketio.on_error(ns)
+def on_error(e):
+    print('~~!!~~!!~~!!~~ in irrigation error handler')
+    print(e)
 
 
 class IrrigationNamespaceHandlers(flask_socketio.Namespace):
     def __init__(self):
-        super().__init__(NSP);
+        super().__init__(ns);
 
     def on_connect(self):
         print('~~#~~#~~#~~ client connected')
@@ -120,16 +132,3 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
 
     def on_get_plant_stats_measurings(self, name):
         return self._extract_statistics_for(name, 'plant_moistures')
-
-
-@service_irrigation.state_changed_event.connect_via('svc_start')
-@service_irrigation.state_changed_event.connect_via('svc_stop')
-def handle_get_status(sender, **kw):
-    print('---------- sender: % s ; data: %s' % (sender, kw))
-    socketio.emit('service_status', kw, namespace=NSP)
-
-
-@socketio.on_error(NSP)
-def on_error(e):
-    print('~~!!~~!!~~!!~~ in irrigation error handler')
-    print(e)

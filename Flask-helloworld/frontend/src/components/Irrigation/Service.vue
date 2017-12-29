@@ -49,11 +49,7 @@ export default {
         }
     },
     created () {
-        if (this.$socket.disconnected) {
-            this.$socket.io.reconnect()
-        } else {
-            this.refreshStatus()
-        }
+        this.refreshStatus()
     }
 }
 </script>

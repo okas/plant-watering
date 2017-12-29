@@ -13,7 +13,7 @@
     <article>
         <table v-if="waterings.length > 0">
             <caption>
-                <span>Waterings</span>&nbsp;|&nbsp;<a href="" @click.prevent="apiGetPlantWaterings">refresh</a>
+                <span>Waterings</span>&nbsp;|&nbsp;<a href="" @click.prevent="wsGetPlantWaterings">refresh</a>
             </caption>
             <tr>
                 <th>id</th>
@@ -30,7 +30,7 @@
     <article>
          <table v-if="measurings.length > 0">
             <caption>
-                <span>Measurings</span>&nbsp;|&nbsp;<a href="" @click.prevent="apiGetPlantMeasurings">refresh</a>
+                <span>Measurings</span>&nbsp;|&nbsp;<a href="" @click.prevent="wsGetPlantMeasurings">refresh</a>
             </caption>
             <tr>
                 <th>id</th>
@@ -50,7 +50,6 @@
 
 <script>
 import Layout from './Layout'
-import axios from 'axios'
 
 export default {
     name: 'IrrigationPlantStats',
@@ -92,10 +91,10 @@ export default {
             const replace = '$1<span>$2<span>'
             return dateTimeString.replace(match, replace)
         },
-        _handleResponse (resp, statsType) {
+        _handleResponse (data, statsType) {
             var msg = ''
-            if (Array.isArray(resp.data) && resp.data.length > 0) {
-                this[statsType] = resp.data
+            if (Array.isArray(data) && data.length > 0) {
+                this[statsType] = data
                 this.status = ''
             } else {
                 msg = `didn't get any ${statsType}, check what's wrong`
@@ -106,20 +105,20 @@ export default {
                 this.m_status = msg
             }
         },
-        apiGetPlantWaterings () {
-            axios.get(`/api/irrigation/${this.name}/statistics/watering`)
-                .then(resp => this._handleResponse(resp, 'waterings'))
-                .catch(console.log)
+        wsGetPlantWaterings () {
+            this.$socket.emit('get_plant_stats_waterings', this.name, data =>
+                this._handleResponse(data, 'waterings')
+            )
         },
-        apiGetPlantMeasurings () {
-            axios.get(`/api/irrigation/${this.name}/statistics/measuring`)
-                .then(resp => this._handleResponse(resp, 'measurings'))
-                .catch(console.log)
+        wsGetPlantMeasurings () {
+            this.$socket.emit('get_plant_stats_measurings', this.name, data =>
+                this._handleResponse(data, 'measurings')
+            )
         }
     },
     beforeMount () {
-        this.apiGetPlantMeasurings()
-        this.apiGetPlantWaterings()
+        this.wsGetPlantMeasurings()
+        this.wsGetPlantWaterings()
     }
 }
 </script>

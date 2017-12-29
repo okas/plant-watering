@@ -4,9 +4,7 @@
     <header>
         <h2>Manage irrigation service</h2>
     </header>
-    <service-state
-        :status-obj="serviceStatusObj"
-        @refresh-status="$socket.emit('get_status')"/>
+    <service-state :status-obj="serviceStatusObj" @refresh-status="refreshStatus"/>
     <service-configuration :status-obj="serviceStatusObj"/>
 </section>
 </layout>
@@ -16,9 +14,6 @@
 import Layout from './Layout'
 import ServiceState from './ServiceState'
 import ServiceConfiguration from './ServiceConfiguration'
-import Vue from 'vue'
-import VueSocketio from 'vue-socketio'
-Vue.use(VueSocketio, '/irrigation')
 
 export default {
     name: 'IrrigationManager',
@@ -29,11 +24,13 @@ export default {
         title: { inner: 'Manage Irrigation' }
     },
     data () {
-        return { serviceStatusObj: {} }
+        return {
+            serviceStatusObj: { state: '' }
+        }
     },
     sockets: {
-        connect () {
-            console.log('~ ~ [irrigation] socket connected')
+        connect (msg) {
+            console.log(`~ ~ [irrigation] socket said: ${msg}`)
         },
         disconnect (reason) {
             console.log(`~ ! ~ [irrigation] socket disconnected, reson: ${reason}`)
@@ -44,9 +41,19 @@ export default {
             this.serviceStatusObj = data
         }
     },
-    beforeDestroy () {
-        this.$socket.disconnect()
-        console.log('~ ~ [irrigation] socket disconnected (beforeDestroy)')
+    methods: {
+        refreshStatus () {
+            this.$socket.emit('get_status', (data) => {
+                this.serviceStatusObj = data
+            })
+        }
+    },
+    created () {
+        if (this.$socket.disconnected) {
+            this.$socket.io.reconnect()
+        } else {
+            this.refreshStatus()
+        }
     }
 }
 </script>

@@ -23,8 +23,6 @@
 <script>
 import Layout from './Layout'
 
-// import axios from 'axios'
-
 export default {
     name: 'PlantCalibration',
     head: { title: { inner: 'Plant calibration' } },

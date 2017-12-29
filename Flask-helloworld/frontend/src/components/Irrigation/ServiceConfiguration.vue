@@ -6,20 +6,21 @@
             You can evaluate and change configuration.<br/>
             Service restart will be done only if service is started already.
         </p>
+        <code>TODO: do something with json parsing order...</code>
         <ul class="list-inline">
             <li v-if="status" v-text="status" :class="statusClass"></li>
         </ul>
     </header>
     <ul class="list-inline activities">
         <li>
-            <a href="" @click.prevent="apiGetServiceConfig" v-text="actionText"></a>
+            <a href="" @click.prevent="wsGetServiceConfig" v-text="actionText"></a>
         </li>
         <li v-if="hasConf">
             <a href="" @click.prevent="modify=!modify" :class="stateClass">
                 modify</a>
         </li>
         <li v-if="hasConf && (worthSaving || modify)">
-            <a href="" @click.prevent="apiUpdateServiceConfig">
+            <a href="" @click.prevent="wsUpdateServiceConfig">
                 save and restart service</a>
         </li>
     </ul>
@@ -61,10 +62,8 @@
 
 <script>
 import Vue from 'vue'
-import axios from 'axios'
 Vue.use(require('vue-json-tree-view'))
 
-const apiConf = { headers: { 'Content-Type': 'application/json' } }
 var counter = 0
 
 export default {
@@ -106,39 +105,24 @@ export default {
         }
     },
     methods: {
-        _handleReject (err, forEmptyResponse) {
-            let newStatus = err.response ? err.response.data : forEmptyResponse
-            this.status = `${newStatus} (${err.message})`
-            console.log(err)
-        },
-        apiGetServiceConfig () {
+        wsGetServiceConfig () {
             this.modify = this.worthSaving = false
-            axios.get('/api/irrigation/service-config')
-                .then(resp => {
-                    this.status = ''
-                    this.configData = resp.data
-                })
-                .catch(err => this._handleReject(
-                    err, 'Cannot get configuration from server!'
-                ))
+            this.$socket.emit('get_service_config', (data) => {
+                this.status = ''
+                this.configData = data
+            })
         },
-        apiUpdateServiceConfig () {
+        wsUpdateServiceConfig () {
             this.modify = false
             if (!this.worthSaving) {
                 return
             }
             this.worthSaving = false
-            let filename = this.configData.filename || ''
-            let api = `/api/irrigation/service-config/${filename}/update-restart`
-            axios.put(api, this.configData.content, apiConf)
-                .then(resp => {
-                    this.status = resp.status !== 204 ? resp.data.message : ''
-                })
-                .catch((err) => {
-                    this.$emit('update:serviceState', 'off')
-                    this.status = err.response.data.message
-                    if (!this.inProduction) {
-                        console.log(err)
+            this.$socket.emit('store_service_config_and_restart',
+                this.configData, (type, msg) => {
+                    this.status = type ? msg : ''
+                    if (!this.inProduction && type !== 'info') {
+                        console.log(`${type}: ${msg}`)
                     }
                 })
         },

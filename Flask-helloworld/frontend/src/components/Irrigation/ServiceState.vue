@@ -8,8 +8,10 @@
             configuration is loaded again <i>and</i> measurements start
             right away. It doesn't consider any state from previous session.
         </p>
-        <ul class="list-inline">
-            <li v-if="status" v-text="status" :class="statusClass"></li>
+        <code>TODO: Detect and show offline.</code>
+        <ul class="list-style-none" :class="statusClass">
+            <li v-if="status" v-text="status"></li>
+            <li v-if="specStatus" v-text="specStatus"></li>
         </ul>
     </header>
     <p v-if="state" class="activity">
@@ -18,31 +20,28 @@
         <span v-text="state" :class="stateClass" class="state"/>
         <span>
             &nbsp;|&nbsp; toggle to</span>
-        <a href="" v-text="newState" @click.prevent="apiToggleState" class="state"/>
+        <a href="" v-text="newState" @click.prevent="wsToggleState" class="state"/>
         <span>
             &nbsp;|&nbsp;</span>
-        <a href="" @click.prevent="wsRefreshState">
+        <a href="" @click.prevent="$emit('refresh-status')">
             refresh</a>
     </p>
 </article>
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
     name: 'IrrigationServiceState',
     props: ['statusObj'],
     data () {
         return {
             status: '..loading from database..',
+            specStatus: '',
+            state: '',
             configDocumentObject: ''
         }
     },
     computed: {
-        state () {
-            return this.statusObj.state || ''
-        },
         statusClass () {
             return this.status ? 'highlight-neg' : ''
         },
@@ -65,29 +64,19 @@ export default {
             }
         }
     },
+    watch: {
+        'statusObj.state' (val) {
+            if (['on', 'off'].indexOf(val) !== -1) {
+                this.state = val
+                this.status = ''
+            } else {
+                this.state = 'error'
+                this.status = `Service is not good right now: '${val}'.`
+            }
+        }
+    },
     methods: {
-        _handleReject (err, forEmptyResponse) {
-            let newStatus = err.response ? err.response.data : forEmptyResponse
-            this.status = `${newStatus} (${err.message})`
-            console.log(err)
-        },
-        wsRefreshState () {
-            this.$emit('refresh-status')
-            // this.$socket.emit('refresh_status')
-            // axios.get('/api/irrigation/service-state')
-                // .then(resp => {
-                    // if (['on', 'off'].indexOf(resp.data.state) !== -1) {
-                        // this.state = resp.data.state
-                        // this.status = ''
-                    // } else {
-                        // this.status = resp.data.state
-                    // }
-                // })
-                // .catch(err => this._handleReject(
-                    // err, 'Error occured during service state retreival.'
-                // ))
-        },
-        apiToggleState () {
+        wsToggleState () {
             var act
             if (this.newState === 'on') {
                 act = 'start'
@@ -96,22 +85,14 @@ export default {
             } else {
                 console.log(`Bad value of ${this.newState} in [this.state]!
                              Cannot toggle service state with this, aborting!`)
+                this.specStatus = 'Frontend app error, see console!'
                 return
             }
-            axios.get(`/api/irrigation/service-${act}`)
-                .then(resp => {
-                    if (['on', 'off'].indexOf(resp.data.state) !== -1) {
-                        // this.state = resp.data.state
-                    } else if (['already_on', 'already_off']
-                                .indexOf(resp.data.state) !== -1) {
-                    } else {
-                        // this.status = resp.data.state
-                        console.log(resp.data)
-                    }
-                })
-                .catch(err => this._handleReject(
-                    err, `Error occured during service ${act}.`
-                ))
+            this.$socket.emit(`service_${act}`, (resp) => {
+                this.specStatus = resp && resp !== 'ok'
+                    ? `Error occured during service ${act}: '${resp}'.`
+                    : ''
+            })
         }
     }
 }

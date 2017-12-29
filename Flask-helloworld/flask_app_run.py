@@ -6,6 +6,11 @@ import logging
 import logging.config
 from contextlib import suppress
 import flask
+
+# To ensure that app's dependencies outside the package cam be imported.
+# TODO: find a way to move it outside, some "requirements.txt" file.
+sys.path.insert(1, os.path.dirname(sys.path[0]))
+
 import backend
 
 

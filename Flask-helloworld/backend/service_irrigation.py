@@ -4,7 +4,6 @@ import logging
 from contextlib import suppress
 from flask import current_app, json
 from blinker import Namespace
-sys.path.insert(1, os.path.dirname(sys.path[0]))
 import irrigation
 
 
@@ -74,7 +73,7 @@ def start():
         except:
             logging.exception('Encountered exception during Gardener '
                 'initialization:\n')
-            stop()
+            stop(True)
             raise
         else:
             __this.instance_counter += 1

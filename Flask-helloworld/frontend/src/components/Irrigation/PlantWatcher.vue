@@ -29,7 +29,7 @@
                         <dd v-text="p.moist_measured"></dd>
                     </div>
                     <div class="horizontal">
-                        <a href="" @click.prevent="apiRefreshPlant(p)">refresh</a>
+                        <a href="" @click.prevent="wsRefreshPlant(p)">refresh</a>
                         <span>&nbsp;|&nbsp;</span>
                         <router-link :to="{name: 'plantstats', params: {name: p.name}}">
                             stats
@@ -49,7 +49,6 @@
 
 <script>
 import Layout from './Layout'
-import axios from 'axios'
 
 export default {
     name: 'IrrigationPlantWatcher',
@@ -62,34 +61,27 @@ export default {
         }
     },
     methods: {
-        _handleListResp (resp) {
-            if (Array.isArray(resp.data) && resp.data.length > 0) {
-                this.plants = resp.data
+        wsRefreshPlant (plant) {
+            this.$socket.emit('get_plant_status', plant.name, (data) => {
+                if (data) {
+                    Object.assign(plant, data)
+                    this.status = ''
+                } else {
+                    this.status = `didn't get refresh for "${plant.name}", check what's wrong.`
+                }
+            })
+        }
+    },
+    beforeMount () {
+        this.$socket.emit('get_watcher_state', (data) => {
+            if (Array.isArray(data) && data.length > 0) {
+                this.plants = data
                 this.status = ''
             } else {
                 this.status = "didn't get any plants, check what's wrong'"
             }
-        },
-        _handleSingleResp (resp, plant) {
-            if (resp.data) {
-                Object.assign(plant, resp.data)
-                this.status = ''
-            } else {
-                this.status = `didn't get refresh for "${plant.name}", check what's wrong.`
-            }
-        },
-        apiGetPlantWatcherStatus () {
-            axios.get('/api/irrigation/watcher')
-                .then(this._handleListResp)
-                .catch(console.log)
-        },
-        apiRefreshPlant (p) {
-            axios.get(`/api/irrigation/${p.name}/status`)
-                .then(resp => this._handleSingleResp(resp, p))
-                .catch(console.log)
-        }
-    },
-    beforeMount () { this.apiGetPlantWatcherStatus() }
+        })
+    }
 }
 </script>
 

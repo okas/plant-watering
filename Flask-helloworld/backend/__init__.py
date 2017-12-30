@@ -7,8 +7,8 @@ import flask_cors
 from . _globals import socketio as __socketio
 from . import (
     http_routes,
-    websocket_default,
-    websocket_irrigation,
+    api_websocket_default,
+    api_websocket_irrigation,
     service_irrigation
     )
 
@@ -43,5 +43,5 @@ def __setup_blueprints(app):
 
 
 def __setup_websockets(app):
-    __socketio.on_namespace(websocket_default.DefaultNamespaceHandlers())
-    __socketio.on_namespace(websocket_irrigation.IrrigationNamespaceHandlers())
+    __socketio.on_namespace(api_websocket_default.DefaultNamespaceHandlers())
+    __socketio.on_namespace(api_websocket_irrigation.IrrigationNamespaceHandlers())

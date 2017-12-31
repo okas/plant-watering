@@ -30,7 +30,10 @@ const irrigation = {
     state () {
         return {
             api: { state: '' },
-            statusObj: { state: '' }
+            statusObj: {
+                state: '',
+                waterLevel: ''
+            }
         }
     },
     mutations: {

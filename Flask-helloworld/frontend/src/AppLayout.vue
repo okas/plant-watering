@@ -86,6 +86,9 @@ a.router-link-exact-active {
 .crit {
   color: #e2181863;
 }
+.highlight-full {
+  box-shadow: -1px -1px 1px 1px #1717e8bd;
+}
 .highlight {
   box-shadow: -1px -1px 1px 1px #52e4b585;
 }

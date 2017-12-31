@@ -22,6 +22,8 @@ class State(Enum):
         return tuple(1 * byte / 255 for byte in self.value)
 
 
+## Consider refactor water tank that it internally spins up thread,
+# instead of directly inheriting Thread class.
 class WaterTank(Thread):
     def __init__(
             self,

@@ -34,12 +34,20 @@ def get_state():
     with suppress(AttributeError):
         svc = __instance
     if svc is None or (svc.stop_event.is_set() and svc.closed):
-        return { 'state': 'off' }
+        return {
+            'state': 'off',
+            'waterLevel': 'n/a'
+            }
     elif not svc.closed and svc.stop_event.is_set():
-        return { 'state': 'changig state currently, try again later'}
+        return {
+            'state': 'changig state currently, try again later',
+            'waterLevel': 'n/a'
+            }
     else:
-        return { 'state': 'on' }
-    return resp
+        return {
+            'state': 'on',
+            'waterLevel': svc.water_supply.water_level.name
+            }
 
 
 def _load_config():
@@ -78,12 +86,19 @@ def start():
         else:
             __this.instance_counter += 1
             if state_changed_event.receivers:
-                state_changed_event.send('service', state='on')
+                state_changed_event.send(
+                    'service',
+                    state='on',
+                    waterLevel=__instance.water_supply.water_level.name
+                    )
 
 
 def stop(on_cleanup=False):
     if __instance:
         __instance.__del__()
         if state_changed_event.receivers:
-            state_changed_event.send('service',
-                state='service-start-error' if on_cleanup else 'off')
+            state_changed_event.send(
+                'service',
+                state='service-start-error' if on_cleanup else 'off',
+                waterLevel='n/a'
+                )

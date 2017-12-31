@@ -34,6 +34,8 @@ class WaterSupply():
             self.close()
             raise
         self.available_event = self.__tank_thread.available_event
+        ## Consider refactor water tank that it internally spins up thread,
+        # instead of directly inheriting Thread class.
         self.__pump_worker_thread.start()
         self.__tank_thread.start()
 
@@ -91,5 +93,9 @@ class WaterSupply():
         self.closed = True
         log.debug("Completed %s!" % my_name)
 
+    @property
+    def water_level(self):
+        with suppress(AttributeError):
+            return self.__tank_thread.state or 'n/a'
 
 general_exc_msg = 'Exception occured: '

@@ -41,22 +41,29 @@ export default {
     computed: {
         ...mapState('irrigation', {
             state: s => s.statusObj.state,
-            status: s => s.api.state === 'online'
-                ? ['on', 'off'].includes(s.statusObj.state)
+            status: s => {
+                if (s.api.state !== 'online') {
+                    return 'No server communication.'
+                }
+                return ['on', 'off'].includes(s.statusObj.state)
                     ? ''
                     : `Service is not good right now: '${s.statusObj.state}'.`
-                : 'No server communication.',
-            newState: s => s.statusObj.state === 'on'
-                ? 'off'
-                : s.statusObj.state === 'off'
-                    ? 'on'
-                    : 'error',
+            },
+            newState: s => {
+                switch (s.statusObj.state) {
+                case 'on': return 'off'
+                case 'off': return 'on'
+                default: return 'error'
+                }
+            },
             serverOnline: s => s.api.state === 'online',
-            stateClass: s => s.statusObj.state === 'on'
-                ? 'highlight'
-                : s.statusObj.state === 'off'
-                    ? 'highlight-crit'
-                    : 'error'
+            stateClass: s => {
+                switch (s.statusObj.state) {
+                case 'on': return 'highlight'
+                case 'off': return 'highlight-warn'
+                default: return 'highlight-crit'
+                }
+            }
         })
     },
     methods: {

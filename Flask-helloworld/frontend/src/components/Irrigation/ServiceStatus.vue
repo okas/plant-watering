@@ -8,13 +8,12 @@
             configuration is loaded again <i>and</i> measurements start
             right away. It doesn't consider any state from previous session.
         </p>
-        <code>TODO: Detect and show offline.</code>
-        <ul class="list-style-none" :class="statusClass">
-            <li v-if="status" v-text="status"></li>
-            <li v-if="specStatus" v-text="specStatus"></li>
+        <ul class="list-style-none" :class="status ? 'highlight-crit' : ''">
+            <li v-if="status" v-text="status"/>
+            <li v-if="specStatus" v-text="specStatus"/>
         </ul>
     </header>
-    <p v-if="state" class="activity">
+    <p v-if="serverOnline" class="activity">
         <span>
             Current state:</span>
         <span v-text="state" :class="stateClass" class="state"/>
@@ -30,49 +29,35 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
     name: 'IrrigationServiceStatus',
     data () {
         return {
-            state: '',
-            status: '..loading from database..',
-            specStatus: '',
-            configDocumentObject: ''
+            specStatus: ''
         }
     },
     computed: {
-        statusClass () {
-            return this.status ? 'highlight-crit' : ''
-        },
-        stateClass () {
-            if (this.state === 'on') {
-                return 'highlight'
-            } else if (this.state === 'off') {
-                return 'highlight-crit'
-            } else {
-                return 'error'
-            }
-        },
-        newState () {
-            if (this.state === 'on') {
-                return 'off'
-            } else if (this.state === 'off') {
-                return 'on'
-            } else {
-                return 'error'
-            }
-        }
-    },
-    watch: {
-        '$store.state.irrigation.statusObj.state': {
-            handler (val) {
-                this.state = val
-                this.status = ['on', 'off'].indexOf(val) !== -1
+        ...mapState('irrigation', {
+            state: s => s.statusObj.state,
+            status: s => s.api.state === 'online'
+                ? ['on', 'off'].includes(s.statusObj.state)
                     ? ''
-                    : `Service is not good right now: '${val}'.`
-            },
-            deep: true
-        }
+                    : `Service is not good right now: '${s.statusObj.state}'.`
+                : 'No server communication.',
+            newState: s => s.statusObj.state === 'on'
+                ? 'off'
+                : s.statusObj.state === 'off'
+                    ? 'on'
+                    : 'error',
+            serverOnline: s => s.api.state === 'online',
+            stateClass: s => s.statusObj.state === 'on'
+                ? 'highlight'
+                : s.statusObj.state === 'off'
+                    ? 'highlight-crit'
+                    : 'error'
+        })
     },
     methods: {
         wsToggleState () {

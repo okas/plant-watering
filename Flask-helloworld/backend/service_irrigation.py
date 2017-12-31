@@ -14,7 +14,6 @@ log = logging.getLogger(__name__)
 __this = sys.modules[__name__]
 __this.instance_counter = 0
 __this.get_worker = lambda: __instance
-__this.state = None
 
 __instance = None
 __app = None

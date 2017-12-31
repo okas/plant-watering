@@ -18,4 +18,8 @@ DEBUG = False
 
 CORS_ORIGINS = "<specify>"
 
+SOCKETIO_ENGINEIO_ORIGINS = [
+    '<specify>'
+]
+
 del os

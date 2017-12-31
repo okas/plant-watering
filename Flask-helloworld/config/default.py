@@ -26,9 +26,14 @@ JSON_SORT_KEYS = False
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
 CSRF_ENABLED = True
 
-CORS_ORIGINS = "<specify>"
+CORS_ORIGINS = '<specify>'
 
 SOCKETIO_ENGINEIO_LOGGER = False
+
+# TODO: test!
+SOCKETIO_ENGINEIO_ORIGINS = [
+    '<specify>'
+]
 
 IRRIGATION_CFG = BASE_DIR + '/instance/irrigation_test1.json'
 

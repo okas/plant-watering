@@ -5,8 +5,27 @@ Vue.use(Vuex)
 
 const debug = process.env.NODE_ENV !== 'production'
 
+const mutateServiceStatus = (state, args) => {
+    if (args[0]) {
+        state.statusObj = args[0]
+    }
+}
+
+const socketMutations = {
+    'SOCKET_CONNECT' (state, msg) {
+        const _msg = msg ? `; server said, {msg}` : ''
+        console.log(`~ ~ [irrigation] socket connected${_msg}.`)
+        state.api.state = 'online'
+    },
+    'SOCKET_DISCONNECT' (state, reason) {
+        console.log(`~ ! ~ [irrigation] socket disconnected, reson: ${reason}.`)
+        state.api.state = 'offline'
+    },
+    'SOCKET_SERVICE_STATUS': mutateServiceStatus
+}
+
 // If there are more modules in future then refactor them into separate files
-var irrigation = {
+const irrigation = {
     namespaced: true,
     state () {
         return {
@@ -15,19 +34,14 @@ var irrigation = {
         }
     },
     mutations: {
-        'SOCKET_CONNECT' (state, msg) {
-            const _msg = msg ? `; server said, {msg}` : ''
-            console.log(`~ ~ [irrigation] socket connected${_msg}.`)
-            state.api.state = 'online'
-        },
-        'SOCKET_DISCONNECT' (state, reason) {
-            console.log(`~ ! ~ [irrigation] socket disconnected, reson: ${reason}.`)
-            state.api.state = 'offline'
-        },
-        'SOCKET_SERVICE_STATUS' (state, args) {
-            if (args[0]) {
-                state.statusObj = args[0]
-            }
+        mutateServiceStatus,
+        ...socketMutations
+    },
+    actions: {
+        refreshServiceStatus ({commit}) {
+            this._vm.$socket.emit('get_status', data =>
+                commit('mutateServiceStatus', [data])
+            )
         }
     },
     strict: debug

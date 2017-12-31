@@ -28,7 +28,6 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
     def on_connect(self):
         print('~~#~~#~~#~~ client connected')
         self.emit('service_status', service_irrigation.get_state())
-        return 'you\'re connected'
 
     def on_disconnect(self):
         print('~~#~~#~~#~~ client disconnected')

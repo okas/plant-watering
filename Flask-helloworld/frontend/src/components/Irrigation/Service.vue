@@ -4,7 +4,7 @@
     <header>
         <h2>Manage irrigation service</h2>
     </header>
-    <service-status @refresh-status="refreshServiceStatus"/>
+    <service-status/>
     <service-configuration/>
 </section>
 </layout>
@@ -22,16 +22,6 @@ export default {
     },
     head: {
         title: { inner: 'Manage Irrigation' }
-    },
-    methods: {
-        refreshServiceStatus () {
-            this.$socket.emit('get_status', (data) => {
-                this.$store.commit('irrigation/SOCKET_SERVICE_STATUS', [data])
-            })
-        }
-    },
-    created () {
-        this.refreshServiceStatus()
     }
 }
 </script>

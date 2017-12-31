@@ -22,7 +22,7 @@
         <a href="" v-text="newState" @click.prevent="wsToggleState" class="state"/>
         <span>
             &nbsp;|&nbsp;</span>
-        <a href="" @click.prevent="$emit('refresh-status')">
+        <a href="" @click.prevent="$store.dispatch('irrigation/refreshServiceStatus')">
             refresh</a>
     </p>
 </article>

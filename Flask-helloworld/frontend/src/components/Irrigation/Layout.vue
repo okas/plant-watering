@@ -21,7 +21,8 @@
         <section>
             <h4>Service state</h4>
             <ul class="list-style-none">
-                <li>Service: <span class="highlight">on</span></li>
+                <li>Service: <span v-text="irrigationState" :class="stateClass"/>
+                    </li>
                 <li>Water level: <span class="highlight">low</span></li>
             </ul>
         </section>
@@ -31,7 +32,21 @@
 </template>
 
 <script>
-export default { name: 'IrrigationLayout' }
+import { mapState } from 'vuex'
+
+export default {
+    name: 'IrrigationLayout',
+    computed: {
+        ...mapState('irrigation', {
+            irrigationState: s => s.statusObj.state,
+            stateClass: s => s.statusObj.state === 'on'
+                ? 'highlight'
+                : s.statusObj.state === 'off'
+                    ? 'highlight-crit'
+                    : 'error'
+        })
+    }
+}
 </script>
 
 <style scoped>

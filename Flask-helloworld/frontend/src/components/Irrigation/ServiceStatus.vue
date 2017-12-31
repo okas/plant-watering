@@ -1,7 +1,7 @@
 <template>
 <article>
     <header>
-        <h3>Service state</h3>
+        <h3>Service status</h3>
         <p>
             You can start or stop irrigation service. Restarting service
             means two things:<br/>
@@ -16,7 +16,7 @@
     </header>
     <p v-if="state" class="activity">
         <span>
-            Service state:</span>
+            Current state:</span>
         <span v-text="state" :class="stateClass" class="state"/>
         <span>
             &nbsp;|&nbsp; toggle to</span>
@@ -31,13 +31,12 @@
 
 <script>
 export default {
-    name: 'IrrigationServiceState',
-    props: ['statusObj'],
+    name: 'IrrigationServiceStatus',
     data () {
         return {
+            state: '',
             status: '..loading from database..',
             specStatus: '',
-            state: '',
             configDocumentObject: ''
         }
     },
@@ -65,14 +64,14 @@ export default {
         }
     },
     watch: {
-        'statusObj.state' (val) {
-            if (['on', 'off'].indexOf(val) !== -1) {
+        '$store.state.irrigation.statusObj.state': {
+            handler (val) {
                 this.state = val
-                this.status = ''
-            } else {
-                this.state = 'error'
-                this.status = `Service is not good right now: '${val}'.`
-            }
+                this.status = ['on', 'off'].indexOf(val) !== -1
+                    ? ''
+                    : `Service is not good right now: '${val}'.`
+            },
+            deep: true
         }
     },
     methods: {

@@ -10,10 +10,8 @@ ns = '/irrigation'
 log = logging.getLogger(__name__)
 
 
-@service_irrigation.state_changed_event.connect_via('svc_start')
-@service_irrigation.state_changed_event.connect_via('svc_stop')
+@service_irrigation.state_changed_event.connect_via('service')
 def broadcast_service_status(sender, **kw):
-    print('---------- sender: % s ; data: %s' % (sender, kw))
     socketio.emit('service_status', kw, namespace=ns)
 
 

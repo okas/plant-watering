@@ -20,7 +20,7 @@ const routerOptions = [
         component: 'Irrigation/PlantWatcher'
     },
     {
-        path: '/irrigation/service',
+        path: '/irrigation/service-manager',
         name: 'irrigationservice',
         component: 'Irrigation/Service'
     },

@@ -64,11 +64,11 @@
 import Vue from 'vue'
 Vue.use(require('vue-json-tree-view'))
 
+const debug = process.env.NODE_ENV !== 'production'
 var counter = 0
 
 export default {
     name: 'IrrigationServiceConfiguration',
-    props: ['statusObj'],
     data () {
         return {
             status: '',
@@ -99,9 +99,6 @@ export default {
         },
         actionText () {
             return !this.hasConf ? 'load from server' : 'reload from server'
-        },
-        inProduction () {
-            return process.env.NODE_ENV === 'production'
         }
     },
     methods: {
@@ -121,7 +118,7 @@ export default {
             this.$socket.emit('store_service_config_and_restart',
                 this.configData, (type, msg) => {
                     this.status = type ? msg : ''
-                    if (!this.inProduction && type !== 'info') {
+                    if (debug && type !== 'info') {
                         console.log(`${type}: ${msg}`)
                     }
                 })

@@ -4,52 +4,34 @@
     <header>
         <h2>Manage irrigation service</h2>
     </header>
-    <service-state :status-obj="serviceStatusObj" @refresh-status="refreshStatus"/>
-    <service-configuration :status-obj="serviceStatusObj"/>
+    <service-status @refresh-status="refreshServiceStatus"/>
+    <service-configuration/>
 </section>
 </layout>
 </template>
 
 <script>
 import Layout from './Layout'
-import ServiceState from './ServiceState'
+import ServiceStatus from './ServiceStatus'
 import ServiceConfiguration from './ServiceConfiguration'
 
 export default {
     name: 'IrrigationManager',
     components: {
-        Layout, ServiceState, ServiceConfiguration
+        Layout, ServiceStatus, ServiceConfiguration
     },
     head: {
         title: { inner: 'Manage Irrigation' }
     },
-    data () {
-        return {
-            serviceStatusObj: { state: '' }
-        }
-    },
-    sockets: {
-        connect (msg) {
-            console.log(`~ ~ [irrigation] socket said: ${msg}`)
-        },
-        disconnect (reason) {
-            console.log(`~ ! ~ [irrigation] socket disconnected, reson: ${reason}`)
-        },
-        service_status (data) {
-            // TODO: how to handle errors, like ones API handles now?
-            // TODO api/../update-restart can output message prop as well!
-            this.serviceStatusObj = data
-        }
-    },
     methods: {
-        refreshStatus () {
+        refreshServiceStatus () {
             this.$socket.emit('get_status', (data) => {
-                this.serviceStatusObj = data
+                this.$store.commit('irrigation/SOCKET_SERVICE_STATUS', [data])
             })
         }
     },
     created () {
-        this.refreshStatus()
+        this.refreshServiceStatus()
     }
 }
 </script>

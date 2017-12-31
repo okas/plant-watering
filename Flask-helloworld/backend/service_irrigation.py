@@ -78,12 +78,12 @@ def start():
         else:
             __this.instance_counter += 1
             if state_changed_event.receivers:
-                state_changed_event.send('svc_start', state='on')
+                state_changed_event.send('service', state='on')
 
 
 def stop(on_cleanup=False):
     if __instance:
         __instance.__del__()
         if state_changed_event.receivers:
-            state_changed_event.send('svc_stop',
+            state_changed_event.send('service',
                 state='service-start-error' if on_cleanup else 'off')

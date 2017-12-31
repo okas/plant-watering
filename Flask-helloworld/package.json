@@ -16,7 +16,8 @@
     "vue-head": "^2.0.11",
     "vue-json-tree-view": "^2.1.1",
     "vue-router": "^3.0.1",
-    "vue-socketio": "^2.1.1-c"
+    "vue-socketio": "^2.1.1-c",
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.2.3",

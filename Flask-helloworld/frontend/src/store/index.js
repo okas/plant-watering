@@ -7,21 +7,21 @@ const debug = process.env.NODE_ENV !== 'production'
 
 const mutateServiceStatus = (state, args) => {
     if (args[0]) {
-        state.statusObj = args[0]
+        Object.assign(state.statusObj, args[0])
     }
 }
 
 const socketMutations = {
+    'SOCKET_SERVICE_STATUS': mutateServiceStatus,
+    'SOCKET_WATER_SUPPLY_STATE': mutateServiceStatus,
     'SOCKET_CONNECT' (state, msg) {
-        const _msg = msg ? `; server said, {msg}` : ''
-        console.log(`~ ~ [irrigation] socket connected${_msg}.`)
+        console.log('~ ~ [irrigation] socket connected')
         state.api.state = 'online'
     },
     'SOCKET_DISCONNECT' (state, reason) {
         console.log(`~ ! ~ [irrigation] socket disconnected, reson: ${reason}.`)
         state.api.state = 'offline'
-    },
-    'SOCKET_SERVICE_STATUS': mutateServiceStatus
+    }
 }
 
 // If there are more modules in future then refactor them into separate files

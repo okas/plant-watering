@@ -28,7 +28,7 @@ CSRF_ENABLED = True
 
 CORS_ORIGINS = "<specify>"
 
-WEBPACK_MANIFEST_PATH = BASE_DIR + '/website/build/webpack.manifest.json'
+SOCKETIO_ENGINEIO_LOGGER = False
 
 IRRIGATION_CFG = BASE_DIR + '/instance/irrigation_test1.json'
 

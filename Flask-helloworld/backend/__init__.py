@@ -30,7 +30,8 @@ def __setup_extensions(app):
         json=flask.json,
         logger=log,
         #TODO: Verify it!
-        cors_allowed_origins=app.config['CORS_ORIGINS']
+        cors_allowed_origins=app.config['CORS_ORIGINS'],
+        engineio_logger=app.config['SOCKETIO_ENGINEIO_LOGGER']
         )
 
 

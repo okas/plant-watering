@@ -10,6 +10,8 @@ DEBUG = True
 
 CORS_ORIGINS = r'.*//saarmas-rp3-1.saared.eu.*'
 
+SOCKETIO_ENGINEIO_LOGGER = False
+
 """ Closing a program with Ctrl-C causes some error, if autostart is disabled """
 IRRIGATION_SERVICE_AUTOSTART = True
 

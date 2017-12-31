@@ -90,13 +90,13 @@ a.router-link-exact-active {
   box-shadow: -1px -1px 1px 1px #1717e8bd;
 }
 .highlight {
-  box-shadow: -1px -1px 1px 1px #52e4b585;
+  box-shadow: -1px -1px 1px 1px #1deca0bd;
 }
 .highlight-warn {
-  box-shadow: -1px -1px 1px 1px #e3e6068f;
+  box-shadow: -1px -1px 1px 1px #e9ec00f0;
 }
 .highlight-crit {
-  box-shadow: -1px -1px 1px 1px #e2181863;
+  box-shadow: -1px -1px 1px 1px #fb6c6cbd;
 }
 .list-inline, .list-style-none {
     list-style-type: none;

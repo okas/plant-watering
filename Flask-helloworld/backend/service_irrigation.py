@@ -83,18 +83,16 @@ def start():
             raise
         else:
             __this.instance_counter += 1
-            state_changed.send(
-                'service',
-                state='on',
-                waterLevel=__instance.water_supply.water_level.name
-                )
+            state_changed.send({
+                'state': 'on',
+                'waterLevel': __instance.water_supply.water_level.name
+                })
 
 
 def stop(on_cleanup=False):
     if __instance:
         __instance.__del__()
-        state_changed.send(
-            'service',
-            state='service-start-error' if on_cleanup else 'off',
-            waterLevel='n/a'
-            )
+        state_changed.send({
+            'state': 'service-start-error' if on_cleanup else 'off',
+            'waterLevel': 'n/a'
+            })

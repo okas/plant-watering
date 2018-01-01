@@ -9,12 +9,9 @@ from threading import currentThread, Thread, Event, BoundedSemaphore
 from unqlite import UnQLite
 from . plant import Plant, State
 from . water_supply import WaterSupply
-from . signals import irrigation_signals
 
 
 log = logging.getLogger(__name__)
-plant_changed = irrigation_signals.signal('plant_status_changed')
-
 general_exc_msg = 'Exception occured: '
 
 
@@ -154,68 +151,59 @@ class Gardener:
         currentThread().name = "{}[w]".format(plant.name)
         try:
             old_state = plant.state
-            moist = plant.measure()[1]
-            self._save_measure(plant.uuid1, moist)
-            if plant.state == State.needs_water:
-                self._handle_watering_phase(plant, old_state, moist)
+            needs_watering = plant.measure()
+            self._save_measure(plant.uuid1, plant.moist)
+            if needs_watering:
+                self._handle_watering_phase(plant, old_state)
             else:
-                plant_changed.send(plant, moist=moist)
-                self._handle_resting_phase(plant, old_state, moist)
+                self._handle_resting_phase(plant, old_state)
         except:
             self.stop_event.set()
             log.exception(general_exc_msg)
         finally:
             self.__worker_queue.task_done()
 
-    def _handle_watering_phase(self, plant, old_state, moist):
+    def _handle_watering_phase(self, plant, old_state):
         if old_state == State.resting:
-            log.info(' Entered watering phase, moisture low: {:.2f}% '\
-                '(min {:.2f}%).'.format(moist, plant.moist_level))
+            log.info(' Entered watering phase, moisture low: '
+                '{p.moist:.2f}% (min {p.moist_level:.2f}%).'.format(p=plant))
         if not self._wait_for_tank():
             return
         log.debug('  start watering.')
-        actual_ml = self._water_plant(plant, moist)
+        actual_ml = self._water_plant(plant)
         plant.next_action = time() + self.watering_cycle
         self._save_watering(plant.uuid1, actual_ml)
-        log.info('  re-measure moisture at %s.'
-            % strftime('%X', localtime(plant.next_action)))
+        log.info('  re-measure moisture at {t}, current moisture: '\
+            '{p.moist:.2f}%.'.format(p=plant,
+                t=strftime('%X', localtime(plant.next_action))))
 
-    def _water_plant(self, plant, moist) -> float:
+    def _water_plant(self, plant) -> float:
         with Gardener.__watering_semaphore:
             old_state = plant.state
             plant.state = State.watering
-            plant_changed.send(plant, moist=moist)
             actual_ml = self.water_supply.watering(
                 plant.pour_millilitres,
                 plant.valve_pin
                 )
             plant.state = old_state
-            plant_changed.send(plant, moist=moist)
         return actual_ml
 
-    def _handle_resting_phase(self, plant, old_state, moist):
+    def _handle_resting_phase(self, plant, old_state):
         plant.next_action = time() + self.watch_cycle
         if old_state == State.needs_water:
-            msg1 = ' plant reached moisture level of {:.2f}% '\
-                '(min {:.2f}%);'
-            log.info(msg1.format(
-                moist,
-                plant.moist_level,
-                strftime('%X', localtime(plant.next_action))))
-            log.info(' returned to watch phase, re-measure at {}.'
-                .format(strftime('%X', localtime(plant.next_action))))
+            msg1 = ' plant reached moisture level of {p.moist:.2f}% '\
+                '(min {p.moist_level:.2f}%), re-measure at {t}.'
         else:
-            msg1 = ' Enough moisture {:.2f}% (min {:.2f}%), '\
-                're-measure at {}.'
-            log.info(msg1.format(
-                moist,
-                plant.moist_level,
-                strftime('%X', localtime(plant.next_action))))
+            msg1 = ' Enough moisture {p.moist:.2f}% (min {p.moist_level:.2f}%), '\
+                're-measure at {t}.'
+        log.info(msg1.format(p=plant,
+            t=strftime('%X', localtime(plant.next_action))))
 
     def _wait_for_tank(self) -> bool:
         '''
-        Return False to indicate that stop event is set -- close ASAP.
-        Return True to indicate that tank is, or, became available.
+        :returns:
+            False to indicate that stop event is set -- close ASAP.
+            True to indicate that tank is vailable (or bacame after waiting).
         '''
         waiting = None
         while not self.water_supply.available_event.wait(0.1):

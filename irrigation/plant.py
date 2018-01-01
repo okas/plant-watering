@@ -5,9 +5,11 @@ from timeit import default_timer as timer
 from threading import Lock
 from gpiozero import PWMLED
 from . soil_sensor import CapacitiveSensor
+from . signals import irrigation_signals
 
 
 log = logging.getLogger(__name__)
+state_changed = irrigation_signals.signal('plant_status_changed')
 
 
 @unique
@@ -35,8 +37,7 @@ class Plant:
         self.pour_millilitres = pour_millilitres
         self.led = PWMLED(led_pin, frequency=100)
         self.next_action = time()
-        self.__state = State.resting
-        self.__p_state = None
+        self.__state_full = (State.resting, 0, 0)
         self.__measuring_lock = Lock()
         self.__state_lock = Lock()
 
@@ -44,26 +45,34 @@ class Plant:
         if hasattr(self, 'closed') and not self.closed:
             self.close()
 
-    def measure(self, retain_state=False) -> tuple:
-        ''' Returns state and moisture in atomic way '''
-        with self.__measuring_lock:
-            self.__p_state = self.state
-            self.state = State.measuring
-            moist = self.sensor.moisture_percent
-            if moist > self.moist_level:
-                new_state = State.resting
-                result = False
-            elif moist <= self.moist_level:
-                new_state = State.needs_water
-                result = True
-            else:
-                log.debug(' %s, state: %s, moisture: %s, sensor: %s'
-                    % (self.name, self.state, self.moist_level, moist))
-                raise Exception('Should not end up here! Something is '\
-                                'wrong with Plant instance state handling.')
-            self.state = self.__p_state if retain_state else new_state
-            self.__p_state = None
-        return (result, moist)
+    def __measure(self, retain_state=False) -> tuple:
+        self.__measuring_lock.acquire()
+        preserved_state = self.__state_full
+        self.state = State.measuring
+        measure_moist = self.sensor.moisture_percent
+        measure_time = time()
+        if measure_moist > self.moist_level:
+            new_state = State.resting
+            result = False
+        elif measure_moist <= self.moist_level:
+            new_state = State.needs_water
+            result = True
+        if retain_state:
+            self.state_full = preserved_state
+        else:
+            self.state_full = (new_state, measure_moist, measure_time)
+        self.__measuring_lock.release()
+        return (result, new_state, measure_moist, measure_time)
+
+    def measure(self) -> bool:
+        """
+        Changes plant state.
+
+        :returns:
+            True if plant needs watering. Decision is based on
+            sensor value, not recordered value.
+        """
+        return self.__measure(False)[0]
 
     def close(self):
         self.closed = False
@@ -74,13 +83,44 @@ class Plant:
 
     @property
     def state(self) -> State:
-        return self.__state
+        return self.__state_full[0]
 
     @state.setter
     def state(self, val):
+        self.state_full = (val, *self.__state_full[1:])
+
+    @property
+    def moist(self) -> float:
+        return self.__state_full[1]
+
+    @property
+    def moist_time(self) -> float:
+        return self.__state_full[2]
+
+    @property
+    def state_full(self) -> tuple:
+        """
+        :returns:
+            tuple(State, moist_percent, time_measured)
+        """
+        return self.__state_full
+
+    @state_full.setter
+    def state_full(self, val_tuple):
         with self.__state_lock:
-            self.__state = val
-            if isinstance(val.value, tuple):
-                self.led.blink(*val.value)
+            self.__state_full = val_tuple
+            if isinstance(self.state.value, tuple):
+                self.led.blink(*self.state.value)
             else:
-                self.led.value = val.value
+                self.led.value = self.state.value
+            state_changed.send(self)
+
+    @property
+    def state_full_measured(self) -> tuple:
+        """
+        Preservers plant state, only returns new full state.
+
+        :returns:
+            tuple(State, moist_percent, time_measured)
+        """
+        return self.__measure(retain_state=True)[1:]

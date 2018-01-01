@@ -7,6 +7,11 @@ from . _globals import socketio, irrigation_signals
 from . import service_irrigation
 
 
+#TODO: See dependency handling possibilities near disconnect()
+# See: https://github.com/miguelgrinberg/Flask-SocketIO/blob/master/flask_socketio/__init__.py
+
+# TODO: spilt broadcasts to separate file
+
 ns = '/irrigation'
 log = logging.getLogger(__name__)
 
@@ -27,23 +32,20 @@ def broadcast_water_supply_state(sender, **kw):
 
 @plant_status_changed.connect_via(blinker.ANY)
 def broadcast_update_plant_status(sender, **kw):
-    plant = _make_viewmodel(sender, kw['moist'])
+    plant = _make_viewmodel(sender)
     socketio.emit('update_plant_status', plant, namespace=ns)
 
 
-@socketio.on_error(ns)
-def on_error(e):
-    print('~~!!~~!!~~!!~~ in irrigation error handler')
-    print(e)
-
-
-def _make_viewmodel(plant, measure=None):
-    measure = measure or (plant.measure(True)[1] *100 ) / 100
+def _make_viewmodel(plant, force_measure=False):
+    state = None
+    moist = None
+    if force_measure:
+        state, moist = plant.state_full_measured[:2]
     return {
         'name': plant.name,
-        'state': plant.state.name,
+        'state': (state or plant.state).name,
         'moist_level': plant.moist_level,
-        'moist_measured': measure
+        'moist_measured': moist or plant.moist
         }
 
 class IrrigationNamespaceHandlers(flask_socketio.Namespace):
@@ -51,12 +53,19 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
         super().__init__(ns);
 
     def on_connect(self):
-        print('~~#~~#~~#~~ client connected')
+        print('~~#~~#~~#~~ connected; ns: [%s], client: [%s]'
+            % (ns, flask.request.sid))
         self.emit('service_status', service_irrigation.get_state())
 
     def on_disconnect(self):
-        print('~~#~~#~~#~~ client disconnected')
-        return 'ok'
+        print('~~#~~#~~#~~ disconnected; ns: [%s], client: [%s]'
+            % (ns, flask.request.sid))
+
+    @socketio.on_error(ns)
+    def on_error(e):
+        print('~~!!~~!!~~!!~~ in irrigation error handler')
+        print('flask.request.sid: %s' % flask.request.sid)
+        return { 'error': 'Internal server error! ToDo: add details.' }
 
     def on_get_status(self):
         return service_irrigation.get_state()
@@ -96,7 +105,7 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
         elif info['state'] == 'off':
             return ( 'info',
                 'Configuration was updated, but service was not restarted '
-                    'as restart pre-condition is running service.')
+                'as restart pre-condition is running service.')
 
     def _is_correct_filename(self, filename):
         return filename == os.path.basename(
@@ -111,17 +120,19 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
         else:
             return ( 'error',
                 'Filename mismatch, didn\'t expect "{filename}". Either, '
-                    'filename is already changed on server or you\'ve '
-                    'created request with bad filename.'.format(**data))
+                'filename is already changed on server or you\'ve '
+                'created request with bad filename.'.format(**data))
 
     def on_get_watcher_state(self):
-        return [_make_viewmodel(p) for p in service_irrigation.get_worker().plants]
+        return list(_make_viewmodel(p, True)
+            for p in service_irrigation.get_worker().plants)
 
     def on_get_plant_status(self, name):
         generator = (p for p in service_irrigation.get_worker().plants
             if p.name == name)
         plant = next(generator, None)
-        return _make_viewmodel(plant)
+        # TODO: should handle 'no plant found' case
+        return _make_viewmodel(plant, True)
 
     def _extract_statistics_for(self, name, stat_collection_name):
         db = service_irrigation.get_worker().db
@@ -129,11 +140,11 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
         stats_data = db.collection(stat_collection_name)
         plants = []
         gardenenrs.filter(
-            lambda g: plants.extend([p for p in g['plants'] if p['name'] == name])
+            lambda g: plants.extend(
+                list(p for p in g['plants'] if p['name'] == name))
             )
         filtered_plants = stats_data.filter(
-            lambda m: m['plant_uuid1'] in (p['uuid1'] for p in plants)
-            )
+            lambda m: m['plant_uuid1'] in (p['uuid1'] for p in plants))
         shaped_plants = [ { k: v
             for k,v in p.items() if k not in ('gardener__id', 'plant_uuid1')}
             for p in filtered_plants]
@@ -145,3 +156,4 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
 
     def on_get_plant_stats_measurings(self, name):
         return self._extract_statistics_for(name, 'plant_moistures')
+

@@ -95,3 +95,5 @@ def stop(on_cleanup=False):
             'state': 'service-start-error' if on_cleanup else 'off',
             'waterLevel': 'n/a'
             })
+        global __instance
+        __instance = None

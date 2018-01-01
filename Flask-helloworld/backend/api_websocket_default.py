@@ -6,7 +6,7 @@ from . _globals import socketio
 # handles all namespaces without an explicit error handler
 @socketio.on_error_default
 def on_error_default(e):
-    print('~~!!~~!!~~!!~~  in [defaul] error handler.')
+    print('~~!!~~!!~~!!~~  in [default] error handler.')
     print(request.event['message']) # "my error event"
     print(request.event['args'])    # (data,)
     print(e)
@@ -14,7 +14,7 @@ def on_error_default(e):
 
 @socketio.on_error(namespace='/')
 def error_handler(e):
-    print('~~!!~~!!~~!!~~  in default namespace error handler.')
+    print('~~!!~~!!~~!!~~  in ["/" namespace] error handler.')
     print(request.event['message']) # "my error event"
     print(request.event['args'])    # (data,)
     print(e)

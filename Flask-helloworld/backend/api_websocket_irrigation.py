@@ -2,17 +2,25 @@ import os
 import logging
 import flask_socketio
 import flask
-from . _globals import socketio
+from . _globals import socketio, irrigation_signals
 from . import service_irrigation
 
 
 ns = '/irrigation'
 log = logging.getLogger(__name__)
 
+water_level_changed = irrigation_signals.signal('water_level_changed')
 
-@service_irrigation.state_changed_event.connect_via('service')
+@service_irrigation.state_changed.connect_via('service')
 def broadcast_service_status(sender, **kw):
     socketio.emit('service_status', kw, namespace=ns)
+
+
+@water_level_changed.connect_via('water_tank')
+def broadcast_service_status(sender, **kw):
+    socketio.emit('water_supply_state',
+        { 'waterLevel': kw['new_val'].name},
+        namespace=ns)
 
 
 @socketio.on_error(ns)

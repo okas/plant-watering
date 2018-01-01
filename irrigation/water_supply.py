@@ -3,8 +3,8 @@ from contextlib import suppress
 import queue
 from threading import Thread, BoundedSemaphore
 from gpiozero import OutputDevice
-from .pumping import Pump
-from .water_tank import WaterTank
+from . pumping import Pump
+from . water_tank import WaterTank
 
 
 log = logging.getLogger(__name__)

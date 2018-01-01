@@ -3,11 +3,12 @@ import sys
 import logging
 from contextlib import suppress
 from flask import current_app, json
-from blinker import Namespace
+from . _globals import service_irrigation_sigals
 import irrigation
 
 
 log = logging.getLogger(__name__)
+state_changed = service_irrigation_sigals.signal('state_changed')
 
 #TODO: create global blinker signals/events catalog? names
 
@@ -17,9 +18,7 @@ __this.get_worker = lambda: __instance
 
 __instance = None
 __app = None
-__events = Namespace(name=__name__)
 
-state_changed_event = __events.signal('state_changed_event')
 CFG_KEY = 'IRRIGATION_CFG'
 
 
@@ -84,17 +83,17 @@ def start():
             raise
         else:
             __this.instance_counter += 1
-            state_changed_event.send(
+            state_changed.send(
                 'service',
                 state='on',
                 waterLevel=__instance.water_supply.water_level.name
-                    )
+                )
 
 
 def stop(on_cleanup=False):
     if __instance:
         __instance.__del__()
-        state_changed_event.send(
+        state_changed.send(
             'service',
             state='service-start-error' if on_cleanup else 'off',
             waterLevel='n/a'

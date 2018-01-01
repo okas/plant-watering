@@ -1,10 +1,10 @@
-from ._version import __version__
+from . _version import __version__
 
 import sys
 import logging
-from .gardener import Gardener
-from .configuration import load_configuration, store_configuration
-
+from . gardener import Gardener
+from . configuration import load_configuration, store_configuration
+from . signals import irrigation_signals
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

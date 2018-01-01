@@ -2,7 +2,7 @@ from time import sleep
 from timeit import default_timer as timer
 from threading import Event
 from gpiozero import DigitalInputDevice, OutputDevice
-from .motor import UnidirectionMotor
+from . motor import UnidirectionMotor
 
 
 class Pump(UnidirectionMotor):

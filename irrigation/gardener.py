@@ -7,8 +7,8 @@ from datetime import datetime
 import queue
 from threading import currentThread, Thread, Event, BoundedSemaphore
 from unqlite import UnQLite
-from .plant import Plant, State
-from .water_supply import WaterSupply
+from . plant import Plant, State
+from . water_supply import WaterSupply
 
 
 log = logging.getLogger(__name__)

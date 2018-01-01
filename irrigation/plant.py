@@ -4,7 +4,7 @@ from time import time
 from timeit import default_timer as timer
 from threading import Lock
 from gpiozero import PWMLED
-from .soil_sensor import CapacitiveSensor
+from . soil_sensor import CapacitiveSensor
 
 
 log = logging.getLogger(__name__)

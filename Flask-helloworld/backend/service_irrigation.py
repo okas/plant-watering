@@ -10,7 +10,6 @@ import irrigation
 log = logging.getLogger(__name__)
 state_changed = service_irrigation_sigals.signal('state_changed')
 
-#TODO: create global blinker signals/events catalog? names
 
 __this = sys.modules[__name__]
 __this.instance_counter = 0

@@ -60,26 +60,42 @@ export default {
             plants: []
         }
     },
+    sockets: {
+        update_plant_status (data) {
+            const fraction = 'server initiated plant status update'
+            if (!data) {
+                this.status = `${fraction}, but no data was sent.`
+                return
+            }
+            var plant = this.plants.find(p => p.name === data.name)
+            if (!plant) {
+                this.status = `${fraction}, didn't found plant with name "${data.name}"'`
+                return
+            }
+            Object.assign(plant, data)
+            this.status = ''
+        }
+    },
     methods: {
         wsRefreshPlant (plant) {
             this.$socket.emit('get_plant_status', plant.name, (data) => {
-                if (data) {
-                    Object.assign(plant, data)
-                    this.status = ''
-                } else {
+                if (!data) {
                     this.status = `didn't get refresh for "${plant.name}", check what's wrong.`
+                    return
                 }
+                Object.assign(plant, data)
+                this.status = ''
             })
         }
     },
     beforeMount () {
         this.$socket.emit('get_watcher_state', (data) => {
-            if (Array.isArray(data) && data.length > 0) {
-                this.plants = data
-                this.status = ''
-            } else {
+            if (!Array.isArray(data) || data.length === 0) {
                 this.status = "didn't get any plants, check what's wrong'"
+                return
             }
+            this.plants = data
+            this.status = ''
         })
     }
 }

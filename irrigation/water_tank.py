@@ -173,7 +173,7 @@ class WaterTank(Thread):
         self.__change_tank_availability(new_val)
         self.__change_led(new_val, old_val)
         log.info('WaterTank state changed to [%s]' % new_val)
-        state_changed.send('water_tank', new_val=new_val)
+        state_changed.send(new_val)
 
 
 general_exc_msg = 'Exception occured: '

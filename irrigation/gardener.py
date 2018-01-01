@@ -9,9 +9,13 @@ from threading import currentThread, Thread, Event, BoundedSemaphore
 from unqlite import UnQLite
 from . plant import Plant, State
 from . water_supply import WaterSupply
+from . signals import irrigation_signals
 
 
 log = logging.getLogger(__name__)
+plant_changed = irrigation_signals.signal('plant_status_changed')
+
+general_exc_msg = 'Exception occured: '
 
 
 class Gardener:
@@ -155,6 +159,7 @@ class Gardener:
             if plant.state == State.needs_water:
                 self._handle_watering_phase(plant, old_state, moist)
             else:
+                plant_changed.send(plant, moist=moist)
                 self._handle_resting_phase(plant, old_state, moist)
         except:
             self.stop_event.set()
@@ -169,21 +174,23 @@ class Gardener:
         if not self._wait_for_tank():
             return
         log.debug('  start watering.')
-        actual_ml = self._water_plant(plant)
+        actual_ml = self._water_plant(plant, moist)
         plant.next_action = time() + self.watering_cycle
         self._save_watering(plant.uuid1, actual_ml)
         log.info('  re-measure moisture at %s.'
             % strftime('%X', localtime(plant.next_action)))
 
-    def _water_plant(self, plant) -> float:
+    def _water_plant(self, plant, moist) -> float:
         with Gardener.__watering_semaphore:
             old_state = plant.state
             plant.state = State.watering
+            plant_changed.send(plant, moist=moist)
             actual_ml = self.water_supply.watering(
                 plant.pour_millilitres,
                 plant.valve_pin
                 )
             plant.state = old_state
+            plant_changed.send(plant, moist=moist)
         return actual_ml
 
     def _handle_resting_phase(self, plant, old_state, moist):
@@ -241,6 +248,3 @@ class Gardener:
             self.__db_thread.join()
         self.closed = True
         log.debug('Completed %s!' % my_name)
-
-
-general_exc_msg = 'Exception occured: '

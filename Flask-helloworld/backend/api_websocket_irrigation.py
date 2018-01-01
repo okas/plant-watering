@@ -1,5 +1,6 @@
 import os
 import logging
+import blinker
 import flask_socketio
 import flask
 from . _globals import socketio, irrigation_signals
@@ -10,17 +11,24 @@ ns = '/irrigation'
 log = logging.getLogger(__name__)
 
 water_level_changed = irrigation_signals.signal('water_level_changed')
+plant_status_changed = irrigation_signals.signal('plant_status_changed')
 
-@service_irrigation.state_changed.connect_via('service')
+
+@service_irrigation.state_changed.connect_via(blinker.ANY)
 def broadcast_service_status(sender, **kw):
-    socketio.emit('service_status', kw, namespace=ns)
+    socketio.emit('service_status', sender, namespace=ns)
 
 
-@water_level_changed.connect_via('water_tank')
-def broadcast_service_status(sender, **kw):
-    socketio.emit('water_supply_state',
-        { 'waterLevel': kw['new_val'].name},
-        namespace=ns)
+@water_level_changed.connect_via(blinker.ANY)
+def broadcast_water_supply_state(sender, **kw):
+    data = { 'waterLevel': sender.name }
+    socketio.emit('water_supply_state', data, namespace=ns)
+
+
+@plant_status_changed.connect_via(blinker.ANY)
+def broadcast_update_plant_status(sender, **kw):
+    plant = _make_viewmodel(sender, kw['moist'])
+    socketio.emit('update_plant_status', plant, namespace=ns)
 
 
 @socketio.on_error(ns)
@@ -28,6 +36,15 @@ def on_error(e):
     print('~~!!~~!!~~!!~~ in irrigation error handler')
     print(e)
 
+
+def _make_viewmodel(plant, measure=None):
+    measure = measure or (plant.measure(True)[1] *100 ) / 100
+    return {
+        'name': plant.name,
+        'state': plant.state.name,
+        'moist_level': plant.moist_level,
+        'moist_measured': measure
+        }
 
 class IrrigationNamespaceHandlers(flask_socketio.Namespace):
     def __init__(self):
@@ -97,23 +114,14 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
                     'filename is already changed on server or you\'ve '
                     'created request with bad filename.'.format(**data))
 
-    def _make_viewmodel(self, plant):
-        measure = (plant.measure(True)[1] *100 ) / 100
-        return {
-            'name': plant.name,
-            'state': plant.state.name,
-            'moist_level': plant.moist_level,
-            'moist_measured': measure
-            }
-
     def on_get_watcher_state(self):
-        return [self._make_viewmodel(p) for p in service_irrigation.get_worker().plants]
+        return [_make_viewmodel(p) for p in service_irrigation.get_worker().plants]
 
     def on_get_plant_status(self, name):
         generator = (p for p in service_irrigation.get_worker().plants
             if p.name == name)
         plant = next(generator, None)
-        return self._make_viewmodel(plant)
+        return _make_viewmodel(plant)
 
     def _extract_statistics_for(self, name, stat_collection_name):
         db = service_irrigation.get_worker().db

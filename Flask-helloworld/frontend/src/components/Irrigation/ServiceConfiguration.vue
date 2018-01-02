@@ -8,12 +8,12 @@
         </p>
         <code>TODO: do something with json parsing order...</code>
         <ul class="list-inline">
-            <li v-if="status" v-text="status" :class="statusClass"></li>
+            <li v-if="status" v-text="status" :class="statusClass"/>
         </ul>
     </header>
     <ul class="list-inline activities">
         <li>
-            <a href="" @click.prevent="wsGetServiceConfig" v-text="actionText"></a>
+            <a href="" @click.prevent="wsGetServiceConfig" v-text="actionText"/>
         </li>
         <li v-if="hasConf">
             <a href="" @click.prevent="modify=!modify" :class="stateClass">
@@ -42,7 +42,7 @@
             </select>
         </li>
     </ul>
-    <p v-if="hasConf && modify">
+    <p v-if="hasConf && modify" class="highlight-warn">
         Please, be very careful with changing configuration!
         Saving faulty configuration might prevent to start service!
         False GPIO pin settings most probably disables service or
@@ -85,7 +85,7 @@ export default {
             return this.status ? 'highlight-crit' : ''
         },
         stateClass () {
-            return this.modify ? 'highlight' : 'highlight-crit'
+            return this.modify ? 'highlight' : 'highlight-warn'
         },
         disableRemove () {
             return this.configData.content.plants_args_list.length <= 1

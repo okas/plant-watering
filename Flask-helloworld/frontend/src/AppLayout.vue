@@ -14,24 +14,18 @@ export default {
     name: 'app-layout',
     components: { AppHeader, AppFooter },
     head: {
-        link () {
-            return ['16x16', '32x32'].map(sz => {
-                return {
-                    rel: 'shortcut icon',
-                    href: require(`../static/favicon-${sz}.png`),
-                    sizes: sz,
-                    type: 'image/png',
-                    undo: false
-                }
-            })
-        },
-        style: [
-            {
-                type: 'text/css',
-                inner: 'body { background-color: #4e111103; color: #3e0101;}',
+        link () { return ['16x16', '32x32'].map(this.getFaviconModel) }
+    },
+    methods: {
+        getFaviconModel (sz) {
+            return {
+                rel: 'shortcut icon',
+                href: require(`../static/favicon-${sz}.png`),
+                sizes: sz,
+                type: 'image/png',
                 undo: false
             }
-        ]
+        }
     }
 }
 </script>
@@ -48,6 +42,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
+  background-color: #4e111103;
+}
+body, .default-text-color {
+    color: #3e0101;
 }
 h1, h2 {
   font-weight: normal;
@@ -77,14 +75,25 @@ a {
 a.router-link-exact-active {
    text-shadow: 0px 0px 20px #00f9ff;
 }
-.inf {
+.high, .info, .warn, .crit, .disa, .highlight-full, .highlight,
+.highlight-warn, .highlight-crit, .default-text-color
+{
+  transition: 0.5s color;
+}
+.high {
+  color: #1deca0bd;
+}
+.info {
   color: #52e4b585;
 }
 .warn {
-  color: #e3e6068f;
+  color: #e9ec00f0;
 }
 .crit {
-  color: #e2181863;
+  color: #fb6c6cbd;
+}
+.disa {
+  color: #c5beae;
 }
 .highlight-full {
   box-shadow: -1px -1px 1px 1px #1717e8bd;
@@ -98,11 +107,18 @@ a.router-link-exact-active {
 .highlight-crit {
   box-shadow: -1px -1px 1px 1px #fb6c6cbd;
 }
+.highlight-disa {
+  box-shadow: -1px -1px 1px 1px #c5beae;
+}
 .list-inline, .list-style-none {
     list-style-type: none;
     padding: 0;
 }
 .list-inline li {
   display: inline-block;
+}
+.status-small {
+    font-size: 0.6em;
+    color: gray;
 }
 </style>

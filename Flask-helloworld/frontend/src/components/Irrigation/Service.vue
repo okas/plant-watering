@@ -25,15 +25,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-article {
-    margin-bottom: 1px;
-}
-article:first-of-type {
-    border-top: 1px solid lightgrey;
-}
-article:not(:last-of-type) {
-    border-bottom: 1px solid lightgrey;
-}
-</style>

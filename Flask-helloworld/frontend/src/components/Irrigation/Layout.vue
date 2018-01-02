@@ -4,7 +4,7 @@
         <h1 class="toptitle">
             <router-link :to="{name: 'irrigation'}">
                 Plant Irrigation Module
-            </router-link>
+                </router-link>
         </h1>
     </header>
     <aside id="irrigation_aside">
@@ -13,9 +13,11 @@
             <ul class="list-style-none">
                 <li><a href="">Show tank</a></li>
                 <li><a href="">Water statistics</a></li>
-                <li><router-link :to="{name: 'irrigationservice'}">
-                    Manage service
-                </router-link></li>
+                <li>
+                    <router-link :to="{name: 'irrigationservice'}">
+                        Manage service
+                        </router-link>
+                    </li>
             </ul>
         </section>
         <section>
@@ -64,6 +66,15 @@ export default {
 </script>
 
 <style scoped>
+article {
+    margin-bottom: 1px;
+}
+article:first-of-type {
+    border-top: 1px solid lightgrey;
+}
+article:not(:last-of-type) {
+    border-bottom: 1px solid lightgrey;
+}
 .content > aside {
     float: left;
     margin: 0 1.0%;

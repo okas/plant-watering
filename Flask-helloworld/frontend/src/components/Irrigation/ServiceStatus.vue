@@ -1,17 +1,27 @@
 <template>
 <article>
     <header>
-        <h3>Service status</h3>
+        <h3>
+            Service status</h3>
         <p>
             You can start or stop irrigation service. Restarting service
             means two things:<br/>
             configuration is loaded again <i>and</i> measurements start
             right away. It doesn't consider any state from previous session.
-        </p>
+            </p>
+        <code>
+            TODO: intensive state toggling will cause fatal error in
+            server, investigate.
+            </code>
+        <code>
+            TODO: also global error data handling should be implemented
+            or principles how to show it. Currently service erros are
+            not rendered very well to this part. (status, state etc.)
+            </code>
         <ul class="list-style-none" :class="status ? 'highlight-crit' : ''">
             <li v-if="status" v-text="status"/>
             <li v-if="specStatus" v-text="specStatus"/>
-        </ul>
+            </ul>
     </header>
     <p v-if="serverOnline" class="activity">
         <span>

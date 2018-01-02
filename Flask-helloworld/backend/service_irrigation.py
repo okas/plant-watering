@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+# from threading import Lock
 from contextlib import suppress
 from flask import current_app, json
 from . _globals import service_irrigation_sigals
@@ -9,7 +10,8 @@ import irrigation
 
 log = logging.getLogger(__name__)
 state_changed = service_irrigation_sigals.signal('state_changed')
-
+# TODO: add some lock for service state changing to handle race conditions.
+# stateChangeLock = Lock()
 
 __this = sys.modules[__name__]
 __this.instance_counter = 0

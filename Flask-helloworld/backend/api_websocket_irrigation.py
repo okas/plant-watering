@@ -1,52 +1,17 @@
 import os
 import logging
-import blinker
 import flask_socketio
 import flask
-from . _globals import socketio, irrigation_signals
-from . import service_irrigation
+from . _globals import socketio
+from . import service_irrigation, api_websocket_irrigation_brc
 
 
 #TODO: See dependency handling possibilities near disconnect()
 # See: https://github.com/miguelgrinberg/Flask-SocketIO/blob/master/flask_socketio/__init__.py
 
-# TODO: spilt broadcasts to separate file
-
 ns = '/irrigation'
 log = logging.getLogger(__name__)
 
-water_level_changed = irrigation_signals.signal('water_level_changed')
-plant_status_changed = irrigation_signals.signal('plant_status_changed')
-
-
-@service_irrigation.state_changed.connect_via(blinker.ANY)
-def broadcast_service_status(sender, **kw):
-    socketio.emit('service_status', sender, namespace=ns)
-
-
-@water_level_changed.connect_via(blinker.ANY)
-def broadcast_water_supply_state(sender, **kw):
-    data = { 'waterLevel': sender.name }
-    socketio.emit('water_supply_state', data, namespace=ns)
-
-
-@plant_status_changed.connect_via(blinker.ANY)
-def broadcast_update_plant_status(sender, **kw):
-    plant = _make_viewmodel(sender)
-    socketio.emit('update_plant_status', plant, namespace=ns)
-
-
-def _make_viewmodel(plant, force_measure=False):
-    state = None
-    moist = None
-    if force_measure:
-        state, moist = plant.state_full_measured[:2]
-    return {
-        'name': plant.name,
-        'state': (state or plant.state).name,
-        'moist_level': plant.moist_level,
-        'moist_measured': moist or plant.moist
-        }
 
 class IrrigationNamespaceHandlers(flask_socketio.Namespace):
     def __init__(self):
@@ -124,7 +89,7 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
                 'created request with bad filename.'.format(**data))
 
     def on_get_watcher_state(self):
-        return list(_make_viewmodel(p, True)
+        return list(api_websocket_irrigation_brc._make_viewmodel(p, True)
             for p in service_irrigation.get_worker().plants)
 
     def on_get_plant_status(self, name):
@@ -132,7 +97,7 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
             if p.name == name)
         plant = next(generator, None)
         # TODO: should handle 'no plant found' case
-        return _make_viewmodel(plant, True)
+        return api_websocket_irrigation_brc._make_viewmodel(plant, True)
 
     def _extract_statistics_for(self, name, stat_collection_name):
         db = service_irrigation.get_worker().db
@@ -156,4 +121,3 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
 
     def on_get_plant_stats_measurings(self, name):
         return self._extract_statistics_for(name, 'plant_moistures')
-

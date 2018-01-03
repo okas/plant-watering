@@ -9,6 +9,7 @@ from . import (
     http_routes,
     api_websocket_default,
     api_websocket_irrigation,
+    api_websocket_irrigation_brc,
     service_irrigation
     )
 

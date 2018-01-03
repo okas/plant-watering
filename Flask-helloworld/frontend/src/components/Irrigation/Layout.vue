@@ -11,13 +11,15 @@
         <section>
             <h4>Interests...</h4>
             <ul class="list-style-none">
-                <li><a href="">Show tank</a></li>
-                <li><a href="">Water statistics</a></li>
+                <li>
+                    <a href="">
+                        Show tank</a></li>
+                <li>
+                    <a href="">
+                        Water statistics</a></li>
                 <li>
                     <router-link :to="{name: 'irrigationservice'}">
-                        Manage service
-                        </router-link>
-                    </li>
+                        Manage service</router-link></li>
             </ul>
         </section>
         <section>
@@ -34,7 +36,7 @@
                     </li>
                 <li>
                     Water used:
-                    <span v-text="waterConsum" class="highlight-disa"/>
+                    <span v-text="waterConsum" :class="waterConsumClass"/>
                     </li>
             </ul>
         </section>
@@ -52,9 +54,11 @@ export default {
         ...mapState('irrigation/', {
             irrigationState: s => s.statusObj.state || 'n/a',
             waterLevel: s => s.statusObj.waterLevel || 'n/a',
-            waterConsum: s => s.statusObj.state && s.statusObj.waterConsum !== 'n/a'
-                ? `${s.statusObj.waterConsum}ml`
-                : 'n/a',
+            waterConsum (s) {
+                return this.waterLevelStateCalc(s)
+                    ? `${s.statusObj.waterConsum}ml`
+                    : 'n/a'
+            },
             stateClass: s => {
                 switch (s.statusObj.state) {
                 case 'on': return 'highlight'
@@ -67,18 +71,19 @@ export default {
                 case 'full': return 'highlight-full'
                 case 'normal': return 'highlight'
                 case 'low': return 'highlight-warn'
-                default: return 'highlight-crit'
+                case 'empty': return 'highlight-crit'
+                default: return 'highlight-disa'
                 }
             },
             waterConsumClass (s) {
-                switch (s.statusObj.waterLevel) {
-                case 'full': return 'highlight-full'
-                case 'normal': return 'highlight'
-                case 'low': return 'highlight-warn'
-                default: return 'highlight-crit'
-                }
+                return this.waterLevelStateCalc(s) && s.statusObj.waterConsum > 0
+                    ? 'highlight'
+                    : 'highlight-disa'
             }
         })
+    },
+    methods: {
+        waterLevelStateCalc: s => s.statusObj.state && s.statusObj.waterConsum !== 'n/a'
     }
 }
 </script>

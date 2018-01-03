@@ -18,21 +18,21 @@
                 <div :class="stateInnerClass">
                     <dt class="h1" v-text="p.name"></dt>
                     <div class="horizontal status">
-                        <dt>state:</dt>
-                        <dd v-text="p.state"></dd>
+                        <dt class="float-left">state:</dt>
+                        <dd v-text="p.state" class="float-align-right"></dd>
                     </div>
                     <div class="horizontal">
-                        <dt class="h2">Moisture</dt>
-                        <dd class="h2">%</dd>
+                        <dt class="h2 float-left">Moisture</dt>
+                        <dd class="h2 float-align-right">%</dd>
                     </div>
                     <div>
                         <div class="horizontal status">
-                            <dt>required:</dt>
-                            <dd v-text="p.moist_level"></dd>
+                            <dt class="float-left">required:</dt>
+                            <dd v-text="p.moist_level" class="float-align-right"></dd>
                         </div>
                         <div class="horizontal status">
-                            <dt>measured:</dt>
-                            <dd v-text="p.moist_measured"></dd>
+                            <dt class="float-left">measured:</dt>
+                            <dd v-text="p.moist_measured" class="float-align-right"></dd>
                         </div>
                         <div class="horizontal">
                             <a href=""
@@ -119,7 +119,8 @@ export default {
                     this.statusClass = 'highlight-warn'
                     this.status = 'Service is not running, cannot update.'
                 }
-            }
+            },
+            immediate: true
         }
     },
     methods: {
@@ -202,17 +203,14 @@ export default {
     margin: 0;
 }
 .horizontal > dt {
-    float: left;
     width: auto;
     padding: 0;
     margin: 0;
 }
 .horizontal > dd {
-    float: right;
     width: auto;
     padding: 0;
     margin: 0;
-    text-align: right;
 }
 .status {
     margin-top:0.1em;

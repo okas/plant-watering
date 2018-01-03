@@ -25,18 +25,21 @@
         <section>
             <h4>
                 Service state</h4>
-            <ul class="list-style-none">
+            <ul class="list-style-none clearfix">
                 <li>
-                    Service:
-                    <span v-text="irrigationState" :class="stateClass"/>
+                    <span class="float-left">
+                        Service:</span>
+                    <span v-text="irrigationState" :class="irrigationStateClass" class="float-align-right"/>
                     </li>
                 <li>
-                    Water level:
-                    <span v-text="waterLevel" :class="waterLeveLClass"/>
+                    <span class="float-left">
+                        Water level:</span>
+                    <span v-text="waterLevel" :class="waterLeveLClass" class="float-align-right"/>
                     </li>
                 <li>
-                    Water used:
-                    <span v-text="waterConsum" :class="waterConsumClass"/>
+                    <span class="float-left">
+                        Water used:</span>
+                    <span v-text="waterConsum" :class="waterConsumClass" class="float-align-right"/>
                     </li>
             </ul>
         </section>
@@ -51,20 +54,26 @@ import { mapState } from 'vuex'
 export default {
     name: 'IrrigationLayout',
     computed: {
+        irrigationState () {
+            return this.$store.getters['irrigation/generalStatus'] || 'n/a'
+        },
+        irrigationStateClass () {
+            switch (this.irrigationState) {
+            case 'on': return 'highlight'
+            case 'off': return 'highlight-warn'
+            default: return 'highlight-crit'
+            }
+        },
         ...mapState('irrigation/', {
-            irrigationState: s => s.statusObj.state || 'n/a',
-            waterLevel: s => s.statusObj.waterLevel || 'n/a',
-            waterConsum (s) {
-                return this.waterLevelStateCalc(s)
-                    ? `${s.statusObj.waterConsum}ml`
+            waterLevel (s) {
+                return ['on', 'off'].includes(this.irrigationState) && s.statusObj.waterLevel
+                    ? s.statusObj.waterLevel
                     : 'n/a'
             },
-            stateClass: s => {
-                switch (s.statusObj.state) {
-                case 'on': return 'highlight'
-                case 'off': return 'highlight-warn'
-                default: return 'highlight-crit'
-                }
+            waterConsum (s) {
+                return this.waterLevelStateCalc(s)
+                    ? `${Math.round(s.statusObj.waterConsum)}ml`
+                    : 'n/a'
             },
             waterLeveLClass: s => {
                 switch (s.statusObj.waterLevel) {

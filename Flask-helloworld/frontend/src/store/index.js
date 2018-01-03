@@ -38,6 +38,16 @@ const irrigation = {
             }
         }
     },
+    getters: {
+        generalStatus (s) {
+            if (s.api.state !== 'online') {
+                return 'server-off'
+            }
+            return ['on', 'off'].includes(s.statusObj.state)
+                ? s.statusObj.state
+                : 'error'
+        }
+    },
     mutations: {
         mutateServiceStatus,
         ...socketMutations

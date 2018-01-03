@@ -23,10 +23,10 @@
             <li v-if="specStatus" v-text="specStatus"/>
             </ul>
     </header>
-    <p v-if="serverOnline" class="activity">
+    <p v-if="serverOnline" class="activities">
         <span>
             Current state:</span>
-        <span v-text="state" :class="stateClass" class="state"/>
+        <span v-text="generalStatus" :class="stateClass" class="state"/>
         <span>
             &nbsp;|&nbsp; toggle to</span>
         <a href="" v-text="newState" @click.prevent="wsToggleState" class="state"/>
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
     name: 'IrrigationServiceStatus',
@@ -49,16 +49,14 @@ export default {
         }
     },
     computed: {
+        status () {
+            switch (this.generalStatus) {
+            case 'server-off': return 'Sorry, application server is not reachable!'
+            case 'on': case 'off': return ''
+            default: return `Service is not good right now: '${this.generalStatus}'.`
+            }
+        },
         ...mapState('irrigation', {
-            state: s => s.statusObj.state,
-            status: s => {
-                if (s.api.state !== 'online') {
-                    return 'No server communication.'
-                }
-                return ['on', 'off'].includes(s.statusObj.state)
-                    ? ''
-                    : `Service is not good right now: '${s.statusObj.state}'.`
-            },
             newState: s => {
                 switch (s.statusObj.state) {
                 case 'on': return 'off'
@@ -74,7 +72,8 @@ export default {
                 default: return 'highlight-crit'
                 }
             }
-        })
+        }),
+        ...mapGetters('irrigation', ['generalStatus'])
     },
     methods: {
         wsToggleState () {
@@ -84,7 +83,7 @@ export default {
             } else if (this.newState === 'off') {
                 act = 'stop'
             } else {
-                console.log(`Bad value of ${this.newState} in [this.state]!
+                console.log(`Bad value of ${this.newState} in [this.generalStatus]!
                              Cannot toggle service state with this, aborting!`)
                 this.specStatus = 'Frontend app error, see console!'
                 return
@@ -100,7 +99,7 @@ export default {
 </script>
 
 <style scoped>
-.activity {
+.activities {
     font-weight: 600;
 }
 .state {

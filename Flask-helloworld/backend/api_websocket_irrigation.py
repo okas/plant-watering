@@ -3,7 +3,8 @@ import logging
 import flask_socketio
 import flask
 from . _globals import socketio
-from . import service_irrigation, api_websocket_irrigation_brc
+from . api_websocket_irrigation_brc import _make_viewmodel
+from . import service_irrigation
 
 
 #TODO: See dependency handling possibilities near disconnect()
@@ -89,7 +90,7 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
                 'created request with bad filename.'.format(**data))
 
     def on_get_watcher_state(self):
-        return list(api_websocket_irrigation_brc._make_viewmodel(p, True)
+        return list(_make_viewmodel(p, True)
             for p in service_irrigation.get_worker().plants)
 
     def on_get_plant_status(self, name):
@@ -97,7 +98,7 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
             if p.name == name)
         plant = next(generator, None)
         # TODO: should handle 'no plant found' case
-        return api_websocket_irrigation_brc._make_viewmodel(plant, True)
+        return _make_viewmodel(plant, True)
 
     def _extract_statistics_for(self, name, stat_collection_name):
         db = service_irrigation.get_worker().db

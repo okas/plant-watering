@@ -7,7 +7,6 @@ from . signals import irrigation_signals
 
 
 log = logging.getLogger(__name__)
-state_changed = irrigation_signals.signal('water_level_changed')
 
 
 @unique
@@ -173,7 +172,7 @@ class WaterTank(Thread):
         self.__change_tank_availability(new_val)
         self.__change_led(new_val, old_val)
         log.info('WaterTank state changed to [%s]' % new_val)
-        state_changed.send(new_val)
+        irrigation_signals.signal('water_level_changed').send(new_val)
 
 
 general_exc_msg = 'Exception occured: '

@@ -21,13 +21,20 @@
             </ul>
         </section>
         <section>
-            <h4>Service state</h4>
+            <h4>
+                Service state</h4>
             <ul class="list-style-none">
-                <li>Service:
+                <li>
+                    Service:
                     <span v-text="irrigationState" :class="stateClass"/>
                     </li>
-                <li>Water level:
+                <li>
+                    Water level:
                     <span v-text="waterLevel" :class="waterLeveLClass"/>
+                    </li>
+                <li>
+                    Water used:
+                    <span v-text="waterConsum" class="highlight-disa"/>
                     </li>
             </ul>
         </section>
@@ -45,6 +52,9 @@ export default {
         ...mapState('irrigation/', {
             irrigationState: s => s.statusObj.state || 'n/a',
             waterLevel: s => s.statusObj.waterLevel || 'n/a',
+            waterConsum: s => s.statusObj.state && s.statusObj.waterConsum !== 'n/a'
+                ? `${s.statusObj.waterConsum}ml`
+                : 'n/a',
             stateClass: s => {
                 switch (s.statusObj.state) {
                 case 'on': return 'highlight'
@@ -53,6 +63,14 @@ export default {
                 }
             },
             waterLeveLClass: s => {
+                switch (s.statusObj.waterLevel) {
+                case 'full': return 'highlight-full'
+                case 'normal': return 'highlight'
+                case 'low': return 'highlight-warn'
+                default: return 'highlight-crit'
+                }
+            },
+            waterConsumClass (s) {
                 switch (s.statusObj.waterLevel) {
                 case 'full': return 'highlight-full'
                 case 'normal': return 'highlight'

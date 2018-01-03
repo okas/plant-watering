@@ -35,17 +35,20 @@ def get_state():
     if svc is None or (svc.stop_event.is_set() and svc.closed):
         return {
             'state': 'off',
-            'waterLevel': 'n/a'
+            'waterLevel': 'n/a',
+            'waterConsum': 'n/a'
             }
     elif not svc.closed and svc.stop_event.is_set():
         return {
             'state': 'changig state currently, try again later',
-            'waterLevel': 'n/a'
+            'waterLevel': 'n/a',
+            'waterConsum': 'n/a'
             }
     else:
         return {
             'state': 'on',
-            'waterLevel': svc.water_supply.water_level.name
+            'waterLevel': svc.water_supply.water_level.name,
+            'waterConsum': svc.water_consumed
             }
 
 
@@ -86,7 +89,8 @@ def start():
             __this.instance_counter += 1
             state_changed.send({
                 'state': 'on',
-                'waterLevel': __instance.water_supply.water_level.name
+                'waterLevel': __instance.water_supply.water_level.name,
+                'waterConsum': __instance.water_consumed
                 })
 
 
@@ -95,7 +99,8 @@ def stop(on_cleanup=False):
         __instance.__del__()
         state_changed.send({
             'state': 'service-start-error' if on_cleanup else 'off',
-            'waterLevel': 'n/a'
+            'waterLevel': 'n/a',
+            'waterConsum': 'n/a'
             })
         global __instance
         __instance = None

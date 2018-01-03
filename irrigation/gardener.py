@@ -9,6 +9,7 @@ from threading import currentThread, Thread, Event, BoundedSemaphore
 from unqlite import UnQLite
 from . plant import Plant, State
 from . water_supply import WaterSupply
+from . signals import irrigation_signals
 
 
 log = logging.getLogger(__name__)
@@ -27,6 +28,7 @@ class Gardener:
         self.watch_cycle = config['gardener_args']['watch_cycle']
         self.watering_cycle = config['gardener_args']['watering_cycle']
         self.plants = tuple(Plant(**pa) for pa in config['plants_args_list'])
+        self.__consumed_water = 0
         self._db__id = None
         self.__db_thread = None
         self.db = self.__init_db(config['database_dir'], config['name'])
@@ -176,6 +178,7 @@ class Gardener:
         log.info('  re-measure moisture at {t}, current moisture: '\
             '{p.moist:.2f}%.'.format(p=plant,
                 t=strftime('%X', localtime(plant.next_action))))
+        self.water_consumed = actual_ml
 
     def _water_plant(self, plant) -> float:
         with Gardener.__watering_semaphore:
@@ -236,3 +239,14 @@ class Gardener:
             self.__db_thread.join()
         self.closed = True
         log.debug('Completed %s!' % my_name)
+
+    @property
+    def water_consumed(self):
+        return self.__consumed_water
+
+    @water_consumed.setter
+    def water_consumed(self, addVal):
+        self.__consumed_water += addVal
+        irrigation_signals\
+            .signal('water_consumed_changed')\
+            .send(round(self.__consumed_water, 0))

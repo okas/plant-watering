@@ -14,6 +14,7 @@ const mutateServiceStatus = (state, args) => {
 const socketMutations = {
     'SOCKET_SERVICE_STATUS': mutateServiceStatus,
     'SOCKET_WATER_SUPPLY_STATE': mutateServiceStatus,
+    'SOCKET_WATER_CONSUMED_CHANGED': mutateServiceStatus,
     'SOCKET_CONNECT' (state, msg) {
         console.log('~ ~ [irrigation] socket connected')
         state.api.state = 'online'
@@ -32,7 +33,8 @@ const irrigation = {
             api: { state: '' },
             statusObj: {
                 state: '',
-                waterLevel: ''
+                waterLevel: '',
+                waterConsum: 0
             }
         }
     },

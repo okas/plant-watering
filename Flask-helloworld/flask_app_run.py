@@ -72,5 +72,5 @@ if app.config['IRRIGATION_SERVICE_AUTOSTART'] == True:
         log.exception(
             'Problem during application Irrigation service autostart!')
 else:
-    backend.service_irrigation._load_config()
+    backend.service_irrigation.load_config()
 

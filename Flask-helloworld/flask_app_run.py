@@ -4,7 +4,6 @@ import json
 import signal
 import logging
 import logging.config
-from contextlib import suppress
 import flask
 
 # To ensure that app's dependencies outside the package can be imported.
@@ -30,8 +29,7 @@ def setup_logging(app):
 
 def setup_cleanup():
     def handler(*_):
-        with suppress(AttributeError):
-            backend.service_irrigation.stop()
+        backend.service_irrigation.stop()
         sys.exit(4)
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)

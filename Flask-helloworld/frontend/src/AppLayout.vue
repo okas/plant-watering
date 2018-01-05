@@ -35,14 +35,14 @@ main {
   display:block; /*IE11*/
 }
 body {
-  clear: both;
-  margin: 10px auto 0;
-  width: 960px;
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  background-color: #4e111103;
+    clear: both;
+    margin: 10px auto 0;
+    width: 960px;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    background-color: #4e111103;
 }
 body, .default-text-color {
     color: #3e0101;

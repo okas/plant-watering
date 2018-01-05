@@ -15,13 +15,15 @@ const socketMutations = {
     'SOCKET_SERVICE_STATUS': mutateServiceStatus,
     'SOCKET_WATER_SUPPLY_STATE': mutateServiceStatus,
     'SOCKET_WATER_CONSUMED_CHANGED': mutateServiceStatus,
-    'SOCKET_CONNECT' (state, msg) {
+    'SOCKET_CONNECT' (s, msg) {
         console.log('~ ~ [irrigation] socket connected')
-        state.api.state = 'online'
+        s.api.state = 'online'
+        s.ioId = this._vm.$socket.id
     },
-    'SOCKET_DISCONNECT' (state, reason) {
+    'SOCKET_DISCONNECT' (s, reason) {
         console.log(`~ ! ~ [irrigation] socket disconnected, reson: ${reason}.`)
-        state.api.state = 'offline'
+        s.api.state = 'offline'
+        s.ioId_prev = s.ioId
     }
 }
 
@@ -35,7 +37,9 @@ const irrigation = {
                 state: '',
                 waterLevel: '',
                 waterConsum: 0
-            }
+            },
+            ioId: '',
+            ioId_prev: ''
         }
     },
     getters: {

@@ -1,5 +1,5 @@
 <template>
-<footer @click="quickDashRevelaed = !quickDashRevelaed">
+<footer @click="quickDashRevelaed=!quickDashRevelaed">
   <section>
     <ul class="permanent list-inline">
         <li>Copyright&nbsp;©</li>
@@ -16,12 +16,17 @@
       </ul>
   </section>
   <section v-if="quickDashRevelaed">
-    <code>SocketIO Client ID: <span v-text="socketId"/></code>
+    <code>
+        <b>SocketIO Client ID: </b><span v-text="ioId" :class="ioId==='n/a'?'crit':''"/>
+        <b>; is new: </b><span v-text="ioIsNew" :class="ioIsNew?'high':'crit'"/>
+        </code>
   </section>
 </footer>
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex'
+const { mapState } = createNamespacedHelpers('irrigation')
 // const debug = process.env.NODE_ENV !== 'production'
 
 export default {
@@ -39,11 +44,10 @@ export default {
                 ? `${startYear}-${currentTear}`
                 : startYear
         },
-        socketId () {
-            return this.$store.state.irrigation.api.state === 'online'
-                ? this.$socket.id
-                : 'n/a'
-        }
+        ...mapState({
+            ioId: s => s.ioId || 'n/a',
+            ioIsNew: s => s.ioId !== s.ioId_prev
+        })
     }
 }
 </script>

@@ -49,7 +49,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { createNamespacedHelpers } from 'vuex'
+const { mapState } = createNamespacedHelpers('irrigation')
 
 export default {
     name: 'IrrigationLayout',
@@ -64,14 +65,14 @@ export default {
             default: return 'highlight-crit'
             }
         },
-        ...mapState('irrigation/', {
+        ...mapState({
             waterLevel (s) {
                 return ['on', 'off'].includes(this.irrigationState) && s.statusObj.waterLevel
                     ? s.statusObj.waterLevel
                     : 'n/a'
             },
             waterConsum (s) {
-                return this.waterLevelStateCalc(s)
+                return this._getWaterLevelState(s)
                     ? `${Math.round(s.statusObj.waterConsum)}ml`
                     : 'n/a'
             },
@@ -85,14 +86,14 @@ export default {
                 }
             },
             waterConsumClass (s) {
-                return this.waterLevelStateCalc(s) && s.statusObj.waterConsum > 0
+                return this._getWaterLevelState(s) && s.statusObj.waterConsum > 0
                     ? 'highlight'
                     : 'highlight-disa'
             }
         })
     },
     methods: {
-        waterLevelStateCalc: s => s.statusObj.state && s.statusObj.waterConsum !== 'n/a'
+        _getWaterLevelState: s => s.statusObj.state && s.statusObj.waterConsum !== 'n/a'
     }
 }
 </script>

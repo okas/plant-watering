@@ -39,7 +39,8 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { createNamespacedHelpers } from 'vuex'
+const { mapState, mapGetters } = createNamespacedHelpers('irrigation')
 
 export default {
     name: 'IrrigationServiceStatus',
@@ -56,7 +57,7 @@ export default {
             default: return `Service is not good right now: '${this.generalStatus}'.`
             }
         },
-        ...mapState('irrigation', {
+        ...mapState({
             newState: s => {
                 switch (s.statusObj.state) {
                 case 'on': return 'off'
@@ -73,7 +74,7 @@ export default {
                 }
             }
         }),
-        ...mapGetters('irrigation', ['generalStatus'])
+        ...mapGetters(['generalStatus'])
     },
     methods: {
         wsToggleState () {

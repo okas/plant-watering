@@ -122,3 +122,6 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
 
     def on_get_plant_stats_measurings(self, name):
         return self._extract_statistics_for(name, 'plant_moistures')
+
+
+socketio.on_namespace(IrrigationNamespaceHandlers())

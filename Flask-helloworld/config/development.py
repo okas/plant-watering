@@ -11,13 +11,20 @@ DEBUG = True
 CORS_ORIGINS = r'.*//saarmas-rp3-1.saared.eu.*'
 
 # TODO: test!
-SOCKETIO_ENGINEIO_ORIGINS = [
-    'saarmas-rp3-1.saared.eu'
+SOCKETIO_CORS_ALLOWED_ORIGINS = [
+    'http://saarmas-rp3-1.saared.eu:8080'
 ]
 
 SOCKETIO_ENGINEIO_LOGGER = False
 
-""" Closing a program with Ctrl-C causes some error, if autostart is disabled """
+SOCKETIO_ASYNC_MODE = 'eventlet'
+
+SOCKETIO_ALLOW_UPGRADES = True
+
+"""
+Closing a program with Ctrl-C causes some error, if autostart is disabled.
+Update: if service is not running, when Ctrl-C i spressed, then there will be error.
+"""
 IRRIGATION_SERVICE_AUTOSTART = True
 
 del os

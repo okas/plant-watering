@@ -25,3 +25,4 @@ class DefaultNamespaceHandlers(flask_socketio.Namespace):
         super().__init__('/');
 
 
+socketio.on_namespace(DefaultNamespaceHandlers())

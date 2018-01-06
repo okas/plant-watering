@@ -18,7 +18,7 @@ DEBUG = False
 
 CORS_ORIGINS = "<specify>"
 
-SOCKETIO_ENGINEIO_ORIGINS = [
+SOCKETIO_CORS_ALLOWED_ORIGINS = [
     '<specify>'
 ]
 

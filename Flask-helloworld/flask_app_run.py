@@ -23,7 +23,7 @@ def setup_flask_app_config(app, environment):
 
 
 def setup_logging(app):
-    with open(app.config['PLANTWATER_LOGGING']) as j_file:
+    with open(app.config['IRRIGATION_LOGGING']) as j_file:
         logging.config.dictConfig(json.load(j_file))
 
 
@@ -41,7 +41,7 @@ BASE_DIR = sys.path[0]
 APP_NAME = os.path.basename(sys.path[0])
 STATIC_FOLDER ='dist/static'
 TEMPLATE_FOLDER ='dist'
-ENVIRONMENT = os.getenv('PLANTWATER_ENVIRONMENT', 'production')
+ENVIRONMENT = os.getenv('IRRIGATION_ENVIRONMENT', 'production')
 
 ########################################################################
 

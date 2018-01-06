@@ -4,7 +4,7 @@ import logging
 import importlib
 import flask
 import flask_cors
-from . _globals import socketio as __socketio
+from . _globals import socketio
 from . import (
     http_routes,
     api_websocket_default,
@@ -20,18 +20,15 @@ def init(app):
     __setup_extensions(app)
     __setup_services(app)
     __setup_blueprints(app)
-    __setup_websockets(app)
 
 
 def __setup_extensions(app):
     flask_cors.CORS(app)
-    __socketio.init_app(
+    socketio.init_app(
         app,
         json=flask.json,
         logger=log,
-        #TODO: Verify it!
-        cors_allowed_origins=app.config['SOCKETIO_ENGINEIO_ORIGINS'],
-        engineio_logger=app.config['SOCKETIO_ENGINEIO_LOGGER']
+        **app.config.get_namespace('SOCKETIO_')
         )
 
 
@@ -41,8 +38,3 @@ def __setup_services(app):
 
 def __setup_blueprints(app):
     app.register_blueprint(http_routes.bp)
-
-
-def __setup_websockets(app):
-    __socketio.on_namespace(api_websocket_default.DefaultNamespaceHandlers())
-    __socketio.on_namespace(api_websocket_irrigation.IrrigationNamespaceHandlers())

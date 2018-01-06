@@ -8,7 +8,7 @@ DEBUG = False
 # Define the application directory
 BASE_DIR = sys.path[0]
 
-PLANTWATER_LOGGING = BASE_DIR + '/config/logging.json'
+IRRIGATION_LOGGING = BASE_DIR + '/config/logging.json'
 
 # Define the database - we are working with
 # SQLite for this example
@@ -28,12 +28,17 @@ CSRF_ENABLED = True
 
 CORS_ORIGINS = '<specify>'
 
+# See https://flask-socketio.readthedocs.io/en/latest/
 SOCKETIO_ENGINEIO_LOGGER = False
 
 # TODO: test!
-SOCKETIO_ENGINEIO_ORIGINS = [
+SOCKETIO_CORS_ALLOWED_ORIGINS = [
     '<specify>'
 ]
+
+SOCKETIO_ASYNC_MODE = '<specify>'
+
+SOCKETIO_ALLOW_UPGRADES = True
 
 IRRIGATION_CFG = BASE_DIR + '/instance/irrigation_test1.json'
 

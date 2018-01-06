@@ -16,7 +16,7 @@ Vue.use(VueHead, {
 
 Vue.use(VueSocketio,
     '/irrigation',
-    {}/* vital for store to work! */,
+    { forceNew: false }/* vital for store to work! */,
     store)
 
 /* eslint-disable no-new */

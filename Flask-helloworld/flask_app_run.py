@@ -5,6 +5,8 @@ import signal
 import logging
 import logging.config
 import flask
+import eventlet
+eventlet.monkey_patch()
 
 # To ensure that app's dependencies outside the package can be imported.
 # TODO: find a way to move it outside, some "requirements.txt" file.
@@ -30,6 +32,7 @@ def setup_logging(app):
 def setup_cleanup():
     def handler(*_):
         backend.service_irrigation.stop()
+        eventlet.StopServe
         sys.exit(4)
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
@@ -72,3 +75,9 @@ if app.config['IRRIGATION_SERVICE_AUTOSTART'] == True:
 else:
     backend.service_irrigation.load_config()
 
+backend._globals.socketio.run(
+    app,
+    host='::',
+    port=4999,
+    debug=False,
+    use_reloader=False)

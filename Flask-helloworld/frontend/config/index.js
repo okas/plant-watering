@@ -18,7 +18,8 @@ module.exports = {
         '/socket.io': {
             target: 'http://saarmas-rp3-1.saared.eu:4999',
             changeOrigin: true,
-            ws: true
+            ws: true,
+            logLevel: 'debug'
         }
     },
 

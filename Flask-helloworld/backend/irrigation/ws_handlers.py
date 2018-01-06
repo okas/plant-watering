@@ -2,9 +2,9 @@ import os
 import logging
 import flask_socketio
 import flask
-from . _globals import socketio
-from . apiws_brc_irrigation import _make_viewmodel
-from . import service_irrigation
+from .. _globals import io
+from . ws_broadcasts import _make_viewmodel
+from . import service
 
 
 #TODO: See dependency handling possibilities near disconnect()
@@ -19,37 +19,38 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
         super().__init__(ns);
 
     def on_connect(self):
-        print('~~#~~#~~#~~ connected; ns: [%s], client: [%s]'
+        log.info('~~#~~#~~#~~ connected; ns: [%s], client: [%s]'
             % (ns, flask.request.sid))
-        self.emit('service_status', service_irrigation.get_state())
+        self.emit('service_status', service.get_state())
 
     def on_disconnect(self):
-        print('~~#~~#~~#~~ disconnected; ns: [%s], client: [%s]'
+        log.info('~~#~~#~~#~~ disconnected; ns: [%s], client: [%s]'
             % (ns, flask.request.sid))
 
-    @socketio.on_error(ns)
+    @io.on_error(ns)
     def on_error(e):
-        print('~~!!~~!!~~!!~~ in irrigation error handler')
-        print('flask.request.sid: %s' % flask.request.sid)
+        log.info('~~!!~~!!~~!!~~ in irrigation error handler')
+        log.info('flask.request.sid: %s' % flask.request.sid)
+        log.exception(e)
         return { 'error': 'Internal server error! ToDo: add details.' }
 
     def on_get_status(self):
-        return service_irrigation.get_state()
+        return service.get_state()
 
     def on_service_stop(self):
-        info = service_irrigation.get_state()
+        info = service.get_state()
         if info['state'] == 'on':
-            service_irrigation.stop()
+            service.stop()
         elif info['state'] == 'off':
             return 'ok'
         else:
             return info['state']
 
     def on_service_start(self):
-        info = service_irrigation.get_state()
+        info = service.get_state()
         if info['state'] == 'off':
             try:
-                service_irrigation.start()
+                service.start()
             except BaseException as err:
                 return 'service-start-error'
         elif info['state'] == 'on':
@@ -58,14 +59,14 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
             return info['state']
 
     def on_get_service_config(self):
-        return service_irrigation.get_config()
+        return service.get_config()
 
     def _restart_service_if_possible(self):
-        info = service_irrigation.get_state()
+        info = service.get_state()
         if info['state'] == 'on':
-            service_irrigation.stop()
+            service.stop()
             try:
-                service_irrigation.start()
+                service.start()
             except BaseException as err:
                 return ('error', 'service-start-error')
         elif info['state'] == 'off':
@@ -81,7 +82,7 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
         if data['content'] is None or len(data['content']) < 1:
             return ('error', 'JSON content is missing.')
         elif self._is_correct_filename(data['filename']):
-            service_irrigation.save_config(data['content'])
+            service.save_config(data['content'])
             return self._restart_service_if_possible()
         else:
             return ( 'error',
@@ -91,17 +92,17 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
 
     def on_get_watcher_state(self):
         return list(_make_viewmodel(p, True)
-            for p in service_irrigation.get_worker().plants)
+            for p in service.get_worker().plants)
 
     def on_get_plant_status(self, name):
-        generator = (p for p in service_irrigation.get_worker().plants
+        generator = (p for p in service.get_worker().plants
             if p.name == name)
         plant = next(generator, None)
         # TODO: should handle 'no plant found' case
         return _make_viewmodel(plant, True)
 
     def _extract_statistics_for(self, name, stat_collection_name):
-        db = service_irrigation.get_worker().db
+        db = service.get_worker().db
         gardenenrs = db.collection('gardener_instances')
         stats_data = db.collection(stat_collection_name)
         plants = []
@@ -124,4 +125,4 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
         return self._extract_statistics_for(name, 'plant_moistures')
 
 
-socketio.on_namespace(IrrigationNamespaceHandlers())
+io.on_namespace(IrrigationNamespaceHandlers())

@@ -6,6 +6,7 @@ from . gardener import Gardener
 from . configuration import load_configuration, store_configuration
 from . signals import irrigation_signals
 
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
@@ -22,12 +23,3 @@ def run_and_return_by_conf_path(config_path):
 
 def run_and_return_by_conf_obj(config):
     return Gardener(config)
-
-
-__all__ = [
-    '__version__',
-    'Gardener',
-    'load_configuration',
-    'run_and_return',
-    'LOGGER_CONFIG'
-    ]

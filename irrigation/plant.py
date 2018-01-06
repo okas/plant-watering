@@ -5,11 +5,10 @@ from timeit import default_timer as timer
 from threading import Lock
 from gpiozero import PWMLED
 from . soil_sensor import CapacitiveSensor
-from . signals import irrigation_signals
+from . import signals
 
 
 log = logging.getLogger(__name__)
-state_changed = irrigation_signals.signal('plant_status_changed')
 
 
 @unique
@@ -113,7 +112,7 @@ class Plant:
                 self.led.blink(*self.state.value)
             else:
                 self.led.value = self.state.value
-            state_changed.send(self)
+            signals.plant_status_changed.send(self)
 
     @property
     def state_full_measured(self) -> tuple:

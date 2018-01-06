@@ -3,8 +3,10 @@ import os
 #toolbar = DebugToolbarExtension(app)
 
 # Refer to default.py file for all custom configurations
-
-DEBUG = True
+HOST='::'
+PORT=4999
+DEBUG = False
+USE_RELOADER = False
 
 #WERKZEUG_DEBUG_PIN = 'off'
 
@@ -16,8 +18,6 @@ SOCKETIO_CORS_ALLOWED_ORIGINS = [
 ]
 
 SOCKETIO_ENGINEIO_LOGGER = False
-
-SOCKETIO_ASYNC_MODE = 'eventlet'
 
 SOCKETIO_ALLOW_UPGRADES = True
 

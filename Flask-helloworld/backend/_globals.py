@@ -1,12 +1,8 @@
-import logging
 import flask_socketio
-from blinker import Namespace
-from irrigation import irrigation_signals
 
 
-socketio = flask_socketio.SocketIO()
-logging.getLogger('flask_socketio').setLevel(logging.INFO)
+# It allows to ommit dealing of flask context management, where it's mode comfortable.
+io = flask_socketio.SocketIO()
 
 
-service_irrigation_sigals = Namespace(name='backend.service_irrigation')
-service_irrigation_sigals.signal('state_changed')
+del flask_socketio

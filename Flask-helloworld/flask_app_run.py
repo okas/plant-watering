@@ -11,9 +11,7 @@ eventlet.monkey_patch()
 # To ensure that app's dependencies outside the package can be imported.
 # TODO: find a way to move it outside, some "requirements.txt" file.
 sys.path.insert(1, os.path.dirname(sys.path[0]))
-
 import backend
-
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +29,7 @@ def setup_logging(app):
 
 def setup_cleanup():
     def handler(*_):
-        backend.service_irrigation.stop()
+        backend.irrigation_service.stop()
         eventlet.StopServe
         sys.exit(4)
     signal.signal(signal.SIGINT, handler)
@@ -68,16 +66,18 @@ setup_cleanup()
 
 if app.config['IRRIGATION_SERVICE_AUTOSTART'] == True:
     try:
-        backend.service_irrigation.start()
+        backend.irrigation_service.start()
     except BaseException as err:
         log.exception(
             'Problem during application Irrigation service autostart!')
 else:
-    backend.service_irrigation.load_config()
+    backend.irrigation_service.load_config()
 
-backend._globals.socketio.run(
+backend.io.run(
     app,
-    host='::',
-    port=4999,
-    debug=False,
-    use_reloader=False)
+    host=app.config['HOST'],
+    port=app.config['PORT'],
+    debug=app.config['DEBUG'],
+    use_reloader=app.config['USE_RELOADER'],
+    log_output=app.config['LOG_OUTPUT']
+    )

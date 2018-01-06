@@ -4,12 +4,11 @@ import logging
 from threading import Lock
 from contextlib import suppress
 from flask import current_app, json
-from . _globals import service_irrigation_sigals
+from . import signals
 import irrigation
 
 
 log = logging.getLogger(__name__)
-state_changed = service_irrigation_sigals.signal('state_changed')
 __stateChangeLock = Lock()
 
 __this = sys.modules[__name__]
@@ -22,7 +21,7 @@ __app = None
 CFG_KEY = 'IRRIGATION_CFG'
 
 
-def init_app(app=None):
+def init(app=None):
     global __app
     __app = app
 
@@ -93,7 +92,7 @@ def start():
                 raise
             else:
                 __this.instance_counter += 1
-                state_changed.send({
+                signals.state_changed.send({
                     'state': 'on',
                     'waterLevel': __instance.water_supply.water_level.name,
                     'waterConsum': __instance.water_consumed
@@ -101,14 +100,14 @@ def start():
 
 
 def __stop(on_cleanup=False):
+        global __instance
         if __instance:
             __instance.__del__()
-            state_changed.send({
+            signals.state_changed.send({
                 'state': 'service-start-error' if on_cleanup else 'off',
                 'waterLevel': 'n/a',
                 'waterConsum': 'n/a'
                 })
-            global __instance
             __instance = None
 
 

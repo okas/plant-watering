@@ -3,7 +3,11 @@ import sys
 
 
 # Statement for enabling the development environment NB! Use separate development.py config file!
+HOST='::'
+PORT=443
 DEBUG = False
+USE_RELOADER = False
+LOG_OUTPUT = False
 
 # Define the application directory
 BASE_DIR = sys.path[0]
@@ -35,8 +39,6 @@ SOCKETIO_ENGINEIO_LOGGER = False
 SOCKETIO_CORS_ALLOWED_ORIGINS = [
     '<specify>'
 ]
-
-SOCKETIO_ASYNC_MODE = '<specify>'
 
 SOCKETIO_ALLOW_UPGRADES = True
 

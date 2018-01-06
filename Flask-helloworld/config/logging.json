@@ -23,6 +23,16 @@
             "handlers": ["irrigation_console"],
             "level": "INFO",
             "propagate": false
+        },
+        "backend": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": false
+        },
+        "flask_socketio": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": false
         }
     }
 }

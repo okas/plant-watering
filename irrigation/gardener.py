@@ -9,7 +9,7 @@ from threading import currentThread, Thread, Event, BoundedSemaphore
 from unqlite import UnQLite
 from . plant import Plant, State
 from . water_supply import WaterSupply
-from . signals import irrigation_signals
+from . import signals
 
 
 log = logging.getLogger(__name__)
@@ -247,6 +247,4 @@ class Gardener:
     @water_consumed.setter
     def water_consumed(self, addVal):
         self.__consumed_water += addVal
-        irrigation_signals\
-            .signal('water_consumed_changed')\
-            .send(round(self.__consumed_water, 0))
+        signals.water_consumed_changed.send(round(self.__consumed_water, 0))

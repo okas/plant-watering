@@ -7,8 +7,8 @@ import flask_cors
 from . _globals import socketio
 from . import (
     http_routes,
-    api_websocket_default,
-    api_websocket_irrigation,
+    apiws_default,
+    apiws_irrigation,
     service_irrigation
     )
 

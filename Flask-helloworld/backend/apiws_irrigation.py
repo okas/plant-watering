@@ -3,7 +3,7 @@ import logging
 import flask_socketio
 import flask
 from . _globals import socketio
-from . api_websocket_irrigation_brc import _make_viewmodel
+from . apiws_brc_irrigation import _make_viewmodel
 from . import service_irrigation
 
 

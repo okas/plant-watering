@@ -3,7 +3,6 @@
 import Vue from 'vue'
 import VueSocketio from 'vue-socketio'
 import VueHead from 'vue-head'
-// import io from 'socket.io-client'
 import store from './store'
 import router from './router'
 import AppLayout from './AppLayout'
@@ -16,7 +15,7 @@ Vue.use(VueHead, {
 
 Vue.use(VueSocketio,
     '/irrigation',
-    { forceNew: false }/* vital for store to work! */,
+    { forceNew: false }/* must have at least empty object! */,
     store)
 
 /* eslint-disable no-new */

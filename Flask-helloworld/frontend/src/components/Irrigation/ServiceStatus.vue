@@ -84,7 +84,7 @@ export default {
             } else if (this.newState === 'off') {
                 act = 'stop'
             } else {
-                console.log(`Bad value of ${this.newState} in [this.generalStatus]!
+                console.log(`Bad value of [${this.newState}] in [this.generalStatus]!
                              Cannot toggle service state with this, aborting!`)
                 this.specStatus = 'Frontend app error, see console!'
                 return

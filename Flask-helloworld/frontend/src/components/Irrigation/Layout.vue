@@ -29,7 +29,7 @@
                 <li>
                     <span class="float-left">
                         Service:</span>
-                    <span v-text="irrigationState" :class="irrigationStateClass" class="float-align-right"/>
+                    <span v-text="generalStatus" :class="generalStatusClass" class="float-align-right"/>
                     </li>
                 <li>
                     <span class="float-left">
@@ -50,16 +50,13 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapState } = createNamespacedHelpers('irrigation')
+const { mapState, mapGetters } = createNamespacedHelpers('irrigation')
 
 export default {
     name: 'IrrigationLayout',
     computed: {
-        irrigationState () {
-            return this.$store.getters['irrigation/generalStatus'] || 'n/a'
-        },
-        irrigationStateClass () {
-            switch (this.irrigationState) {
+        generalStatusClass () {
+            switch (this.generalStatus) {
             case 'on': return 'highlight'
             case 'off': return 'highlight-warn'
             default: return 'highlight-crit'
@@ -67,7 +64,7 @@ export default {
         },
         ...mapState({
             waterLevel (s) {
-                return ['on', 'off'].includes(this.irrigationState) && s.statusObj.waterLevel
+                return ['on', 'off'].includes(this.generalStatus) && s.statusObj.waterLevel
                     ? s.statusObj.waterLevel
                     : 'n/a'
             },
@@ -90,7 +87,8 @@ export default {
                     ? 'highlight'
                     : 'highlight-disa'
             }
-        })
+        }),
+        ...mapGetters(['generalStatus'])
     },
     methods: {
         _getWaterLevelState: s => s.statusObj.state && s.statusObj.waterConsum !== 'n/a'

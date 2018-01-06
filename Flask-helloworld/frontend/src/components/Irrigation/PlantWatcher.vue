@@ -72,7 +72,6 @@ export default {
     data () {
         return {
             status: '...loading plants from server...',
-            serviceIsOn: false,
             plants: [],
             watcherIsRendering: false,
             statusClass: 'highlight-disa',
@@ -102,25 +101,21 @@ export default {
             this.ticker++
         }
     },
+    computed: {
+        serviceIsOn () {
+            return this.$store.getters['irrigation/generalStatus'] === 'on'
+        }
+    },
     watch: {
-        '$store.state.irrigation.statusObj.state': {
-            handler (state) {
-                if (state === 'on') {
-                    this.serviceIsOn = true
-                    this.stateOutterClass = 'high'
-                    this.stateInnerClass = 'default-text-color'
-                    this.statusClass = ''
-                    this.status = ''
-                    this.renderPlants()
-                } else {
-                    this.serviceIsOn = false
-                    this.stateInnerClass = 'disa'
-                    this.stateOutterClass = 'disa'
-                    this.statusClass = 'highlight-warn'
-                    this.status = 'Service is not running, cannot update.'
-                }
-            },
-            immediate: true
+        serviceIsOn (s) {
+            if (s) {
+                this.activatePlantsClasses()
+                this.status = ''
+                this.renderPlants()
+            } else {
+                this.deActivatePlantsClasses()
+                this.status = 'Service is not running, cannot update.'
+            }
         }
     },
     methods: {
@@ -141,7 +136,7 @@ export default {
             this.$socket.emit('get_watcher_state', (data) => {
                 if (data && 'error' in data) {
                     this.status = data.error
-                    this.statusClass = 'highlight-crit'
+                    this.deActivatePlantsClasses()
                     return
                 }
                 // TODO: plants on loading situation
@@ -152,8 +147,7 @@ export default {
                 }
                 data.forEach(this.addOrUpdatePlant)
                 this.status = ''
-                this.stateOutterClass = 'high'
-                this.stateInnerClass = 'default-text-color'
+                this.activatePlantsClasses()
                 this.watcherIsRendering = false
             })
         },
@@ -164,11 +158,21 @@ export default {
             } else {
                 this.plants.push(plant)
             }
+        },
+        activatePlantsClasses () {
+            this.stateOutterClass = 'high'
+            this.stateInnerClass = 'default-text-color'
+            this.statusClass = ''
+        },
+        deActivatePlantsClasses () {
+            this.stateInnerClass = 'disa'
+            this.stateOutterClass = 'disa'
+            this.statusClass = 'highlight-warn'
         }
     },
     created () {
         if (this.$store.state.irrigation.statusObj.state !== 'on') {
-            this.statusClass = 'highlight-warn'
+            this.deActivatePlantsClasses()
             this.status = 'Service is not running, can\'t render the overview for you.'
             return
         }

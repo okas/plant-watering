@@ -1,7 +1,7 @@
 import os
 import logging
 import flask_socketio
-import flask
+from flask import current_app, request
 from .. _globals import io
 from . ws_broadcasts import _make_viewmodel
 from . import service
@@ -20,17 +20,17 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
 
     def on_connect(self):
         log.info('~~#~~#~~#~~ connected; ns: [%s], client: [%s]'
-            % (ns, flask.request.sid))
+            % (ns, request.sid))
         self.emit('service_status', service.get_state())
 
     def on_disconnect(self):
         log.info('~~#~~#~~#~~ disconnected; ns: [%s], client: [%s]'
-            % (ns, flask.request.sid))
+            % (ns, request.sid))
 
     @io.on_error(ns)
     def on_error(e):
         log.info('~~!!~~!!~~!!~~ in irrigation error handler')
-        log.info('flask.request.sid: %s' % flask.request.sid)
+        log.info('flask.request.sid: %s' % request.sid)
         log.exception(e)
         return { 'error': 'Internal server error! ToDo: add details.' }
 
@@ -76,7 +76,7 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
 
     def _is_correct_filename(self, filename):
         return filename == os.path.basename(
-            flask.current_app.config['IRRIGATION_CFG'])
+            current_app.config['IRRIGATION_CFG'])
 
     def on_store_service_config_and_restart(self, data):
         if data['content'] is None or len(data['content']) < 1:
@@ -90,16 +90,18 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
                 'filename is already changed on server or you\'ve '
                 'created request with bad filename.'.format(**data))
 
-    def on_get_watcher_state(self):
-        return list(_make_viewmodel(p, True)
-            for p in service.get_worker().plants)
+    def on_push_all_plants(self):
+        for plant in service.get_worker().plants:
+            self.emit(
+                'update_plant_status',
+                data=_make_viewmodel(plant),
+                room=request.sid
+                )
 
-    def on_get_plant_status(self, name):
-        generator = (p for p in service.get_worker().plants
-            if p.name == name)
-        plant = next(generator, None)
-        # TODO: should handle 'no plant found' case
-        return _make_viewmodel(plant, True)
+    def on_initiate_plant_measuring(self, name):
+        gen = (p for p in service.get_worker().plants if p.name == name)
+        plant = next(gen, None)
+        plant.measure(True)
 
     def _extract_statistics_for(self, name, stat_collection_name):
         db = service.get_worker().db

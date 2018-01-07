@@ -9,16 +9,12 @@ ns = '/irrigation'
 log = logging.getLogger(__name__)
 
 
-def _make_viewmodel(plant, force_measure=False):
-    state = None
-    moist = None
-    if force_measure:
-        state, moist = plant.state_full_measured[:2]
+def _make_viewmodel(plant):
     return {
         'name': plant.name,
-        'state': (state or plant.state).name,
+        'state': plant.state.name,
         'moist_level': plant.moist_level,
-        'moist_measured': moist or plant.moist
+        'moist_measured': plant.moist
         }
 
 

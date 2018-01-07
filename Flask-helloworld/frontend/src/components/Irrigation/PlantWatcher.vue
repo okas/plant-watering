@@ -73,10 +73,6 @@ export default {
         return {
             status: '...loading plants from server...',
             plants: [],
-            watcherIsRendering: false,
-            statusClass: 'highlight-disa',
-            stateOutterClass: '',
-            stateInnerClass: '',
             ticker: 0,
             linkRef: 'refresh',
             linkSta: 'stats',
@@ -92,8 +88,6 @@ export default {
             }
             if (this.plants.length === 0) {
                 this.plants.push(data)
-                this.stateOutterClass = 'high'
-                this.stateInnerClass = 'default-text-color'
             } else {
                 this.addOrUpdatePlant(data)
             }
@@ -104,52 +98,33 @@ export default {
     computed: {
         serviceIsOn () {
             return this.$store.getters['irrigation/generalStatus'] === 'on'
+        },
+        stateOutterClass () {
+            return this.serviceIsOn ? 'high' : 'disa'
+        },
+        stateInnerClass () {
+            return this.serviceIsOn ? 'default-text-color' : 'disa'
+        },
+        statusClass () {
+            return this.serviceIsOn ? 'highlight-warn' : ''
         }
     },
     watch: {
         serviceIsOn (s) {
             if (s) {
-                this.activatePlantsClasses()
                 this.status = ''
-                this.renderPlants()
+                this.wsRenderPlants()
             } else {
-                this.deActivatePlantsClasses()
                 this.status = 'Service is not running, cannot update.'
             }
         }
     },
     methods: {
         wsRefreshPlant (plant) {
-            this.$socket.emit('get_plant_status', plant.name, (data) => {
-                if (!data) {
-                    if (!this.watcherIsRendering) {
-                        this.status = `didn't get refresh for "${plant.name}", check what's wrong.`
-                    }
-                    return
-                }
-                Object.assign(plant, data)
-                this.status = ''
-            })
+            this.$socket.emit('initiate_plant_measuring', plant.name)
         },
-        renderPlants () {
-            this.watcherIsRendering = true
-            this.$socket.emit('get_watcher_state', (data) => {
-                if (data && 'error' in data) {
-                    this.status = data.error
-                    this.deActivatePlantsClasses()
-                    return
-                }
-                // TODO: plants on loading situation
-                // ## load 1x1 -- server must notify at first(or additional argument) how much plants will come.
-                if (!Array.isArray(data) || data.length === 0) {
-                    this.status = "didn't get any plants, check what's wrong'"
-                    return
-                }
-                data.forEach(this.addOrUpdatePlant)
-                this.status = ''
-                this.activatePlantsClasses()
-                this.watcherIsRendering = false
-            })
+        wsRenderPlants () {
+            this.$socket.emit('push_all_plants')
         },
         addOrUpdatePlant (plant) {
             var existing = this.plants.find(p => p.name === plant.name)
@@ -158,25 +133,14 @@ export default {
             } else {
                 this.plants.push(plant)
             }
-        },
-        activatePlantsClasses () {
-            this.stateOutterClass = 'high'
-            this.stateInnerClass = 'default-text-color'
-            this.statusClass = ''
-        },
-        deActivatePlantsClasses () {
-            this.stateInnerClass = 'disa'
-            this.stateOutterClass = 'disa'
-            this.statusClass = 'highlight-warn'
         }
     },
     created () {
-        if (this.$store.state.irrigation.statusObj.state !== 'on') {
-            this.deActivatePlantsClasses()
+        if (this.serviceIsOn) {
+            this.wsRenderPlants()
+        } else {
             this.status = 'Service is not running, can\'t render the overview for you.'
-            return
         }
-        this.renderPlants()
     }
 }
 </script>

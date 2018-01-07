@@ -73,7 +73,10 @@ export default {
                     ? `${Math.round(s.statusObj.waterConsum)}ml`
                     : 'n/a'
             },
-            waterLeveLClass: s => {
+            waterLeveLClass (s) {
+                if (this.generalStatus !== 'on') {
+                    return 'highlight-disa'
+                }
                 switch (s.statusObj.waterLevel) {
                 case 'full': return 'highlight-full'
                 case 'normal': return 'highlight'

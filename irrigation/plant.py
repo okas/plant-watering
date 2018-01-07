@@ -63,15 +63,17 @@ class Plant:
         self.__measuring_lock.release()
         return (result, new_state, measure_moist, measure_time)
 
-    def measure(self) -> bool:
+    def measure(self, retain_state=False) -> bool:
         """
-        Changes plant state.
+        :params:
+            Default is False.
+            If True then plant state will be retained after measuring.
 
         :returns:
             True if plant needs watering. Decision is based on
             sensor value, not recordered value.
         """
-        return self.__measure(False)[0]
+        return self.__measure(retain_state)[0]
 
     def close(self):
         self.closed = False

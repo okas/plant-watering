@@ -1,29 +1,32 @@
 import os
 import logging
-import flask_socketio
 from flask import current_app, request
+from flask_socketio import Namespace, join_room, leave_room
 from .. _globals import io
-from . ws_broadcasts import _make_viewmodel
+from .. import _utils
+from . import ws_broadcasts
 from . import service
 
 
 #TODO: See dependency handling possibilities near disconnect()
 # See: https://github.com/miguelgrinberg/Flask-SocketIO/blob/master/flask_socketio/__init__.py
 
-ns = '/irrigation'
 log = logging.getLogger(__name__)
+ns = '/irrigation'
+room_pw = 'plantwatcher'
 
 
-class IrrigationNamespaceHandlers(flask_socketio.Namespace):
+class IrrigationNamespaceHandlers(Namespace):
     def __init__(self):
         super().__init__(ns);
 
     def on_connect(self):
         log.info('~~#~~#~~#~~ connected; ns: [%s], client: [%s]'
             % (ns, request.sid))
-        self.emit('service_status', service.get_state())
+        self.emit('service_status', service.get_state(), room=request.sid)
 
     def on_disconnect(self):
+        self._leave_room_and_cleanup()
         log.info('~~#~~#~~#~~ disconnected; ns: [%s], client: [%s]'
             % (ns, request.sid))
 
@@ -90,19 +93,6 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
                 'filename is already changed on server or you\'ve '
                 'created request with bad filename.'.format(**data))
 
-    def on_push_all_plants(self):
-        for plant in service.get_worker().plants:
-            self.emit(
-                'update_plant_status',
-                data=_make_viewmodel(plant),
-                room=request.sid
-                )
-
-    def on_initiate_plant_measuring(self, name):
-        gen = (p for p in service.get_worker().plants if p.name == name)
-        plant = next(gen, None)
-        plant.measure(True)
-
     def _extract_statistics_for(self, name, stat_collection_name):
         db = service.get_worker().db
         gardenenrs = db.collection('gardener_instances')
@@ -125,6 +115,35 @@ class IrrigationNamespaceHandlers(flask_socketio.Namespace):
 
     def on_get_plant_stats_measurings(self, name):
         return self._extract_statistics_for(name, 'plant_moistures')
+
+    def on_initiate_plant_measuring(self, name):
+        gen = (p for p in service.get_worker().plants if p.name == name)
+        plant = next(gen, None)
+        plant.measure(True)
+
+    @_utils.suppress_on_empty_room(ns, room_pw)
+    def on_push_me_all_plants(self):
+        for plant in service.get_worker().plants:
+            self.emit(
+                'update_plant_status',
+                data=ws_broadcasts.make_plant_vm(plant),
+                room=request.sid
+                )
+
+    def on_join_room_plantwatcher(self):
+        join_room(room_pw)
+        if _utils.room_has_clients(ns, room_pw):
+            ws_broadcasts.connect_plantwatcher()
+        return 'ok'
+
+    def _leave_room_and_cleanup(self):
+        leave_room(room_pw)
+        if not _utils.room_has_clients(ns, room_pw):
+            ws_broadcasts.disconnect_plantwatcher()
+
+    def on_leave_room_plantwatcher(self):
+        self._leave_room_and_cleanup()
+        return 'ok'
 
 
 io.on_namespace(IrrigationNamespaceHandlers())

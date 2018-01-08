@@ -30,6 +30,7 @@ def setup_logging(app):
 def setup_cleanup():
     def handler(*_):
         backend.irrigation_service.stop()
+        # TODO: should add socketio closing ?
         eventlet.StopServe
         sys.exit(4)
     signal.signal(signal.SIGINT, handler)

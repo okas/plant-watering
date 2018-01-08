@@ -33,6 +33,11 @@
             "handlers": ["console"],
             "level": "DEBUG",
             "propagate": false
+        },
+        "backend._utils": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": false
         }
     }
 }

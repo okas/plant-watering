@@ -85,11 +85,6 @@ a.router-link-exact-active {
     float: right;
     text-align: right;
 }
-.high, .info, .warn, .crit, .disa, .highlight-full, .highlight,
-.highlight-warn, .highlight-crit, .default-text-color
-{
-    transition: 0.5s color;
-}
 .high {
     color: #1deca0bd;
 }
@@ -130,5 +125,10 @@ a.router-link-exact-active {
 .status-small {
     font-size: 0.6em;
     color: gray;
+}
+.high, .info, .warn, .crit, .disa, .highlight-full, .highlight,
+.highlight-warn, .highlight-crit, .highlight-disa, .default-text-color
+{
+    transition: 0.5s color;
 }
 </style>

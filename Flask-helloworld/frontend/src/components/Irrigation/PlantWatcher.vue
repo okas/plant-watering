@@ -72,6 +72,8 @@ export default {
     data () {
         return {
             status: '...loading plants from server...',
+            creating: false,
+            joined: false,
             plants: [],
             ticker: 0,
             linkRef: 'refresh',
@@ -113,18 +115,32 @@ export default {
         serviceIsOn (s) {
             if (s) {
                 this.status = ''
-                this.wsRenderPlants()
+                this.wsJointPlantwatcherRoom()
             } else {
+                this.joined = false
                 this.status = 'Service is not running, cannot update.'
             }
         }
     },
     methods: {
+        wsJointPlantwatcherRoom (isCreator = false) {
+            if (this.joined || (this.creating && !isCreator)) {
+                return
+            }
+            this.$socket.emit('join_room_plantwatcher', data => {
+                this.joined = true
+                console.log(`joined to room [plantwatcher]; status [${data}]`)
+                if (this.serviceIsOn) {
+                    this.$socket.emit('push_me_all_plants', () => {
+                        this.creating = false
+                    })
+                } else {
+                    this.status = 'Service is not running, can\'t render the overview for you.'
+                }
+            })
+        },
         wsRefreshPlant (plant) {
             this.$socket.emit('initiate_plant_measuring', plant.name)
-        },
-        wsRenderPlants () {
-            this.$socket.emit('push_all_plants')
         },
         addOrUpdatePlant (plant) {
             var existing = this.plants.find(p => p.name === plant.name)
@@ -136,11 +152,15 @@ export default {
         }
     },
     created () {
-        if (this.serviceIsOn) {
-            this.wsRenderPlants()
-        } else {
-            this.status = 'Service is not running, can\'t render the overview for you.'
-        }
+        this.creating = true
+        this.wsJointPlantwatcherRoom(true)
+    },
+    beforeRouteLeave (to, from, next) {
+        this.$socket.emit('leave_room_plantwatcher', data => {
+            this.joined = false
+            console.log(`leaved from room [plantwatcher]; status [${data}].`)
+        })
+        next()
     }
 }
 </script>

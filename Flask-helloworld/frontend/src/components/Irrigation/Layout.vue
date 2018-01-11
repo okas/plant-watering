@@ -29,7 +29,7 @@
                 <li>
                     <span class="float-left">
                         Service:</span>
-                    <span v-text="generalStatus" :class="generalStatusClass" class="float-align-right"/>
+                    <span v-text="state" :class="generalStatusClass" class="float-align-right"/>
                     </li>
                 <li>
                     <span class="float-left">
@@ -50,34 +50,35 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapGetters } = createNamespacedHelpers('irrigation')
+const { mapState } = createNamespacedHelpers('irrigation')
 
 export default {
     name: 'IrrigationLayout',
     computed: {
         generalStatusClass () {
-            switch (this.generalStatus) {
+            switch (this.state) {
             case 'on': return 'highlight'
             case 'off': return 'highlight-warn'
             default: return 'highlight-crit'
             }
         },
         ...mapState({
+            state: 'state',
             waterLevel (s) {
-                return ['on', 'off'].includes(this.generalStatus) && s.statusObj.waterLevel
-                    ? s.statusObj.waterLevel
+                return ['on', 'off'].includes(s.state) && s.waterLevel
+                    ? s.waterLevel
                     : 'n/a'
             },
             waterConsum (s) {
                 return this._getWaterLevelState(s)
-                    ? `${Math.round(s.statusObj.waterConsum)}ml`
+                    ? `${Math.round(s.waterConsum)}ml`
                     : 'n/a'
             },
             waterLeveLClass (s) {
-                if (this.generalStatus !== 'on') {
+                if (s.state !== 'on') {
                     return 'highlight-disa'
                 }
-                switch (s.statusObj.waterLevel) {
+                switch (s.waterLevel) {
                 case 'full': return 'highlight-full'
                 case 'normal': return 'highlight'
                 case 'low': return 'highlight-warn'
@@ -86,15 +87,14 @@ export default {
                 }
             },
             waterConsumClass (s) {
-                return this._getWaterLevelState(s) && s.statusObj.waterConsum > 0
+                return this._getWaterLevelState(s) && s.waterConsum > 0
                     ? 'highlight'
                     : 'highlight-disa'
             }
-        }),
-        ...mapGetters(['generalStatus'])
+        })
     },
     methods: {
-        _getWaterLevelState: s => s.statusObj.state && s.statusObj.waterConsum !== 'n/a'
+        _getWaterLevelState: s => s.state === 'on' && this.waterConsum !== 'n/a'
     }
 }
 </script>
@@ -108,6 +108,7 @@ article:first-of-type {
 }
 article:not(:last-of-type) {
     border-bottom: 1px solid lightgrey;
+    padding-bottom: 10px;
 }
 .content > aside {
     float: left;

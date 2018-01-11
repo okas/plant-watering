@@ -23,24 +23,27 @@
             <li v-if="specStatus" v-text="specStatus"/>
             </ul>
     </header>
-    <p v-if="serverOnline" class="activities">
+    <div v-if="serverOnline" class="activities list-inline">
         <span>
             Current state:</span>
-        <span v-text="generalStatus" :class="stateClass" class="state"/>
-        <span>
-            &nbsp;|&nbsp; toggle to</span>
-        <a href="" v-text="newState" @click.prevent="wsToggleState" class="state"/>
+        <span v-text="state" :class="stateClass" class="state"/>
+        <div v-if="newState">
+            <span>
+                &nbsp;|&nbsp; toggle to</span>
+            <a href="" v-text="newState" @click.prevent="wsToggleState" class="state"/>
+            </div>
+        <span v-else>disabled</span>
         <span>
             &nbsp;|&nbsp;</span>
         <a href="" @click.prevent="$store.dispatch('irrigation/refreshServiceStatus')">
             refresh</a>
-    </p>
+    </div>
 </article>
 </template>
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapGetters } = createNamespacedHelpers('irrigation')
+const { mapState } = createNamespacedHelpers('irrigation')
 
 export default {
     name: 'IrrigationServiceStatus',
@@ -51,30 +54,30 @@ export default {
     },
     computed: {
         status () {
-            switch (this.generalStatus) {
+            switch (this.state) {
             case 'server-off': return 'Sorry, application server is not reachable!'
             case 'on': case 'off': return ''
-            default: return `Service is not good right now: '${this.generalStatus}'.`
+            default: return `Service is not good right now: '${this.state}'.`
             }
         },
         ...mapState({
+            state: 'state',
             newState: s => {
-                switch (s.statusObj.state) {
+                switch (s.state) {
                 case 'on': return 'off'
                 case 'off': return 'on'
-                default: return 'error'
+                default: return ''
                 }
             },
-            serverOnline: s => s.api.state === 'online',
+            serverOnline: s => s.apiState === 'online',
             stateClass: s => {
-                switch (s.statusObj.state) {
+                switch (s.state) {
                 case 'on': return 'highlight'
                 case 'off': return 'highlight-warn'
                 default: return 'highlight-crit'
                 }
             }
-        }),
-        ...mapGetters(['generalStatus'])
+        })
     },
     methods: {
         wsToggleState () {
@@ -84,7 +87,7 @@ export default {
             } else if (this.newState === 'off') {
                 act = 'stop'
             } else {
-                console.log(`Bad value of [${this.newState}] in [this.generalStatus]!
+                console.log(`Bad value of [${this.newState}] in [this.newState]!
                              Cannot toggle service state with this, aborting!`)
                 this.specStatus = 'Frontend app error, see console!'
                 return

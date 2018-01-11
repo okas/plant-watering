@@ -7,7 +7,7 @@ const debug = process.env.NODE_ENV !== 'production'
 
 const mutateServiceStatus = (state, args) => {
     if (args[0]) {
-        Object.assign(state.statusObj, args[0])
+        Object.assign(state, args[0])
     }
 }
 
@@ -17,12 +17,13 @@ const socketMutations = {
     'SOCKET_WATER_CONSUMED_CHANGED': mutateServiceStatus,
     'SOCKET_CONNECT' (s, msg) {
         console.log('~ ~ [irrigation] socket connected')
-        s.api.state = 'online'
+        s.apiState = 'online'
         s.ioId = this._vm.$socket.id
     },
     'SOCKET_DISCONNECT' (s, reason) {
         console.log(`~ ! ~ [irrigation] socket disconnected, reson: ${reason}.`)
-        s.api.state = 'offline'
+        s.apiState = 'offline'
+        s.state = 'server-off'
         s.ioId_prev = s.ioId
     }
 }
@@ -32,24 +33,12 @@ const irrigation = {
     namespaced: true,
     state () {
         return {
-            api: { state: '' },
-            statusObj: {
-                state: '',
-                waterLevel: '',
-                waterConsum: 0
-            },
+            apiState: '',
+            state: 'server-off',
+            waterLevel: '',
+            waterConsum: 0,
             ioId: '',
             ioId_prev: ''
-        }
-    },
-    getters: {
-        generalStatus (s) {
-            if (s.api.state !== 'online') {
-                return 'server-off'
-            }
-            return ['on', 'off'].includes(s.statusObj.state)
-                ? s.statusObj.state
-                : 'error'
         }
     },
     mutations: {

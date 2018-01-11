@@ -63,6 +63,9 @@ main {
     position: fixed;
     right: 1.5em;
 }
+.permanent {
+    margin: 0;
+}
 footer {
     font-size: 0.9em;
     text-align: center;
@@ -70,8 +73,8 @@ footer {
     bottom: 0;
     clear: both;
     width: 100%;
-    left: 2px;
-    right: 2px;
+    left: 0px;
+    right: 0px;
     border-top-left-radius: 30px;
     border-top-right-radius: 30px;
     border-top: #8c8b8b solid 1px;

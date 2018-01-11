@@ -119,7 +119,7 @@ a.router-link-exact-active {
     list-style-type: none;
     padding: 0;
 }
-.list-inline li {
+.list-inline > * {
     display: inline-block;
 }
 .status-small {

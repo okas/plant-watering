@@ -99,7 +99,7 @@ export default {
     },
     computed: {
         serviceIsOn () {
-            return this.$store.getters['irrigation/generalStatus'] === 'on'
+            return this.$store.state.irrigation.state === 'on'
         },
         stateOutterClass () {
             return this.serviceIsOn ? 'high' : 'disa'

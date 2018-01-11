@@ -1,7 +1,7 @@
 import os
 import sys
 import logging
-from threading import Lock
+from threading import BoundedSemaphore
 from contextlib import suppress
 from flask import current_app, json
 from . import signals
@@ -9,7 +9,7 @@ import irrigation
 
 
 log = logging.getLogger(__name__)
-__stateChangeLock = Lock()
+__stateChangeLock = BoundedSemaphore(1)
 
 __this = sys.modules[__name__]
 __this.instance_counter = 0

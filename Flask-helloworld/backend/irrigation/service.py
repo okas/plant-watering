@@ -86,12 +86,13 @@ def start():
                 __instance = irrigation.run_and_return_by_conf_obj(
                     current_app.config.irrigation)
             except:
-                logging.exception('Encountered exception during Gardener '
+                log.exception('%Encountered exception during Gardener '
                     'initialization:\n')
                 __stop(True)
                 raise
             else:
                 __this.instance_counter += 1
+                log.debug('%[{}] service is started'.format(__name__))
                 signals.state_changed.send({
                     'state': 'on',
                     'waterLevel': __instance.water_supply.water_level.name,
@@ -103,6 +104,7 @@ def __stop(on_cleanup=False):
         global __instance
         if __instance:
             __instance.__del__()
+            log.debug('%[{}] service is stopped'.format(__name__))
             signals.state_changed.send({
                 'state': 'service-start-error' if on_cleanup else 'off',
                 'waterLevel': 'n/a',

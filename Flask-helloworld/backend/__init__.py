@@ -23,6 +23,7 @@ def __setup_extensions(app):
     io.init_app(
         app,
         json=flask.json,
+        async_mode='gevent',
         logger=logging.getLogger('flask_socketio'), # Refered in logging config!
         **app.config.get_namespace('SOCKETIO_')
         )

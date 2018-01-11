@@ -1,3 +1,13 @@
+from gevent import monkey
+monkey.patch_all(sys=True)
+monkey.patch_thread(
+    threading=True,
+    _threading_local=True,
+    Event=True,
+    logging=True,
+    existing_locks=True,
+    _warnings=None
+    )
 import os
 import sys
 import json
@@ -5,8 +15,6 @@ import signal
 import logging
 import logging.config
 import flask
-import eventlet
-eventlet.monkey_patch()
 
 # To ensure that app's dependencies outside the package can be imported.
 # TODO: find a way to move it outside, some "requirements.txt" file.
@@ -29,9 +37,9 @@ def setup_logging(app):
 
 def setup_cleanup():
     def handler(*_):
+        log.debug('%SIGhandler About to stop [irrigation] service.')
         backend.irrigation_service.stop()
-        # TODO: should add socketio closing ?
-        eventlet.StopServe
+        # TODO: should add socketio proper closing ?
         sys.exit(4)
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)

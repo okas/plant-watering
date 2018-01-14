@@ -1,30 +1,13 @@
 <template>
 <main class="content clearfix">
     <header>
-        <h1 class="toptitle">
-            <router-link :to="{name: 'irrigation'}">
-                Plant Irrigation Module
-                </router-link>
-        </h1>
+        <h1>
+            Plant Irrigation Module</h1>
     </header>
     <aside id="irrigation_aside">
         <section>
-            <h4>Interests...</h4>
-            <ul class="list-style-none">
-                <li>
-                    <a href="">
-                        Show tank</a></li>
-                <li>
-                    <a href="">
-                        Water statistics</a></li>
-                <li>
-                    <router-link :to="{name: 'irrigationservice'}">
-                        Manage service</router-link></li>
-            </ul>
-        </section>
-        <section>
             <h4>
-                Service state</h4>
+                Interests...</h4>
             <ul class="list-style-none clearfix">
                 <li>
                     <span class="float-left">

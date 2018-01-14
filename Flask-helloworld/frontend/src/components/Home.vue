@@ -1,17 +1,10 @@
 <template>
 <main>
   <h1 class="toptitle">Saar family's Smart Home</h1>
-  <h2>Plant Irrigation</h2>
-  <ul class="list-inline">
-    <li>
-      <router-link :to="{name: 'irrigation'}">
-        Plant watcher system</router-link>
-        </li>
-    <li>
-      <router-link to="/">
-        Windows blinds system</router-link>
-        </li>
-  </ul>
+  <h2>Intro</h2>
+  <p>
+    You can watch plant watering system...
+  </p>
 </main>
 </template>
 

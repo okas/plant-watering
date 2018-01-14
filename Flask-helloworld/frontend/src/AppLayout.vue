@@ -1,5 +1,6 @@
 <template>
 <div id="app-layout" class="clearfix">
+  <app-nav/>
   <app-header/>
   <router-view/>
   <app-footer/>
@@ -7,12 +8,13 @@
 </template>
 
 <script>
+import AppNav from './AppNav'
 import AppHeader from './AppHeader'
 import AppFooter from './AppFooter'
 
 export default {
     name: 'app-layout',
-    components: { AppHeader, AppFooter },
+    components: { AppNav, AppHeader, AppFooter },
     head: {
         link () { return ['16x16', '32x32'].map(this.getFaviconModel) }
     },
@@ -66,6 +68,9 @@ h3 {
 }
 a {
     color: #7e008c;
+}
+a.router-link-active {
+    text-shadow: 0px 0px 20px #269294;
 }
 a.router-link-exact-active {
     text-shadow: 0px 0px 20px #00f9ff;

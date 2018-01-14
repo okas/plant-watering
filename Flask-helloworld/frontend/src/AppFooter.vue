@@ -9,10 +9,6 @@
           <a href="https://vuejs.org" target="_blank">
             <img src="../static/logo_vue.png"></a>
         </li>
-        <li class="about">
-          <router-link to="/about">
-            About app</router-link>
-          </li>
       </ul>
   </section>
   <section v-if="quickDashRevelaed">
@@ -59,10 +55,6 @@ main {
 </style>
 
 <style scoped>
-.about {
-    position: fixed;
-    right: 1.5em;
-}
 .permanent {
     margin: 0;
 }

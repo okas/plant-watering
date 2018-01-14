@@ -13,8 +13,8 @@
   </section>
   <section v-if="quickDashRevelaed">
     <code>
-        <b>SocketIO Client ID: </b><span v-text="ioId" :class="ioId==='n/a'?'crit':''"/>
-        <b>; is new: </b><span v-text="ioIsNew" :class="ioIsNew?'high':'crit'"/>
+        <b>SocketIO Client ID: </b><span v-text="ioId" :class="{'crit': ioId === 'n/a'}"/>
+        <b>; is new: </b><span v-text="ioIsNew" :class="ioIsNew ? 'high' : 'crit'"/>
         </code>
   </section>
 </footer>

@@ -6,10 +6,12 @@
     <section>
         <h3>
             Built using following technologies:
-        </h3>
+            </h3>
         <ul>
             <li>
                 Vue</li>
+            <li>
+                Bulma</li>
             <li>
                 Vue router</li>
             <li>
@@ -26,7 +28,17 @@
                 Python</li>
             <li>
                 GPIO Zero</li>
-        </ul>
+            </ul>
+    </section>
+    <section>
+        <h3>
+            Some quick resources</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/vuejs/awesome-vue" target="_blank">
+                    awesome-vue</a>
+                </li>
+            </ul>
     </section>
 </main>
 </template>

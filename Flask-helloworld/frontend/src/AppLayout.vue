@@ -16,10 +16,11 @@ export default {
     name: 'app-layout',
     components: { AppNav, AppHeader, AppFooter },
     head: {
-        link () { return ['16x16', '32x32'].map(this.getFaviconModel) }
+        link () { return ['16', '32'].map(this.getFaviconModel) }
     },
     methods: {
-        getFaviconModel (sz) {
+        getFaviconModel (size) {
+            const sz = `${size}x${size}`
             return {
                 rel: 'shortcut icon',
                 href: require(`../static/favicon-${sz}.png`),

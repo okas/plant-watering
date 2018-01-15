@@ -3,46 +3,63 @@ import Router from 'vue-router'
 
 const routerOptions = [
     {
-        path: '/irrigation/:name/statistics',
-        name: 'plantstats',
-        component: 'Irrigation/PlantStats',
-        props: true
-    },
-    {
-        path: '/irrigation/:name/calibrate',
-        name: 'plantcalibrate',
-        component: 'Irrigation/PlantCalibration',
-        props: true
-    },
-    {
         path: '/irrigation/',
-        name: 'irrigation',
-        component: 'Irrigation/PlantWatcher'
+        component: 'Irrigation/Layout',
+        children: [
+            {
+                path: '',
+                name: 'irrigation',
+                component: 'Irrigation/PlantWatcher'
+            },
+            {
+                path: ':name/calibrate',
+                name: 'plantcalibrate',
+                component: 'Irrigation/PlantCalibration',
+                props: true
+            },
+            {
+                path: ':name/statistics',
+                name: 'plantstats',
+                component: 'Irrigation/PlantStats',
+                props: true
+            },
+            {
+                path: 'service-manager',
+                name: 'irrigationservice',
+                component: 'Irrigation/Service'
+            }
+        ]
     },
     {
-        path: '/irrigation/service-manager',
-        name: 'irrigationservice',
-        component: 'Irrigation/Service'
+        path: '/about',
+        component: 'About'
     },
     {
         path: '/',
         alias: '/index',
         component: 'Home'
     },
-    { path: '/about', component: 'About' },
-    { path: '/*', component: 'NotFound' }
+    {
+        path: '/*',
+        component: 'NotFound'
+    }
 ]
 
-const routes = routerOptions.map(route => {
-    return {
-        ...route,
-        component: () => import(`@/components/${route.component}.vue`)
-    }
-})
+const componentizer = function (options) {
+    return options.map(opt => {
+        return {
+            ...opt,
+            component: () => import(`@/components/${opt.component}.vue`),
+            ...opt.hasOwnProperty('children') && {
+                children: componentizer(opt.children)
+            }
+        }
+    })
+}
 
 Vue.use(Router)
 
 export default new Router({
-    routes: routes,
+    routes: componentizer(routerOptions),
     mode: 'history'
 })

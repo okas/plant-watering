@@ -1,5 +1,4 @@
 <template>
-<layout>
 <section>
     <header>
         <h2>Real-time plant overview</h2>
@@ -59,15 +58,11 @@
         </ul>
     </article>
 </section>
-</layout>
 </template>
 
 <script>
-import Layout from './Layout'
-
 export default {
     name: 'IrrigationPlantWatcher',
-    components: { Layout },
     head: { title: { inner: 'Plant watcher' } },
     data () {
         return {

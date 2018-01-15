@@ -27,7 +27,7 @@
             </ul>
         </section>
     </aside>
-    <slot/>
+    <router-view/>
 </main>
 </template>
 

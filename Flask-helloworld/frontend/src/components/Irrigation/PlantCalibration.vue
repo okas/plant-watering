@@ -1,32 +1,28 @@
 <template>
-<layout>
 <section>
-    <h2>Calibrate <span v-text="name"></span></h2>
-    <article>
-        <div>You should calibrate plants moisture sensor when...</div>
-        <div>[insctructions]</div>
-    </article>
-</section>
-<section>
+    <h2>
+        Calibrate
+        <span v-text="name"></span>
+    </h2>
     <article>
         <div>
-            Calibrate dry sensor
-        </div>
+            You should calibrate plants moisture sensor when...</div>
         <div>
-            Calibrate wet sensor
-        </div>
+            [insctructions]</div>
+    </article>
+    <article>
+        <div>
+            Calibrate dry sensor</div>
+        <div>
+            Calibrate wet sensor</div>
     </article>
 </section>
-</layout>
 </template>
 
 <script>
-import Layout from './Layout'
-
 export default {
     name: 'PlantCalibration',
     head: { title: { inner: 'Plant calibration' } },
-    components: { Layout },
     props: {
         name: {
             type: String,

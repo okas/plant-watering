@@ -1,5 +1,4 @@
 <template>
-<layout>
 <article>
     <header>
         <h2>Statistics for <span v-text="name" class="highlight"></span></h2>
@@ -45,15 +44,12 @@
         </table>
     </article>
 </article>
-</layout>
 </template>
 
 <script>
-import Layout from './Layout'
 
 export default {
     name: 'IrrigationPlantStats',
-    components: { Layout },
     head: { title: { inner: 'Plant statistics' } },
     props: {
         name: {

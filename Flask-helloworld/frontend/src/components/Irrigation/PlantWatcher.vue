@@ -62,7 +62,7 @@
 
 <script>
 export default {
-    name: 'IrrigationPlantWatcher',
+    name: 'plant-watcher',
     head: { title: { inner: 'Plant watcher' } },
     data () {
         return {

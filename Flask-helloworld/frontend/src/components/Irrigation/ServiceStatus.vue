@@ -46,7 +46,7 @@ import { createNamespacedHelpers } from 'vuex'
 const { mapState } = createNamespacedHelpers('irrigation')
 
 export default {
-    name: 'IrrigationServiceStatus',
+    name: 'service-status',
     data () {
         return {
             specStatus: ''

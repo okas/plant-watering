@@ -13,7 +13,7 @@ import ServiceStatus from './ServiceStatus'
 import ServiceConfiguration from './ServiceConfiguration'
 
 export default {
-    name: 'IrrigationManager',
+    name: 'service',
     components: {
         ServiceStatus, ServiceConfiguration
     },

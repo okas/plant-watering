@@ -68,7 +68,7 @@ const debug = process.env.NODE_ENV !== 'production'
 var counter = 0
 
 export default {
-    name: 'IrrigationServiceConfiguration',
+    name: 'service-configuration',
     data () {
         return {
             status: '',

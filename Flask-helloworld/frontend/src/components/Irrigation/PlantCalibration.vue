@@ -21,7 +21,7 @@
 
 <script>
 export default {
-    name: 'PlantCalibration',
+    name: 'plant-calibration',
     head: { title: { inner: 'Plant calibration' } },
     props: {
         name: {

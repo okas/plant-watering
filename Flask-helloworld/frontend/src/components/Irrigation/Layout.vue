@@ -36,7 +36,7 @@ import { createNamespacedHelpers } from 'vuex'
 const { mapState } = createNamespacedHelpers('irrigation')
 
 export default {
-    name: 'IrrigationLayout',
+    name: 'irrigation-layout',
     computed: {
         generalStatusClass () {
             switch (this.state) {

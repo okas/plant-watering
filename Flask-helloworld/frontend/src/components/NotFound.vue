@@ -6,7 +6,7 @@
 
 <script>
 export default {
-    name: 'NotFound',
+    name: 'not-found',
     head: { title: { inner: 'Not Found!' } }
 }
 </script>

@@ -45,7 +45,7 @@
 
 <script>
 export default {
-    name: 'About',
+    name: 'about',
     head: { title: { inner: 'About' } }
 }
 </script>

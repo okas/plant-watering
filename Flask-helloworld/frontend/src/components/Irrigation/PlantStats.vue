@@ -49,7 +49,7 @@
 <script>
 
 export default {
-    name: 'IrrigationPlantStats',
+    name: 'plant-stats',
     head: { title: { inner: 'Plant statistics' } },
     props: {
         name: {

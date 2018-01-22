@@ -5,8 +5,6 @@ import store from './store'
 import router from './router'
 import VueSocketio from 'vue-socketio'
 import VueHead from 'vue-head'
-import Buefy from 'buefy'
-import 'buefy/lib/buefy.css'
 import AppLayout from './AppLayout'
 
 Vue.config.productionTip = false
@@ -18,9 +16,8 @@ Vue.use(VueHead, {
 Vue.use(VueSocketio,
     '/irrigation',
     { forceNew: false }/* must have at least empty object! */,
-    store)
-
-Vue.use(Buefy)
+    store
+)
 
 window.Vue = new Vue({
     el: '#app-placeholder',

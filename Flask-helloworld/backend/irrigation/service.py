@@ -102,15 +102,25 @@ def start():
 
 def __stop(on_cleanup=False):
         global __instance
+        message = {
+            'state': 'off',
+            'waterLevel': 'n/a',
+            'waterConsum': 'n/a'
+            }
         if __instance:
-            __instance.__del__()
-            log.debug('%[{}] service is stopped'.format(__name__))
-            signals.state_changed.send({
-                'state': 'service-start-error' if on_cleanup else 'off',
-                'waterLevel': 'n/a',
-                'waterConsum': 'n/a'
-                })
-            __instance = None
+            try:
+                __instance.__del__()
+            except:
+                log.exception('%[{}] service didn\'t close cleanly!'.format(__name__))
+                message['state'] = 'service-stopped-unclean-error'
+                signals.state_changed.send(message)
+            else:
+                log.debug('%[{}] service is stopped'.format(__name__))
+                if on_cleanup :
+                    message['state'] = 'service-start-error'
+                signals.state_changed.send(message)
+            finally:
+                __instance = None
 
 
 def stop():

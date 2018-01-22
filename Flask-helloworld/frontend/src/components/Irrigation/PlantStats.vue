@@ -1,7 +1,7 @@
 <template>
 <article>
     <header>
-        <h2>Statistics for <span v-text="name" class="highlight"></span></h2>
+        <h2>Statistics for <span v-text="name" class="plant has-text-primary"></span></h2>
         <span>Activities that irrigation system performs automatically.</span>
         <ul class="list-inline">
             <li v-if="status" v-text="status"></li>
@@ -119,15 +119,20 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.plant {
+  box-shadow: -1px -1px 1px 1px;
+}
 table td:nth-last-child(n+2), th:nth-last-child(n+2) {
   border-right: 1px solid lightgrey;
 }
 table tr:nth-child(odd) td {
-  background: #9effc657;
+  background: rgba(#9effc6, 0.33);
 }
-caption > span {
-  font-weight: bolder;
+caption {
+    > span {
+      font-weight: bolder;
+    }
 }
 caption, th {
   border-bottom: 1px solid lightgrey;

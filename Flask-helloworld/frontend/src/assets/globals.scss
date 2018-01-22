@@ -1,0 +1,29 @@
+// This file is injected as 'global' SCSS int every Vue component.
+// Configured in /frontend/build/utils.js
+// https://vue-loader.vuejs.org/en/configurations/pre-processors.html#loading-a-global-settings-file
+
+$primary: hsl(171, 100%, 41%);
+
+$info: hsl(204, 86%,  53%);
+$success: hsl(141, 71%,  48%);
+$warning: hsl(48,  100%, 67%);
+$danger: hsl(348, 100%, 61%);
+
+$black:        hsl(0, 0%, 4%) !default
+$black-bis:    hsl(0, 0%, 7%) !default
+$black-ter:    hsl(0, 0%, 14%) !default
+
+$grey-darker:  hsl(0, 0%, 21%) !default
+$grey-dark:    hsl(0, 0%, 29%) !default
+$grey:         hsl(0, 0%, 48%) !default
+$grey-light:   hsl(0, 0%, 71%) !default
+$grey-lighter: hsl(0, 0%, 86%) !default
+
+$white-ter:    hsl(0, 0%, 96%) !default
+$white-bis:    hsl(0, 0%, 98%) !default
+$white:        hsl(0, 0%, 100%) !default
+
+$light: $white-ter !default
+$dark: $grey-darker !default
+
+$default-text-color: #3e0101;

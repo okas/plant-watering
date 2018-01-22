@@ -42,7 +42,7 @@
             </select>
         </li>
     </ul>
-    <p v-if="hasConf && modify" class="highlight-warn">
+    <p v-if="hasConf && modify" class="has-text-warning">
         Please, be very careful with changing configuration!
         Saving faulty configuration might prevent to start service!
         False GPIO pin settings most probably disables service or
@@ -82,10 +82,10 @@ export default {
             return this.disableRemove ? 'cannot remove single plant' : ''
         },
         statusClass () {
-            return this.status ? 'highlight-crit' : ''
+            return this.status ? 'has-text-danger' : ''
         },
         stateClass () {
-            return this.modify ? 'highlight' : 'highlight-warn'
+            return this.modify ? 'has-text-primary' : 'has-text-warning'
         },
         disableRemove () {
             return this.configData.content.plants_args_list.length <= 1

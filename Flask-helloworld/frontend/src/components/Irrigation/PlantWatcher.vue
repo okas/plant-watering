@@ -12,46 +12,44 @@
                 <li v-if="status" v-text="status" :class="statusClass"/>
             </ul>
         </header>
-        <ul class="plant-list clearfix">
-            <dl v-for="p in plants" :class="stateOutterClass" class="plant-block">
-                <div :class="stateInnerClass">
-                    <dt class="h1" v-text="p.name"></dt>
+        <ul class="plant-list is-clearfix">
+            <dl v-for="p in plants" :class="stateOutterClass">
+                <dt class="h1" v-text="p.name"></dt>
+                <div class="horizontal status">
+                    <dt class="is-pulled-left">state:</dt>
+                    <dd v-text="p.state" class="is-pulled-aligned-right"></dd>
+                </div>
+                <div class="horizontal">
+                    <dt class="h2 is-pulled-left">Moisture</dt>
+                    <dd class="h2 is-pulled-aligned-right">%</dd>
+                </div>
+                <div>
                     <div class="horizontal status">
-                        <dt class="float-left">state:</dt>
-                        <dd v-text="p.state" class="float-align-right"></dd>
+                        <dt class="is-pulled-left">required:</dt>
+                        <dd v-text="p.moist_level" class="is-pulled-aligned-right"></dd>
+                    </div>
+                    <div class="horizontal status">
+                        <dt class="is-pulled-left">measured:</dt>
+                        <dd v-text="p.moist_measured" class="is-pulled-aligned-right"></dd>
                     </div>
                     <div class="horizontal">
-                        <dt class="h2 float-left">Moisture</dt>
-                        <dd class="h2 float-align-right">%</dd>
-                    </div>
-                    <div>
-                        <div class="horizontal status">
-                            <dt class="float-left">required:</dt>
-                            <dd v-text="p.moist_level" class="float-align-right"></dd>
-                        </div>
-                        <div class="horizontal status">
-                            <dt class="float-left">measured:</dt>
-                            <dd v-text="p.moist_measured" class="float-align-right"></dd>
-                        </div>
-                        <div class="horizontal">
-                            <a href=""
-                                v-if="serviceIsOn"
-                                v-text="linkRef"
-                                @click.prevent="wsRefreshPlant(p)"/>
-                            <span v-text="linkRef" v-else/>
-                            <span>&nbsp;|&nbsp;</span>
-                            <router-link
-                                v-if="serviceIsOn"
-                                v-text="linkSta"
-                                :to="{name: 'plantstats', params: {name: p.name}}"/>
-                            <span v-text="linkSta" v-else/>
-                            <span>&nbsp;|&nbsp;</span>
-                            <router-link
-                                v-if="serviceIsOn"
-                                v-text="linkCal"
-                                :to="{name: 'plantcalibrate', params: {name: p.name}}"/>
-                            <span v-text="linkCal" v-else/>
-                        </div>
+                        <a href=""
+                            v-if="serviceIsOn"
+                            v-text="linkRef"
+                            @click.prevent="wsRefreshPlant(p)"/>
+                        <span v-text="linkRef" v-else/>
+                        <span>&nbsp;|&nbsp;</span>
+                        <router-link
+                            v-if="serviceIsOn"
+                            v-text="linkSta"
+                            :to="{name: 'plantstats', params: {name: p.name}}"/>
+                        <span v-text="linkSta" v-else/>
+                        <span>&nbsp;|&nbsp;</span>
+                        <router-link
+                            v-if="serviceIsOn"
+                            v-text="linkCal"
+                            :to="{name: 'plantcalibrate', params: {name: p.name}}"/>
+                        <span v-text="linkCal" v-else/>
                     </div>
                 </div>
             </dl>
@@ -80,7 +78,7 @@ export default {
         update_plant_status (data) {
             if (!data) {
                 this.status = 'server initiated plant status update, but no data was sent.'
-                this.statusClass = 'highlight-crit'
+                this.statusClass = 'is-danger'
                 return
             }
             if (this.plants.length === 0) {
@@ -97,13 +95,10 @@ export default {
             return this.$store.state.irrigation.state === 'on'
         },
         stateOutterClass () {
-            return this.serviceIsOn ? 'high' : 'disa'
-        },
-        stateInnerClass () {
-            return this.serviceIsOn ? 'default-text-color' : 'disa'
+            return this.serviceIsOn ? 'plant-block-active' : 'plant-block-inactive'
         },
         statusClass () {
-            return this.serviceIsOn ? 'highlight-warn' : ''
+            return this.serviceIsOn ? 'has-text-warning' : ''
         }
     },
     watch: {
@@ -160,16 +155,26 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .plant-list {
     padding: 0;
     margin: 0;
 }
-.plant-block {
+%plant-block {
     width: 195px;
-    box-shadow: -1px -1px 4px 2px;
     display: inline-block;
     margin: 0 25px 50px;
+    transition: 0.5s color;
+}
+.plant-block-active {
+    @extend %plant-block;
+    box-shadow: 0px 0px 14px 4px $primary;
+    color: $default-text-color;
+}
+.plant-block-inactive {
+    @extend %plant-block;
+    box-shadow: -1px -1px 10px -1px $grey-light;
+    color: $grey-light;
 }
 .h1 {
     font-size: 1.5em;
@@ -184,19 +189,14 @@ export default {
     overflow: hidden;
     padding: 0;
     margin: 0;
-}
-.horizontal > dt {
-    width: auto;
-    padding: 0;
-    margin: 0;
-}
-.horizontal > dd {
-    width: auto;
-    padding: 0;
-    margin: 0;
+    > dt, dt {
+        width: auto;
+        padding: 0;
+        margin: 0;
+    }
 }
 .status {
     margin-top:0.1em;
-    box-shadow: 1px 1px 2px 0px lightgrey;
+    box-shadow: 1px 1px 2px 0px $grey-light;
 }
 </style>

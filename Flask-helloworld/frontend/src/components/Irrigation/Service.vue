@@ -1,6 +1,6 @@
 <template>
 <section>
-    <header>
+    <header class="has-text-centered">
         <h2>Manage irrigation service</h2>
     </header>
     <service-status/>

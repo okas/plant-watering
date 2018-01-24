@@ -23,7 +23,7 @@
             <li v-if="specStatus" v-text="specStatus"/>
         </ul>
     </header>
-    <div class="activities list-inline">
+    <div class="activities list-inline has-text-centered">
         <div class="field">
             <input
                 type="checkbox"

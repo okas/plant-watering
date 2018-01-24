@@ -1,6 +1,6 @@
 <template>
 <main class="content is-clearfix">
-    <header>
+    <header class="has-text-centered">
         <h1>
             Plant Irrigation Module</h1>
     </header>

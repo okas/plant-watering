@@ -1,5 +1,5 @@
 <template>
-<main>
+<main class="has-text-centered">
     <p>404 - Not Found</p>
 </main>
 </template>

@@ -1,5 +1,5 @@
 <template>
-<main>
+<main class="has-text-centered">
   <h1 class="toptitle">Saar family's Smart Home</h1>
   <h2>Intro</h2>
   <p>

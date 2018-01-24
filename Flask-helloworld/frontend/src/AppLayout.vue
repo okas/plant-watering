@@ -48,7 +48,6 @@ body {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
     background-color: rgba(#4e1111, 0.02);
     color: $default-text-color;
     main {
@@ -56,7 +55,7 @@ body {
     }
     .is-pulled-aligned-right {
         @extend .is-pulled-right;
-        text-align: right;
+        @extend .has-text-right;
     }
     .default-text-color {
         color: $default-text-color;

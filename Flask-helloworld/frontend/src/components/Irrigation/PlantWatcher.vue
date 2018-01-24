@@ -1,5 +1,5 @@
 <template>
-<section>
+<section class="has-text-centered">
     <header>
         <h2>Real-time plant overview</h2>
     </header>

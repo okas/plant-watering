@@ -1,5 +1,5 @@
 <template>
-<main>
+<main class="has-text-centered">
     <header>
         <h2>About this app</h2>
     </header>

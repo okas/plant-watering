@@ -9,15 +9,6 @@
             configuration is loaded again <i>and</i> measurements start
             right away. It doesn't consider any state from previous session.
         </p>
-        <code>
-            TODO: intensive state toggling will cause fatal error in
-            server, investigate.
-        </code>
-        <code>
-            TODO: also global error data handling should be implemented
-            or principles how to show it. Currently service erros are
-            not rendered very well to this part. (status, state etc.)
-        </code>
         <ul class="list-style-none" :class="status ? 'has-text-danger' : ''">
             <li v-if="status" v-text="status"/>
             <li v-if="specStatus" v-text="specStatus"/>
@@ -27,7 +18,7 @@
         <div class="field">
             <input
                 type="checkbox"
-                class="switch is-rounded is-success has-text-warning"
+                class="switch is-rounded is-success"
                 id="scv_tog"
                 v-model="stateToggler"
                 :disabled="disableToggler"
@@ -38,8 +29,10 @@
         </div>
         <span>
             &nbsp;|&nbsp;</span>
-        <a href="" @click.prevent="$store.dispatch('irrigation/refreshServiceStatus')">
-            refresh</a>
+        <button
+            class="button is-small is-rounded is-outlined is-primary is-focused"
+            @click="emitRefresh">
+            refresh</button>
     </div>
 </article>
 </template>
@@ -105,6 +98,10 @@ export default {
                     ? `Error occured during service ${act}: '${resp}'.`
                     : ''
             })
+        },
+        emitRefresh (e) {
+            this.$store.dispatch('irrigation/refreshServiceStatus')
+            e.target.blur()
         }
     }
 }

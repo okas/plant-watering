@@ -4,20 +4,15 @@
         <h2>Real-time plant overview</h2>
     </header>
     <article>
-        <header>
-            <ul class="list-style-none">
-                <li class="status-small">
-                    Updates: <span v-text="ticker"/>
-                    </li>
-                <li v-if="status" v-text="status" :class="statusClass"/>
-            </ul>
-        </header>
         <ul class="plant-list is-clearfix">
             <dl v-for="p in plants" :class="stateOutterClass">
-                <dt class="h1" v-text="p.name"></dt>
+                <dt
+                    class="h1 badge is-badge-outlined is-badge-small"
+                    v-text="p.name"
+                    :data-badge="p._ticker"/>
                 <div class="horizontal status">
                     <dt class="is-pulled-left">state:</dt>
-                    <dd v-text="p.state" class="is-pulled-aligned-right"></dd>
+                    <dd v-text="p.state" class="is-pulled-aligned-right"/>
                 </div>
                 <div class="horizontal">
                     <dt class="h2 is-pulled-left">Moisture</dt>
@@ -26,11 +21,11 @@
                 <div>
                     <div class="horizontal status">
                         <dt class="is-pulled-left">required:</dt>
-                        <dd v-text="p.moist_level" class="is-pulled-aligned-right"></dd>
+                        <dd v-text="p.moist_level" class="is-pulled-aligned-right"/>
                     </div>
                     <div class="horizontal status">
                         <dt class="is-pulled-left">measured:</dt>
-                        <dd v-text="p.moist_measured" class="is-pulled-aligned-right"></dd>
+                        <dd v-text="p.moist_measured" class="is-pulled-aligned-right"/>
                     </div>
                     <div class="horizontal">
                         <a href=""
@@ -68,7 +63,6 @@ export default {
             creating: false,
             joined: false,
             plants: [],
-            ticker: 0,
             linkRef: 'refresh',
             linkSta: 'stats',
             linkCal: 'calibrate'
@@ -81,13 +75,8 @@ export default {
                 this.statusClass = 'is-danger'
                 return
             }
-            if (this.plants.length === 0) {
-                this.plants.push(data)
-            } else {
-                this.addOrUpdatePlant(data)
-            }
+            this.addOrUpdatePlant(data)
             this.status = ''
-            this.ticker++
         }
     },
     computed: {
@@ -133,10 +122,17 @@ export default {
             this.$socket.emit('initiate_plant_measuring', plant.name)
         },
         addOrUpdatePlant (plant) {
+            if (this.plants.length === 0) {
+                plant._ticker = 0
+                this.plants.push(plant)
+                return
+            }
             var existing = this.plants.find(p => p.name === plant.name)
             if (existing) {
                 Object.assign(existing, plant)
+                existing._ticker++
             } else {
+                plant._ticker = 0
                 this.plants.push(plant)
             }
         }
@@ -164,6 +160,7 @@ export default {
     width: 195px;
     display: inline-block;
     margin: 0 25px 50px;
+    border-radius: 0.33rem;;
     transition: 0.5s color;
 }
 .plant-block-active {
@@ -189,9 +186,9 @@ export default {
     overflow: hidden;
     padding: 0;
     margin: 0;
-    > dt, dt {
+    > dt, > dd {
         width: auto;
-        padding: 0;
+        padding: 0 0.15rem;
         margin: 0;
     }
 }

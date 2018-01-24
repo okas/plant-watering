@@ -1,19 +1,15 @@
 <template>
-<nav class="navbar is-fixed-top is-transparent" role="navigation" arial-label="main nvigation">
+<nav class="navbar is-fixed-top" role="navigation" arial-label="main nvigation" :class="scroll">
   <div class="navbar-brand">
     <router-link to="/" class="navbar-item" exact>
       <h2>Saar</h2>
-      <img src="../static/logo_tk.png"/>
+      <img id="app_logo" src="../static/logo_tk.png"/>
     </router-link>
-    <div
-      @click="toggleMenu"
-      :class="isActiveClass"
-      class="button navbar-burger"
-      data-target="navMenu">
+    <div class="button navbar-burger" data-target="navMenu" @click="toggle" :class="activeCls">
       <span/><span/><span/>
     </div>
   </div>
-  <div id="navMenu" class="navbar-menu" :class="isActiveClass">
+  <div id="navMenu" class="navbar-menu" :class="activeCls">
     <div class="navbar-start">
       <div class="navbar-item has-dropdown is-hoverable" aria-label="dropdown navigation">
         <router-link :to="{name: 'irrigation'}" class="navbar-link">
@@ -53,30 +49,51 @@
 <script>
 export default {
     name: 'app-nav',
-    data () { return { navIsActive: false } },
+    data () {
+        return {
+            isActive: false,
+            lastY: 0,
+            scroll: ''
+        }
+    },
     computed: {
-        isActiveClass () {
-            return this.navIsActive ? 'is-active' : ''
+        activeCls () {
+            return this.isActive ? 'is-active' : ''
         }
     },
     methods: {
-        toggleMenu () {
-            this.navIsActive = !this.navIsActive
+        toggle () {
+            this.isActive = !this.isActive
+        },
+        handleScroll () {
+            const y = window.scrollY
+            this.scroll = y > this.lastY ? 'scrollUp' : ''
+            this.lastY = y
         }
     },
     watch: {
         $route () {
-            this.navIsActive = false
+            this.isActive = false
         }
     },
-    beforeMount () {
+    created () {
         document.querySelector('html').classList.add('has-navbar-fixed-top')
+        window.addEventListener('scroll', this.handleScroll)
+    },
+    destroyed () {
+        window.removeEventListener('scroll', this.handleScroll)
     }
 }
 </script>
 
-<style scoped>
-img {
-  height: 40px;
+<style lang="scss" scoped>
+nav {
+    transition: all 0.5s;
+    &.scrollUp {
+        transform: translateY(-$navbar-height);
+    }
+    #app_logo {
+      height: 40px;
+    }
 }
 </style>

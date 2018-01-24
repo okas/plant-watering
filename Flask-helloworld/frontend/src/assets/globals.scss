@@ -2,6 +2,7 @@
 // Configured in /frontend/build/utils.js
 // https://vue-loader.vuejs.org/en/configurations/pre-processors.html#loading-a-global-settings-file
 
+// Colors
 $primary: hsl(171, 100%, 41%);
 
 $info: hsl(204, 86%,  53%);
@@ -26,4 +27,9 @@ $white:        hsl(0, 0%, 100%) !default
 $light: $white-ter !default
 $dark: $grey-darker !default
 
+$orange:       hsl(14,  100%, 53%) !default
+
 $default-text-color: #3e0101;
+
+// Dimensions
+$navbar-height: 3.25rem;

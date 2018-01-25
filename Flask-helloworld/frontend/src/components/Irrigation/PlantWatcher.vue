@@ -5,7 +5,7 @@
     </header>
     <article>
         <ul class="plant-list is-clearfix">
-            <dl v-for="p in plants" :class="stateOutterClass">
+            <dl class="plant-block" :class="plantStateCls" v-for="p in plants">
                 <dt
                     class="h1 badge is-badge-outlined is-badge-small"
                     v-text="p.name"
@@ -28,19 +28,20 @@
                         <dd v-text="p.moist_measured" class="is-pulled-aligned-right"/>
                     </div>
                     <div class="horizontal">
-                        <a href=""
+                        <a
+                            class="button is-outlined is-link is-small"
                             v-if="serviceIsOn"
                             v-text="linkRef"
                             @click.prevent="wsRefreshPlant(p)"/>
                         <span v-text="linkRef" v-else/>
-                        <span>&nbsp;|&nbsp;</span>
                         <router-link
+                            class="button is-outlined is-link is-small"
                             v-if="serviceIsOn"
                             v-text="linkSta"
                             :to="{name: 'plantstats', params: {name: p.name}}"/>
                         <span v-text="linkSta" v-else/>
-                        <span>&nbsp;|&nbsp;</span>
                         <router-link
+                            class="button is-outlined is-link is-small"
                             v-if="serviceIsOn"
                             v-text="linkCal"
                             :to="{name: 'plantcalibrate', params: {name: p.name}}"/>
@@ -83,8 +84,8 @@ export default {
         serviceIsOn () {
             return this.$store.state.irrigation.state === 'on'
         },
-        stateOutterClass () {
-            return this.serviceIsOn ? 'plant-block-active' : 'plant-block-inactive'
+        plantStateCls () {
+            return this.serviceIsOn ? 'act' : 'inact'
         },
         statusClass () {
             return this.serviceIsOn ? 'has-text-warning' : ''
@@ -155,45 +156,46 @@ export default {
 .plant-list {
     padding: 0;
     margin: 0;
-}
-%plant-block {
-    width: 195px;
-    display: inline-block;
-    margin: 0 25px 50px;
-    border-radius: 0.33rem;;
-    transition: 0.5s color;
-}
-.plant-block-active {
-    @extend %plant-block;
-    box-shadow: 0px 0px 14px 4px $primary;
-    color: $default-text-color;
-}
-.plant-block-inactive {
-    @extend %plant-block;
-    box-shadow: -1px -1px 10px -1px $grey-light;
-    color: $grey-light;
-}
-.h1 {
-    font-size: 1.5em;
-    text-align: center;
-}
-.h2 {
-    font-size: 1.25em;
-    text-align: left;
-}
-.horizontal {
-    width: 100%;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    > dt, > dd {
-        width: auto;
-        padding: 0 0.15rem;
-        margin: 0;
+    .plant-block {
+        width: 195px;
+        display: inline-block;
+        margin: 0 25px 50px;
+        border-radius: 0.33rem;;
+        transition: 0.5s color;
+        &.act {
+            box-shadow: 0px 0px 14px 4px $primary;
+            color: $default-text-color;
+        }
+        &.inact {
+            box-shadow: -1px -1px 10px -1px $grey-light;
+            color: $grey-light;
+        }
+        .h1 {
+            font-size: 1.5em;
+            text-align: center;
+        }
+        .h2 {
+            font-size: 1.25em;
+            text-align: left;
+        }
+        .status {
+            margin-top:0.1em;
+            box-shadow: 1px 1px 2px 0px $grey-light;
+        }
+        .horizontal {
+            width: 100%;
+            overflow: hidden;
+            padding: 0 0.15rem;
+            margin: 0;
+            &:last-child {
+                padding: 0.20rem 0.15rem 0.15rem;
+            }
+            > dt, > dd {
+                width: auto;
+                padding: 0;
+                margin: 0;
+            }
+        }
     }
-}
-.status {
-    margin-top:0.1em;
-    box-shadow: 1px 1px 2px 0px $grey-light;
 }
 </style>

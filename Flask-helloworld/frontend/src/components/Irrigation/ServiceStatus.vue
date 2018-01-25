@@ -29,10 +29,10 @@
         </div>
         <span>
             &nbsp;|&nbsp;</span>
-        <button
+        <a
             class="button is-small is-rounded is-outlined is-primary is-focused"
-            @click="emitRefresh">
-            refresh</button>
+            @click="$store.dispatch('irrigation/refreshServiceStatus')">
+            refresh</a>
     </div>
 </article>
 </template>
@@ -98,10 +98,6 @@ export default {
                     ? `Error occured during service ${act}: '${resp}'.`
                     : ''
             })
-        },
-        emitRefresh (e) {
-            this.$store.dispatch('irrigation/refreshServiceStatus')
-            e.target.blur()
         }
     }
 }

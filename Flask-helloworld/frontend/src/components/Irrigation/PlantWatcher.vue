@@ -188,7 +188,7 @@ export default {
             padding: 0 0.15rem;
             margin: 0;
             &:last-child {
-                padding: 0.20rem 0.15rem 0.15rem;
+                padding: 0.20rem;
             }
             > dt, > dd {
                 width: auto;

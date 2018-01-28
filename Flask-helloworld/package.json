@@ -13,7 +13,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "bulma": "^0.6.2",
-    "bulma-extensions": "^0.7.1",
+    "bulma-extensions": "^0.7.3",
     "vue": "^2.5.13",
     "vue-head": "^2.0.11",
     "vue-json-tree-view": "^2.1.3",

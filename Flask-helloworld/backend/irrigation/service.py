@@ -26,7 +26,7 @@ def init(app=None):
     __app = app
 
 
-def get_state():
+def get_state(simple_state=False):
     svc = None
     with suppress(AttributeError):
         svc = __instance
@@ -35,19 +35,19 @@ def get_state():
             'state': 'off',
             'waterLevel': 'n/a',
             'waterConsum': 'n/a'
-            }
+            } if not simple_state else { 'state': 'off' }
     elif not svc.closed and svc.stop_event.is_set():
         return {
-            'state': 'changig state currently, try again later',
+            'state': 'unknown',
             'waterLevel': 'n/a',
             'waterConsum': 'n/a'
-            }
+            } if not simple_state else { 'state': 'unknown' }
     else:
         return {
             'state': 'on',
             'waterLevel': svc.water_supply.water_level.name,
             'waterConsum': svc.water_consumed
-            }
+            } if not simple_state else { 'state': 'on' }
 
 
 def __load_config():
@@ -74,6 +74,8 @@ def get_config():
         return {
             'filename': os.path.basename(current_app.config[CFG_KEY]),
             'content': current_app.config.irrigation
+                if get_state(True)['state'] == 'on'
+                else irrigation.load_configuration(current_app.config[CFG_KEY])
             }
 
 

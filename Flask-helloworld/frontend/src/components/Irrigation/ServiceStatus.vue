@@ -17,22 +17,22 @@
     <div class="activities list-inline has-text-centered">
         <div class="field">
             <input
-                type="checkbox"
-                class="switch is-rounded is-success"
-                id="scv_tog"
-                v-model="stateToggler"
-                :disabled="disableToggler"
-                true-value="on"
-                false-value="off"/>
+            type="checkbox"
+            class="switch is-rounded is-success"
+            id="scv_tog"
+            v-model="stateToggler"
+            :disabled="disableToggler"
+            true-value="on"
+            false-value="off"/>
             <label for="scv_tog">
                 state</label>
         </div>
         <span>
             &nbsp;|&nbsp;</span>
-        <a
-            class="button is-small is-rounded is-outlined is-primary is-focused"
-            @click="$store.dispatch('irrigation/refreshServiceStatus')">
-            refresh</a>
+        <button
+        class="button is-small is-rounded is-outlined is-primary is-focused"
+        @click="emitRefresh">
+            refresh</button>
     </div>
 </article>
 </template>
@@ -98,6 +98,10 @@ export default {
                     ? `Error occured during service ${act}: '${resp}'.`
                     : ''
             })
+        },
+        emitRefresh (e) {
+            this.$store.dispatch('irrigation/refreshServiceStatus')
+            e.target.blur()
         }
     }
 }

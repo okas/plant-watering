@@ -7,9 +7,10 @@
         <ul class="plant-list is-clearfix">
             <dl class="plant-block" :class="plantStateCls" v-for="p in plants">
                 <dt
-                    class="h1 badge is-badge-outlined is-badge-small"
-                    v-text="p.name"
-                    :data-badge="p._ticker"/>
+                class="h1"
+                :class="badgeCls"
+                v-text="p.name"
+                :data-badge="p._ticker"/>
                 <div class="horizontal status">
                     <dt class="is-pulled-left">state:</dt>
                     <dd v-text="p.state" class="is-pulled-aligned-right"/>
@@ -27,25 +28,27 @@
                         <dt class="is-pulled-left">measured:</dt>
                         <dd v-text="p.moist_measured" class="is-pulled-aligned-right"/>
                     </div>
-                    <div class="horizontal">
-                        <a
-                            class="button is-outlined is-link is-small"
-                            v-if="serviceIsOn"
-                            v-text="linkRef"
-                            @click.prevent="wsRefreshPlant(p)"/>
-                        <span v-text="linkRef" v-else/>
+                    <div class="horizontal toolbar">
+                        <button
+                        class="button is-outlined is-small"
+                        :class="buttonCls"
+                        :disabled="!serviceIsOn"
+                        @click="wsRefreshPlant(p, $event)">
+                            refresh</button>
                         <router-link
-                            class="button is-outlined is-link is-small"
-                            v-if="serviceIsOn"
-                            v-text="linkSta"
-                            :to="{name: 'plantstats', params: {name: p.name}}"/>
-                        <span v-text="linkSta" v-else/>
+                        class="button is-outlined is-small"
+                        :class="buttonCls"
+                        :disabled="!serviceIsOn"
+                        :to="{name: 'plantstats', params: {name: p.name}}"
+                        tag="button">
+                            stats</router-link>
                         <router-link
-                            class="button is-outlined is-link is-small"
-                            v-if="serviceIsOn"
-                            v-text="linkCal"
-                            :to="{name: 'plantcalibrate', params: {name: p.name}}"/>
-                        <span v-text="linkCal" v-else/>
+                        class="button is-outlined is-small"
+                        :class="buttonCls"
+                        :disabled="!serviceIsOn"
+                        :to="{name: 'plantcalibrate', params: {name: p.name}}"
+                        tag="button">
+                            calibrate</router-link>
                     </div>
                 </div>
             </dl>
@@ -63,10 +66,7 @@ export default {
             status: '...loading plants from server...',
             creating: false,
             joined: false,
-            plants: [],
-            linkRef: 'refresh',
-            linkSta: 'stats',
-            linkCal: 'calibrate'
+            plants: []
         }
     },
     sockets: {
@@ -87,8 +87,11 @@ export default {
         plantStateCls () {
             return this.serviceIsOn ? 'act' : 'inact'
         },
-        statusClass () {
-            return this.serviceIsOn ? 'has-text-warning' : ''
+        buttonCls () {
+            return this.serviceIsOn ? 'is-link' : ''
+        },
+        badgeCls () {
+            return this.serviceIsOn ? 'badge is-badge-outlined is-badge-small is-badge-default' : ''
         }
     },
     watch: {
@@ -119,8 +122,9 @@ export default {
                 }
             })
         },
-        wsRefreshPlant (plant) {
+        wsRefreshPlant (plant, e) {
             this.$socket.emit('initiate_plant_measuring', plant.name)
+            e.target.blur()
         },
         addOrUpdatePlant (plant) {
             if (this.plants.length === 0) {
@@ -153,6 +157,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$transition: 0.5s all;
+
 .plant-list {
     padding: 0;
     margin: 0;
@@ -161,7 +167,7 @@ export default {
         display: inline-block;
         margin: 0 25px 50px;
         border-radius: 0.33rem;;
-        transition: 0.5s color;
+        transition: $transition;
         &.act {
             box-shadow: 0px 0px 14px 4px $primary;
             color: $default-text-color;
@@ -187,8 +193,11 @@ export default {
             overflow: hidden;
             padding: 0 0.15rem;
             margin: 0;
-            &:last-child {
+            &.toolbar {
                 padding: 0.20rem;
+                .button {
+                    transition: $transition;
+                }
             }
             > dt, > dd {
                 width: auto;

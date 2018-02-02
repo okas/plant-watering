@@ -1,62 +1,108 @@
 <template>
 <article>
-    <header>
-        <h3>Irrigation service cofiguration</h3>
-        <p>
-            You can evaluate and change configuration.<br/>
-            Service restart will be done only if service is started already.
-        </p>
-        <code>TODO: do something with json parsing order...</code>
-        <ul class="list-inline">
-            <li v-if="status" v-text="status" :class="statusClass"/>
-        </ul>
-    </header>
-    <ul class="list-inline activities">
-        <li>
-            <a href="" @click.prevent="wsGetServiceConfig" v-text="actionText"/>
-        </li>
-        <li v-if="hasConf">
-            <a href="" @click.prevent="modify=!modify" :class="stateClass">
-                modify</a>
-        </li>
-        <li v-if="hasConf && (worthSaving || modify)">
-            <a href="" @click.prevent="wsUpdateServiceConfig">
-                save and restart service</a>
-        </li>
-    </ul>
-    <ul v-if="hasConf && modify" class="list-inline activities">
-        <li>
-            <a href="" @click.prevent="addPlant">
-                add new plant</a>
-        </li>
-        <li>
-            <label for="p_r">
-                remove plant</label>
-            <select id="p_r" v-model="plantToRemove" :disabled="disableRemove" :title="selectTitle">
-                <option :value="null">
-                    ...chose...</option>
-                <option
-                    v-for="p in configData.content.plants_args_list"
-                    v-text="p.name"
-                    :key="p.name"/>
-            </select>
-        </li>
-    </ul>
-    <p v-if="hasConf && modify" class="has-text-warning">
-        Please, be very careful with changing configuration!
-        Saving faulty configuration might prevent to start service!
-        False GPIO pin settings most probably disables service or
-        it my behave in unexpected way and even burn down hardware.
-        You've been warned...
+<header>
+    <h3>Irrigation service cofiguration</h3>
+    <p>
+        You can evaluate and change configuration.<br/>
+        Service restart will be done only if service is started already.
     </p>
-    <tree-view
-        v-if="hasConf"
-        :data="configData.content"
-        @change-data="onTreeViewDataChange"
-        :options="{
-            rootObjectKey: configData.filename,
-            maxDepth: 3,
-            modifiable: this.modify}"/>
+    <code>TODO: do something with json parsing order...</code>
+    <ul class="list-inline">
+        <li v-if="status" v-text="status" :class="statusClass"/>
+    </ul>
+</header>
+<ul class="list-inline">
+    <li>
+        <button class="button is-rounded" @click="wsGetServiceConfig">
+            <transition name="fade" appear mode="out-in">
+                <f-a :icon="loaderIcon" :key="loaderIcon"/>
+            </transition>
+        </button>
+    </li>
+    <li v-if="hasConf">
+        <transition name="fade" appear>
+            <button
+            class="button is-rounded"
+            :class="stateClass"
+            @click="modify=!modify">
+                <f-a icon="edit"/>
+            </button>
+        </transition>
+    </li>
+    <li v-if="hasConf">
+        <transition name="fade" appear>
+            <button
+            class="button is-rounded"
+            :disabled="!modify"
+            @click="addPlant">
+                <f-a icon="plus"/>&nbsp;
+                <span>
+                    plant</span>
+            </button>
+        </transition>
+    </li>
+    <li v-if="hasConf">
+        <div class="dropdown" :class="isActivePlantRemoveCls" :title="plantRemoveTitle">
+            <div class="dropdown-trigger">
+                <transition name="fade" appear>
+                    <button
+                    class="button is-rounded"
+                    aria-haspopup="true"
+                    aria-controls="dropdown_menu"
+                    :disabled="disableRemove"
+                    @click.passive="togglePlantRemoveMenu">
+                        <f-a icon="minus"/>&nbsp;
+                        <span>
+                            plant</span>
+                    </button>
+                </transition>
+            </div>
+            <div class="dropdown-menu" id="dropdown_menu" role="menu">
+                <div class="dropdown-content">
+                    <div
+                    class="dropdown-item"
+                    @click="removePlant(p.name)"
+                    v-for="p in configData.content.plants_args_list"
+                    :key="p.name">
+                        <f-a icon="minus"/>&nbsp;
+                        <span v-text="p.name"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </li>
+    <li v-if="hasConf">
+        <transition name="fade" appear>
+            <button
+            class="button is-rounded"
+            @click="wsStoreServiceConfig"
+            :disabled="!worthSaving">
+                <f-a icon="upload"/>
+                <transition name="fade">
+                    <span v-if="restartIcon">
+                        &nbsp;<f-a icon="cog"/>
+                    </span>
+                </transition>
+            </button>
+        </transition>
+    </li>
+</ul>
+<p v-if="hasConf && modify" class="has-text-warning">
+    Please, be very careful with changing configuration!
+    Saving faulty configuration might prevent to start service!
+    False GPIO pin settings most probably disables service or
+    it my behave in unexpected way and even burn down hardware.
+    You've been warned...
+</p>
+<tree-view
+class="json-conf"
+v-if="hasConf"
+:data="configData.content"
+@change-data="onTreeViewDataChange"
+:options="{
+    rootObjectKey: configData.filename,
+    maxDepth: 3,
+    modifiable: this.modify}"/>
 </article>
 </template>
 
@@ -67,18 +113,34 @@ Vue.use(require('vue-json-tree-view'))
 const debug = process.env.NODE_ENV !== 'production'
 var counter = 0
 
+const plantTemplate = {
+    'name': 'Lill ',
+    'valve_pin': -1,
+    'led_pin': -1,
+    'moist_percent': 65,
+    'pour_millilitres': 50,
+    'sensor_args': {
+        'spi_device': -1,
+        'spi_channel': -1,
+        'vcc_pin': -1,
+        'wet_value': 0.44,
+        'dry_value': 0.85
+    }
+}
+
 export default {
     name: 'service-configuration',
     data () {
         return {
             status: '',
-            configData: '',
+            configData: {},
             modify: false,
-            worthSaving: false
+            worthSaving: false,
+            isActivePlantRemoveCls: ''
         }
     },
     computed: {
-        selectTitle () {
+        plantRemoveTitle () {
             return this.disableRemove ? 'cannot remove single plant' : ''
         },
         statusClass () {
@@ -88,28 +150,28 @@ export default {
             return this.modify ? 'has-text-primary' : 'has-text-warning'
         },
         disableRemove () {
-            return this.configData.content.plants_args_list.length <= 1
-        },
-        plantToRemove: {
-            get () { return null },
-            set (name) { this.removePlant(name) }
+            return !this.hasConf || this.configData.content.plants_args_list.length <= 1
         },
         hasConf () {
+            // TODO use schema to verifiy correct config existence
             return this.configData && Object.keys(this.configData).length > 0
         },
-        actionText () {
-            return !this.hasConf ? 'load from server' : 'reload from server'
+        loaderIcon () {
+            return !this.hasConf ? 'download' : 'sync'
+        },
+        restartIcon () {
+            return this.$store.state.irrigation.state === 'on'
         }
     },
     methods: {
-        wsGetServiceConfig () {
+        wsGetServiceConfig (e) {
             this.modify = this.worthSaving = false
             this.$socket.emit('get_service_config', (data) => {
                 this.status = ''
                 this.configData = data
             })
         },
-        wsUpdateServiceConfig () {
+        wsStoreServiceConfig () {
             this.modify = false
             if (!this.worthSaving) {
                 return
@@ -118,6 +180,9 @@ export default {
             this.$socket.emit('store_service_config_and_restart',
                 this.configData, (type, msg) => {
                     this.status = type ? msg : ''
+                    if (type !== 'error') {
+                        this.configData = null
+                    }
                     if (debug && type !== 'info') {
                         console.log(`${type}: ${msg}`)
                     }
@@ -135,20 +200,9 @@ export default {
             }
             this.worthSaving = true
             // TODO: automate this schema retreival somehow :)
-            plants.push({
-                'name': `Lill ${++counter}`,
-                'valve_pin': -1,
-                'led_pin': -1,
-                'moist_percent': 65,
-                'pour_millilitres': 50,
-                'sensor_args': {
-                    'spi_device': -1,
-                    'spi_channel': -1,
-                    'vcc_pin': -1,
-                    'wet_value': 0.44,
-                    'dry_value': 0.85
-                }
-            })
+            var newPlant = Object.assign({}, plantTemplate)
+            newPlant.name += ++counter
+            plants.push(newPlant)
             this.status = 'please calibrate new plant\'s sensor before usage'
         },
         removePlant (name) {
@@ -157,31 +211,52 @@ export default {
             }
             this.worthSaving = true
             var plants = this.configData.content.plants_args_list
-            const index = plants.findIndex(p => p.name === name)
-            if (index !== -1) {
-                plants.splice(index, 1)
-            } else {
-                this.status = 'plant you were trying to remove do not existn in array'
+            const temp = JSON.parse(
+                JSON.stringify(
+                    plants.filter(
+                        p => p.name !== name))
+            )
+            plants.splice(0)
+            this.$nextTick(() => temp.forEach(p => plants.push(p)))
+            this.togglePlantRemoveMenu(true)
+        },
+        togglePlantRemoveMenu (force = false) {
+            if (!force && this.disableRemove) {
+                return
+                // TODO show message here
             }
+            this.isActivePlantRemoveCls = this.isActivePlantRemoveCls
+                ? ''
+                : 'is-active'
         }
     }
 }
 </script>
 
-<style>
-.tree-view-wrapper > div > div > div.tree-view-item-node > span.tree-view-item-key {
+<style lang="scss">
+.json-conf.tree-view-wrapper > div > div > div.tree-view-item-node
+> span.tree-view-item-key {
     font-size: large;
     color: #980303;
 }
 </style>
 
-<style scoped>
-.tree-view-wrapper, pre {
+<style lang="scss" scoped>
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to {
+    opacity: 0;
+}
+.button {
+    transition: 0.5s all;
+}
+.dropdown-item {
+    cursor: pointer;
+}
+.tree-view-wrapper {
     text-align: left;
     margin: 1em;
-}
-.activities > *:not(:first-child)::before{
-    content: " | ";
 }
 hr {
     border-style: ridge;

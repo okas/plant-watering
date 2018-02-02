@@ -25,7 +25,8 @@ module.exports = {
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
-      '@globalsScss' : resolve('src/assets/globals.scss')
+      '@globalsScss': resolve('src/assets/globals.scss'),
+      '@fas-icons': '@fortawesome/fontawesome-free-solid'
     }
   },
   module: {

@@ -1,14 +1,13 @@
 import logging
 import blinker
-from .. _globals import io
+from .. _globals import io, io_connect_message_fmt
 from .. import _utils
 from . import signals
 from . import service
+from . __init__ import ns, room_pw
 
 
 log = logging.getLogger(__name__)
-ns = '/irrigation'
-room_pw = 'plantwatcher'
 
 
 def make_plant_vm(plant):

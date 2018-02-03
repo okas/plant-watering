@@ -2,18 +2,14 @@ import os
 import logging
 from flask import current_app, request
 from flask_socketio import Namespace, join_room, leave_room
-from .. _globals import io
+from .. _globals import io, io_connect_message_fmt
 from .. import _utils
 from . import ws_broadcasts
 from . import service
+from . __init__ import ns, room_pw
 
-
-#TODO: See dependency handling possibilities near disconnect()
-# See: https://github.com/miguelgrinberg/Flask-SocketIO/blob/master/flask_socketio/__init__.py
 
 log = logging.getLogger(__name__)
-ns = '/irrigation'
-room_pw = 'plantwatcher'
 
 
 class IrrigationNamespaceHandlers(Namespace):
@@ -21,14 +17,12 @@ class IrrigationNamespaceHandlers(Namespace):
         super().__init__(ns);
 
     def on_connect(self):
-        log.info('~~#~~#~~#~~ connected; ns: [%s], client: [%s]'
-            % (ns, request.sid))
+        log.info(io_connect_message_fmt.format('connected', ns, request.sid))
         self.emit('service_status', service.get_state(), room=request.sid)
 
     def on_disconnect(self):
         self._leave_room_and_cleanup()
-        log.info('~~#~~#~~#~~ disconnected; ns: [%s], client: [%s]'
-            % (ns, request.sid))
+        log.info(io_connect_message_fmt.format('disconnected', ns, request.sid))
 
     @io.on_error(ns)
     def on_error(e):

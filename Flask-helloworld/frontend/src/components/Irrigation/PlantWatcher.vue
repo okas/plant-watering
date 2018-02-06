@@ -10,7 +10,8 @@
                 class="h1"
                 :class="badgeCls"
                 v-text="p.name"
-                :data-badge="p._ticker"/>
+                :data-badge="p._ticker"
+                />
                 <div class="horizontal status">
                     <dt class="is-pulled-left">state:</dt>
                     <dd v-text="p.state" class="is-pulled-aligned-right"/>
@@ -33,22 +34,22 @@
                         class="button is-outlined is-small"
                         :class="buttonCls"
                         :disabled="!serviceIsOn"
-                        @click="wsRefreshPlant(p, $event)">
-                            refresh</button>
+                        @click="wsRefreshPlant(p, $event)"
+                        >refresh</button>
                         <router-link
                         class="button is-outlined is-small"
                         :class="buttonCls"
                         :disabled="!serviceIsOn"
                         :to="{name: 'plantstats', params: {name: p.name}}"
-                        tag="button">
-                            stats</router-link>
+                        tag="button"
+                        >stats</router-link>
                         <router-link
                         class="button is-outlined is-small"
                         :class="buttonCls"
                         :disabled="!serviceIsOn"
                         :to="{name: 'plantcalibrate', params: {name: p.name}}"
-                        tag="button">
-                            calibrate</router-link>
+                        tag="button"
+                        >calibrate</router-link>
                     </div>
                 </div>
             </dl>

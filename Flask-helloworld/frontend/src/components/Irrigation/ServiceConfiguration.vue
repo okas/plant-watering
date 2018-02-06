@@ -1,11 +1,12 @@
 <template>
 <article>
 <header>
-    <h3>Irrigation service cofiguration</h3>
+    <h3>
+        Irrigation service cofiguration</h3>
     <p>
         You can evaluate and change configuration.<br/>
         Service restart will be done only if service is started already.
-    </p>
+        </p>
     <code>TODO: do something with json parsing order...</code>
     <ul class="list-inline">
         <li v-if="status" v-text="status" :class="statusClass"/>

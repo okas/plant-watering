@@ -14,11 +14,9 @@ import ServiceConfiguration from './ServiceConfiguration'
 
 export default {
     name: 'service',
+    head: { title: { inner: 'Manage Irrigation' } },
     components: {
         ServiceStatus, ServiceConfiguration
-    },
-    head: {
-        title: { inner: 'Manage Irrigation' }
     }
 }
 </script>

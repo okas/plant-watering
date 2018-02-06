@@ -1,49 +1,53 @@
 <template>
 <main class="content is-clearfix">
-    <header class="has-text-centered">
-        <h1>
-            Plant Irrigation Module</h1>
-    </header>
-    <aside id="irrigation_aside">
-        <section>
-            <h5>
-                Overview</h5>
-            <ul class="list-style-none is-clearfix">
-                <li class="tags has-addons">
-                    <span class="tag is-pulled-left is-white">
-                        Service</span>
-                    <span
-                        class="tag is-rounded"
-                        :class="generalStatusClass"
-                        v-if="showSvcState"
-                        v-text="state"/>
-                    <router-link
-                        class="tag is-rounded"
-                        :class="generalStatusClass"
-                        :to="{name: 'irrigationservice'}"
-                        v-else>
-                        see error info</router-link>
-                </li>
-                <li class="tags has-addons">
-                    <span class="tag is-pulled-left is-white">
-                        Water level</span>
-                    <span
-                        class="tag is-rounded"
-                        :class="waterLeveCls"
-                        v-text="waterLevel"/>
-                </li>
-                <li class="tags has-addons">
-                    <span class="tag is-pulled-left is-white">
-                        Water used</span>
-                    <span
-                        class="tag is-rounded"
-                        :class="waterConsumCls"
-                        v-text="waterConsum"/>
-                </li>
-            </ul>
-        </section>
-    </aside>
-    <router-view/>
+<header class="has-text-centered">
+    <h1>
+        Plant Irrigation Module</h1>
+</header>
+<aside id="irrigation_aside">
+    <section>
+        <h5>
+            Overview</h5>
+        <ul class="list-style-none is-clearfix">
+            <li class="tags has-addons">
+                <span class="tag is-pulled-left is-white">
+                    Service</span>
+                <span
+                class="tag is-rounded"
+                :class="generalStatusClass"
+                v-if="showSvcState"
+                v-text="state"
+                />
+                <router-link
+                class="tag is-rounded"
+                :class="generalStatusClass"
+                :to="{name: 'irrigationservice'}"
+                v-else
+                >
+                    see error info</router-link>
+            </li>
+            <li class="tags has-addons">
+                <span class="tag is-pulled-left is-white">
+                    Water level</span>
+                <span
+                class="tag is-rounded"
+                :class="waterLeveCls"
+                v-text="waterLevel"
+                />
+            </li>
+            <li class="tags has-addons">
+                <span class="tag is-pulled-left is-white">
+                    Water used</span>
+                <span
+                class="tag is-rounded"
+                :class="waterConsumCls"
+                v-text="waterConsum"
+                />
+            </li>
+        </ul>
+    </section>
+</aside>
+<router-view/>
 </main>
 </template>
 

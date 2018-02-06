@@ -32,7 +32,7 @@ export default {
     name: 'app-footer',
     data () {
         return {
-            quickDashRevelaed: true
+            quickDashRevelaed: false
         }
     },
     computed: {

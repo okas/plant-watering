@@ -110,6 +110,7 @@ v-if="hasConf"
 import Vue from 'vue'
 Vue.use(require('vue-json-tree-view'))
 
+const ns = 'irrigation'
 const debug = process.env.NODE_ENV !== 'production'
 var counter = 0
 
@@ -162,6 +163,10 @@ export default {
         restartIcon () {
             return this.$store.state.irrigation.state === 'on'
         }
+    },
+    socket: {
+        namespace: `/${ns}`,
+        options: { multiplexNamespace: true }
     },
     methods: {
         wsGetServiceConfig (e) {

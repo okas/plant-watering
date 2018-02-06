@@ -39,7 +39,9 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapState } = createNamespacedHelpers('irrigation')
+
+const ns = 'irrigation'
+const { mapState } = createNamespacedHelpers(ns)
 
 export default {
     name: 'service-status',
@@ -79,6 +81,10 @@ export default {
                 }
             }
         })
+    },
+    socket: {
+        namespace: `/${ns}`,
+        options: { multiplexNamespace: true }
     },
     methods: {
         wsToggleState () {

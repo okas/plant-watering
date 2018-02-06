@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import store from './store'
 import router from './router'
-import VueSocketio from 'vue-socketio'
+import SocketioPlugin from '../vue-plugins/vue-socket.io-multiplex-namespace.js'
 import VueHead from 'vue-head'
 import VueFontAwsome from '@fortawesome/vue-fontawesome'
 import fontawesome from '@fortawesome/fontawesome'
@@ -16,11 +16,9 @@ Vue.use(VueHead, {
     complement: 'SaarTK'
 })
 
-Vue.use(VueSocketio,
-    '/irrigation',
-    { forceNew: false }/* must have at least empty object! */,
-    store
-)
+Vue.use(SocketioPlugin, '/', {
+    forceNew: true
+})
 
 Vue.component('f-a', VueFontAwsome)
 

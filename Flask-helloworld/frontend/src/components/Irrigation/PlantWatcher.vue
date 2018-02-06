@@ -58,6 +58,8 @@
 </template>
 
 <script>
+const ns = 'irrigation'
+
 export default {
     name: 'plant-watcher',
     head: { title: { inner: 'Plant watcher' } },
@@ -67,17 +69,6 @@ export default {
             creating: false,
             joined: false,
             plants: []
-        }
-    },
-    sockets: {
-        update_plant_status (data) {
-            if (!data) {
-                this.status = 'server initiated plant status update, but no data was sent.'
-                this.statusClass = 'is-danger'
-                return
-            }
-            this.addOrUpdatePlant(data)
-            this.status = ''
         }
     },
     computed: {
@@ -105,14 +96,33 @@ export default {
             }
         }
     },
+    socket: {
+        namespace: `/${ns}`,
+        options: { multiplexNamespace: true },
+        events: {
+            update_plant_status (data) {
+                if (!data) {
+                    this.status = 'server initiated plant status update, but no data was sent.'
+                    this.statusClass = 'is-danger'
+                    return
+                }
+                this.addOrUpdatePlant(data)
+                this.status = ''
+            }
+        }
+    },
     methods: {
         wsJointPlantwatcherRoom (isCreator = false) {
             if (this.joined || (this.creating && !isCreator)) {
                 return
             }
             this.$socket.emit('join_room_plantwatcher', data => {
+                if (!data) {
+                    console.error('cannot join to room [plantwatcher], server did\'t respond')
+                    return
+                }
                 this.joined = true
-                console.log(`joined to room [plantwatcher]; status [${data}]`)
+                console.info(`joined to room [plantwatcher]; status [${data}]`)
                 if (this.serviceIsOn) {
                     this.$socket.emit('push_me_all_plants', () => {
                         this.creating = false

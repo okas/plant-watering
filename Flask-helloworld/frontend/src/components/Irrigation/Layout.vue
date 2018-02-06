@@ -49,7 +49,9 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapState } = createNamespacedHelpers('irrigation')
+
+const ns = 'irrigation'
+const { mapState, mapMutations } = createNamespacedHelpers(ns)
 
 export default {
     name: 'irrigation-layout',
@@ -95,8 +97,34 @@ export default {
             }
         })
     },
+    socket: {
+        namespace: `/${ns}`,
+        options: { multiplexNamespace: true },
+        events: {
+            connect () {
+                console.info(`~ ~ [${ns}] socket connected`)
+                this.setApiOnConnect(this.$socket.id)
+            },
+            disconnect (reason) {
+                // might not work correctly or aside retains stat state based on store.
+                // result is taht if browsing back to this route then aside already
+                // has 'last' connected state already waiting.
+                console.log(`~ ! ~ [irrigation] socket disconnected, reson: [${reason}].`)
+                this.setApiOnDisconnect(this.$socket.id)
+            },
+            ...mapMutations({
+                service_status: 'setServiceStatus',
+                water_supply_state: 'setServiceStatus',
+                water_consumed_changed: 'setServiceStatus'
+            })
+        }
+    },
     methods: {
-        _getWaterLevelState: s => s.state === 'on' && this.waterConsum !== 'n/a'
+        _getWaterLevelState: s => s.state === 'on' && this.waterConsum !== 'n/a',
+        ...mapMutations([
+            'setApiOnConnect',
+            'setApiOnDisconnect'
+        ])
     }
 }
 </script>

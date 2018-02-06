@@ -24,19 +24,8 @@
             Manage service</router-link>
         </div>
       </div>
-      <div class="navbar-item has-dropdown is-hoverable" aria-label="dropdown navigation">
-        <a class="navbar-link">
-          Windows blinds</a>
-        <div class="navbar-dropdown is-boxed">
-          <a class="navbar-item">
-            Do something 1 </a>
-          <a class="navbar-item">
-            Do something 2 </a>
-          <hr class="navbar-divider">
-          <a class="navbar-item">
-            Manager service</a>
-        </div>
-      </div>
+        <router-link :to="{name: 'blindscontrol'}" class="navbar-item">
+            Window blinds</router-link>
     </div>
     <div class="navbar-end">
       <router-link to="/about" class="navbar-item">

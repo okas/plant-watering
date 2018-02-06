@@ -7,6 +7,7 @@ import flask_cors
 from . _globals import io
 from . import http_routes
 from . irrigation import service as irrigation_service # for pckg API
+from . import windowblind
 
 
 log = logging.getLogger(__name__)

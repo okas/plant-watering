@@ -26,7 +26,8 @@ module.exports = {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
       '@globalsScss': resolve('src/assets/globals.scss'),
-      '@fas-icons': '@fortawesome/fontawesome-free-solid'
+      '@fas-icons': '@fortawesome/fontawesome-free-solid',
+      '@far-icons': '@fortawesome/fontawesome-free-regular'
     }
   },
   module: {

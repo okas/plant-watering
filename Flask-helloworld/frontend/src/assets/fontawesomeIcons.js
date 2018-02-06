@@ -7,6 +7,9 @@ export default function () {
         require('@fas-icons/faPlus'),
         require('@fas-icons/faMinus'),
         require('@fas-icons/faAngleDown'),
-        require('@fas-icons/faCog')
+        require('@fas-icons/faCog'),
+        require('@fas-icons/faChevronUp'),
+        require('@fas-icons/faChevronDown'),
+        require('@far-icons/faSquare')
     ]
 }

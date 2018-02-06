@@ -31,6 +31,17 @@ const routerOptions = [
         ]
     },
     {
+        path: '/windowblind',
+        component: 'Windowblind/Layout',
+        children: [
+            {
+                path: '',
+                name: 'blindscontrol',
+                component: 'Windowblind/Control'
+            }
+        ]
+    },
+    {
         path: '/about',
         component: 'About'
     },
